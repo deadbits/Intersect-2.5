@@ -1,0 +1,67 @@
+
+# Finds and saves network information such as listening ports, firewall rules, DNS configurations, network interfaces and active connections.
+def network():
+    print("[+] Collecting network info: services, ports, active connections, dns, gateways, etc...")
+    os.mkdir(Temp_Dir+"/network")
+    networkdir = (Temp_Dir+"/network")
+    os.chdir(networkdir) 
+
+    proc = Popen('netstat --tcp --listening',
+         shell=True,
+         stdout=PIPE,
+         )
+    output = proc.communicate()[0]
+
+    file = open("nstat.txt","a")
+    for items in output:
+        file.write(items),
+    file.close() 
+
+    os.system("lsof -nPi > lsof.txt")
+    ports = ["nstat.txt","lsof.txt"]
+    content = ''
+    for f in ports:
+        content = content + '\n' + open(f).read()
+    open('Connections.txt','wb').write(content)
+    os.system("rm nstat.txt lsof.txt")
+    if whereis('iptables') is not None:
+        os.system("iptables -L -n > iptablesLN.txt") 
+        os.system("iptables-save > iptables_save.txt")
+    else:
+        pass
+
+    os.system("ifconfig -a > ifconfig.txt")
+
+
+    if distro == "ubuntu" or distro2 == "Ubuntu" is True:
+        os.system("hostname -I > IPAddresses.txt")
+    else:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("google.com",80))
+        localIP = (s.getsockname()[0])
+        s.close()
+        splitIP = localIP.split('.')
+        splitIP[3:] = (['0/24'])
+        IPRange = ".".join(splitIP)
+        externalIP = ip = urllib2.urlopen("http://myip.ozymo.com/").read()
+        file = open("IPAddresses.txt", "a")
+        file.write("External IP Address: " + externalIP)
+        file.write("Internal IP Address: " + localIP)
+        file.write("Internal IP Range: " + IPRange)
+        file.close
+   
+    os.system("hostname -f > hostname.txt")
+   
+    netfiles = ["IPAddresses.txt","hostname.txt","ifconfig.txt"]
+    content = ''
+    for f in netfiles:
+        content = content + '\n' + open(f).read()
+    open('NetworkInfo.txt','wb').write(content)
+    os.system("rm IPAddresses.txt hostname.txt ifconfig.txt")
+
+    network = [ "/etc/hosts.deny", "/etc/hosts.allow", "/etc/inetd.conf", "/etc/host.conf", "/etc/resolv.conf" ]
+    for x in network:
+        if os.path.exists(x) is True:
+            shutil.copy2(x, networkdir)
+   
+

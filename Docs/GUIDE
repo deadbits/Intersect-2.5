@@ -1,0 +1,103 @@
+Intersect 2.5 - Documentation
+How-To Guide
+
+Table Of Contents
+* Create.py
+* Building custom scripts
+* Using your finished script
+
+
+
+						[ Create.py Application ]
+
+The Create application is the core application within the Intersect 2.5 framework.
+The main focus of Create is to help you in building customized Intersect scripts, but it can also be used for importing
+new modules from a local file or webserver, viewing their descriptions or author information, check for updates to the
+Intersect framework and some other creation-centric features.
+
+Create.py is a menu-driven script that guides you through the process of building your custom script.
+When you start Create you will be brought to the Main Menu, where you can choose whether to build a new script, import
+a new module or view a list of all currently available modules within the Custom and Standard directories.
+
+Within any menu of Create, you can type ':help' to be presented with a detailed list of commands for the specific menu
+you are in. You can also type ':exit' or ':quit' at any menu to be brought back to the Main Menu or completely exit
+the application, if you are all ready there.
+
+Main Menu:
+	1 => Create Custom Script
+	2 => List Available Modules
+	3 => Load Plugin Module
+	4 => Check for updates
+	5 => Exit Creation Utility
+
+
+
+
+						[ Building Custom Scripts ]
+
+The entire purpose of Intersect 2.5 is to help you create custom post-exploitation scripts. This is done by using the
+Create application and selecting option '1' from the Main Menu.
+
+After you select the first option from the Main Menu, you'll be presented with a quick tutorial on how the creation
+process works and how to add modules to your script.
+At any point during this process you can type ':help' for a full list of commands or type ':quit' to return to the main
+menu.
+
+Enter the name of each module you wish to add to your script, pressing [enter] after each addition.
+Once you've added everything you want included, type ':create' to start the build process.
+You'll then be prompted to enter a name for your script and define some options for things like encryption keys and
+ports.
+The entries will checked to make sure your entries are valid. If you enter an invalid IP address or port, you will be
+notified and asked to re-enter the correct information.
+
+After all the options are saved, your script will be built.
+You'll be shown a list of all the modules that were built into the script and the location where the final product is
+saved.
+
+[Example of :create command] 
+	 =>  :create
+	Enter a name for your Intersect script. The finished script will be placed in the Scripts directory.
+	Do not include Python file extension.
+	 =>  TutorialTest
+	Script will be saved as /home/ohdae/Git/Intersect-2.5/Scripts/TutorialTest.py
+
+	Configure Options:
+	If any of these options don't apply to you, press [enter] to ignore them.
+	bind port  =>  4444
+	[+] bind port saved.
+	remote host  =>  
+	[+] remote host saved.
+	remote port  =>  
+	[+] remote port saved.
+	proxy port  =>  
+	[+] proxy port saved.
+	xor cipher key  =>  
+	[+] xor key saved.
+	bshell
+	extras
+	network
+
+	[+] Your custom Intersect script has been created!
+   	    Location: /home/ohdae/Git/Intersect-2.5/Scripts/TutorialTest.py
+
+
+
+
+						[ Using your custom Intersect script ]
+
+There is a large variety of ways you can use your Intersect script. The options are only limited by the modules you
+choose for each script.
+
+The most straight-forward and common method of use is uploading or downloading the Intersect script onto a target system
+and then running the post-exploitation automation tasks right from the command line.
+
+If you do not have direct shell access, you can still make full use of Intersect and run any of the includes modules
+over any of the remote shells (TCP, XOR, ICMP, UDP, AES, etc).
+This might occur in a situation where you only have command execution access on the target host, through a vulnerable
+web application for example. 
+In that case, simply wget the Intersect script onto the target box and execute "./Intersect.py --rshell", for example,
+to start an interactive reverse shell back to your listening box. Once you get a successfull connection, you can run any
+of the included modules over the shell by using the 'extask' command.
+For a full list of commands and help within any of the remote shells, type 'helpme'.
+
+

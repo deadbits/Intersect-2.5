@@ -1,0 +1,26 @@
+
+# Finds various source code repositories and management tools. Git, SVN, Trac, Gitolite, etc.
+def getrepos():
+    os.mkdir(Temp_Dir+"/repos")
+    repodir = (Temp_Dir+"/repos")
+    os.chdir(repodir)
+    
+    if whereis('git') is not None:
+	os.system("find ~/ /home -name *.git > GitRepos.txt")
+        proc = Popen('cat /home/*/.gitconfig',
+               shell=True,
+               stdout=PIPE,
+               )
+        output = proc.communicate()[0]
+	file = open("GitRepos.txt","a")
+        file.write(output),
+        file.close()
+
+    if whereis('svn') is not None:
+        os.system("/usr/bin/find / -name *.svn > SvnRepos.txt")
+
+    # Add search for Trac and trac www home locations
+    # Add faster search for SVN so it doesn't take 10 years to finish
+    # Fix cat /home/*/.gitconfig search
+    # Add search for gitolite, git-web locations, etc
+       

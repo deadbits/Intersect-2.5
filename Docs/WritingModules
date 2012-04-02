@@ -1,0 +1,226 @@
+Intersect 2.5 - Documentation
+How To Write Custom Modules
+
+Tables of Contents
+* Module Format
+* Writing
+* Built-in Functions & Global Variables
+* Importing
+
+Note: The best way to get an idea of the module format is to view the source code for any of the current modules.
+The 'egressbuster' Custom module is a good example to start with because it makes use of the global variables and more
+than one Python function.
+
+
+
+                                              [ Module Format ]
+
+The entire Intersect 2.5 framework and every module included is pure Python, based mainly on the core Python libraries.
+
+Each module must start on the second line of the file. This line is used to place a comment that explains a short
+description and any author information about that module. 'Line X:' is included just for demonstration purposes, do not
+include that text. 
+Example => 
+
+Line 1:
+Line 2: # This is a sample module description. Written by A. Hacker.
+
+The next section of the module is the actual code that will be executed when we call the module function from the
+command line. As of right now, each module is simply a Python function or a collection of functions. In the near future,
+this will most likely be changed to implement classes so we can better handle larger and more complex modules.
+
+The name of your function should correlate to the modules task. For example, the Standard bindshell module is saved as
+'bshell' and the function is called 'bshell.' This is because Create takes the modules filename and uses that for the
+getopt option that is called from the command line. 
+Example =>
+
+Line 1:
+Line 2: # This is a basic TCP bind shell
+Line 3: def function():
+Line 4:     print("Insert some code here!")
+
+The above example would be saved as a file named "function" within the Modules/Custom directory.
+When Create adds that module to the custom script, getopt will take the first letter of the filename for the short option
+and take the whole name for the long option.
+So, the module called 'function' with the function 'function()' becomes '-f' or '--function' from the command line.
+When you execute ./Script.py -f or ./Script.py --function, the Script will attempt to call the function function().
+
+If you don't name the module filename and function correctly, there will be errors when trying to call the function.
+
+To recap the full format of a module and how Create calls that module, view the example below.
+
+
+*Sample Module*
+Line 1:
+Line 2: # This is a sample module description. Written by A. Hacker.
+Line 3: def function():
+Line 4:     print("This is my example module!")
+Line 5:     if os.path.exists("/etc/passwd") is True:
+Line 6:         print("We found the passwd file!")
+
+
+
+*Sample GetOpt* (This is generated automatically by the Create application)
+def main(argv):
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], 'fh', ['function', 'help'])
+    except getopt.GetoptError, err:
+        print str(err)
+        Shutdown()
+    for o, a in opts:
+        if o in ('-h', '--help'):
+            usage()
+            Shutdown()
+            sys.exit(2)
+        elif o in ('-f', '--function'):
+            function()
+
+
+
+*Sample Command Line Usage*
+root@system:~$ ./Script.py --function
+This is my sample module!
+We found the passwd file!
+
+root@system:~$ ./Script.py --help
+intersect 2.5 | custom version
+http://bindshell.it.cx | ohdae
+Modules:
+   -f    --function
+   -h    --help
+
+
+
+
+                                                [ Writing Modules ]
+
+Now that you have the general idea of the module format, this section will briefly explain how to write custom modules.
+Writing your own modules is almost indentical to writing a regular Python script, only with a few slight changes.
+If you all ready know Python, you'll find this very straight forward.
+
+* You do not need to define getopt or any usage information. This will be generated on the fly by Create.
+
+* You do not need to import libraries, unless you need to use one that is not included in the Script Template file.
+  -- The Script Template includes alot of the usually needed Python libraries. For a full list, view the file in the
+     src/Templates/ directory. 
+  -- If you import a module that is not part of the Python standard libraries, make sure you call an Import exception
+     in case the target system does not have that library installed on their system.
+  -- If you want to use a 3rd party library that you know the target system does not have installed, you can either
+     install the module manually via pip or uploading the files or use an application like cx_Freeze or PyInstaller
+     to package all the needed libraries with your script and create a standalone executable file.
+
+     Example:
+         def function1():
+             try:
+                 import Impacket
+	           except ImportError:
+    	           print("[!] Python library Impacket is not installed!")
+                 Shutdown()
+                 sys.exit(0)
+
+* Many of the global variables are all ready defined in the Script Template. This covers most remote shell variables,
+  temporary directories, etc. 
+  For example, if you are writing a remote shell module you do not need to define HOST, PORT, RHOST, RPORT, etc. because
+  you are prompted for that information during the Create process and they are saved as global variables to the final
+  script.
+
+* Defining arguments:
+      To define arguments, simply do this inside of your modules function. If your module requires the user supplies
+      a file name, specify that in the Description line and add a line of code to your module like this:
+      filename = sys.argv[2]
+
+      Note: This will be better implemented in the future to include any needed arguments in the Usage menu.
+
+* Using Classes:
+      If you are writing a larger module that makes use of Python classes, you only need to make one slight change
+      within the final custom script. This is done to ensure that getopt calls the correct class and function when
+      calling your module. Make this change in the Scripts/YourScript.py file after you've finished with Create.
+      
+      Getopt WITHOUT Class:
+          elif o in ('-f', '--function'):
+            function()
+
+      Getopt WITH Class:
+          elif o in ('-f', '--function'):
+            classname.function()
+
+* Making use of the Temporary Directories (lift-*/)
+      Intersect 2.5 saves any gathered information and files to a series of temporary directories within the target
+      systems /tmp/ folder. We create a folder called /tmp/lift+$randomstring.
+      The temporary directory for each session is saved as the global variable Temp_Dir.
+      To create subfolders of your sessions temporary directory, simply do something like:
+          os.system("mkdir %s/MyModulesStuff" % Temp_Dir)
+      This will create the folder /tmp/lift-$randomstring/MyModulesStuff where you can save files and other information
+      that your module creates or uses.
+
+      Every time Intersect 2.5 exits, we check to see if the temporary directory is empty and unused. If it is, we delete
+      the directory so we don't just leave a bunch of random directories behind.
+      But if there is files saved into the lift+$randomstring directory or any of the subfolders, they are kept until
+      you or your module manually removes them.
+
+      If you want your module to shut down the Intersect script and check if lift+$randonstring contains any files,
+      just call the built-in Shutdown() function followed by sys.exit(0)
+
+
+
+
+                                        [ Built-in Functions & Variables ]
+
+      The table below details the other built-in variables and functions that you can make use of for your modules.
+      Feel free to edit the Script_Template file to add or change whatever you need.
+      
+      Variable or Function                     Assigned Task
+      --------------------                    --------------
+      list:     modList                       list of all included module names
+      variable: Temp_Dir                      lift+$randomstring directory
+      variable: Home_Dir                      os.environ['HOME']
+      variable: User_Ip_Address               socket.gethostbyname(socket.gethostname())
+      variable: distro                        os.uname()[1]
+      variable: distro2                       platform.linux_distribution()[0]
+      variable: PORT                          listen port defined using Create
+      variable: RHOST                         remote host defined using Create (*your* IP address, not the targets)
+      variable: RPORT                         remote port defined using Create (*your* listening port, not the targets)
+      variable: PPORT                         proxy port defined using Create
+      variable: PKEY                          private cipher key defined using Create
+      variable: UTMP_FILEPATH                 "/var/run/utmp"
+      variable: WTMP_FILEPATH                 "/var/run/wtmp"
+      variable: LASTLOG_FILEPATH              "/var/log/lastlog"
+      variable: Rand_Dir                      ''.join(random.choice(string.letters) for i in xrange(12))
+      function: Shutdown()                    Checks for files in Temp_Dir. If no files exist, deletes directory.
+      function: signalHandler()               Catch for Ctrl+C. Calls Shutdown() and exits script clean.
+      function: whereis(app)                  Checks system PATH for existence of app.
+
+
+
+
+                                          [ Importing Your Modules ]
+
+After you're done writing your module, you are going to want to import it into the framework so you can use it
+within custom scripts and the Create application. This is very easy to do and can be done in one of two ways.
+
+
+* Method One (manual)
+
+      Simply copy or save the module you wish to import into the src/Modules/Custom/ directory.
+      After you've placed your module in the Custom directory, restart Create and you're all done.
+
+
+* Method Two (via Create)
+
+      1. Execute Create.py and select option '3' from the main menu.
+             3 => Load Plugin Module
+      2. To import a local module that is stored on your system, select option '1'
+             1 => Load module by filename
+        2a. To download an import a module from a webserver, select option '2'
+               2 => Download and import module
+      3. Enter the full path of your locally stored module into the option '1' prompt.
+         This will copy the module from it's location into the src/Modules/Custom/ directory.
+        3a. Enter the URL with filename into the option '2' prompt.
+            This will download the module from the specified webserver and save it to the src/Modules/Custom/ directory.
+
+      If everything worked the way it should, you will see the following message and be returned to the Main Menu:
+      "[+] Module successfully loaded into the custom modules directory!"
+
+
+
+          

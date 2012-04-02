@@ -1,0 +1,47 @@
+Intersect 2.5 - Documentation
+How-To Guide
+
+Table Of Contents
+* Create.py
+* Building custom scripts
+* Using your finished script
+
+
+
+											[ Create.py Application ]
+
+The Create application is the core application within the Intersect 2.5 framework.
+The main focus of Create is to help you in building customized Intersect scripts, but it can also be used for importing
+new modules from a local file or webserver, viewing their descriptions or author information, check for updates to the
+Intersect framework and some other creation-centric features.
+
+Create.py is a menu-driven script that guides you through the process of building your custom script.
+When you start Create you will be brought to the Main Menu, where you can choose whether to build a new script, import
+a new module or view a list of all currently available modules within the Custom and Standard directories.
+
+Within any menu of Create, you can type ':help' to be presented with a detailed list of commands for the specific menu
+you are in. You can also type ':exit' or ':quit' at any menu to be brought back to the Main Menu or completely exit
+the application, if you are all ready there.
+
+Main Menu:
+	1 => Create Custom Script
+	2 => List Available Modules
+	3 => Load Plugin Module
+	4 => Check for updates
+	5 => Exit Creation Utility
+
+
+
+
+											[ Building Custom Scripts ]
+
+The entire purpose of Intersect 2.5 is to help you create custom post-exploitation scripts. This is done by using the
+Create application and selecting option '1' from the Main Menu.
+
+Add info here.
+
+
+											[ Using your custom Intersect script ]
+
+Add content here.
+

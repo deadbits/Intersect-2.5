@@ -83,7 +83,11 @@ saved.
 
 
 
+<<<<<<< HEAD
 						[ Using your custom Intersect script ]
+=======
+					[ Using your custom Intersect script ]
+>>>>>>> 528f569ec22cc25259cbe6f12258205e2f68dbdf
 
 There is a large variety of ways you can use your Intersect script. The options are only limited by the modules you
 choose for each script.
@@ -100,4 +104,12 @@ to start an interactive reverse shell back to your listening box. Once you get a
 of the included modules over the shell by using the 'extask' command.
 For a full list of commands and help within any of the remote shells, type 'helpme'.
 
+<<<<<<< HEAD
+=======
+When you run most of the Intersect modules, the information and files that are gathered will be saved into a temporary
+directory within /tmp.
+The files and data will be separated into sub-folders so the information is easier to identify and locate.
+
+This section will be filled in with more details eventually.
+>>>>>>> 528f569ec22cc25259cbe6f12258205e2f68dbdf
 

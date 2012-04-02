@@ -110,6 +110,7 @@ If you all ready know Python, you'll find this very straight forward.
      to package all the needed libraries with your script and create a standalone executable file.
 
      Example:
+<<<<<<< HEAD
 	 def function1():
              try:
                  import Impacket
@@ -122,6 +123,21 @@ If you all ready know Python, you'll find this very straight forward.
 * Many of the global variables are all ready defined in the Script Template. This covers most remote shell variables,
   temporary directories, etc. 
   For a full list of all built-in functions and global variables, see the next section of this document.
+=======
+         def function1():
+             try:
+                 import Impacket
+	           except ImportError:
+    	           print("[!] Python library Impacket is not installed!")
+                 Shutdown()
+                 sys.exit(0)
+
+* Many of the global variables are all ready defined in the Script Template. This covers most remote shell variables,
+  temporary directories, etc. 
+  For example, if you are writing a remote shell module you do not need to define HOST, PORT, RHOST, RPORT, etc. because
+  you are prompted for that information during the Create process and they are saved as global variables to the final
+  script.
+>>>>>>> 528f569ec22cc25259cbe6f12258205e2f68dbdf
 
 * Defining arguments:
       To define arguments, simply do this inside of your modules function. If your module requires the user supplies
@@ -221,3 +237,8 @@ within custom scripts and the Create application. This is very easy to do and ca
       "[+] Module successfully loaded into the custom modules directory!"
 
 
+<<<<<<< HEAD
+=======
+
+          
+>>>>>>> 528f569ec22cc25259cbe6f12258205e2f68dbdf

@@ -1,0 +1,71 @@
+Intersect 2.5 - Post-Exploitation Framework
+
+author: ohdae
+website: http://bindshell.it.cx
+         https://github.com/ohdae/Intersect-2.5/
+contact: bindshell[at]live[dot]com
+
+Table of Contents
+* General Description
+* Modules Explanation
+* Script Creation Process
+* Credits & How to Contribute
+
+[ Description ]
+
+Intersect 2.5 is the second major release in the project line. This release is much different from the previous,
+in that it gives the user complete control over which features the Intersect script includes and lets them easily
+import their own features, among other new functionality. 
+
+This release focuses mainly on the individual modules(features) and the capability to generate your own customized
+Intersect scripts. By using the Create.py application, the user is guided through a menu-driven process which allows
+them to select which modules they would like to include, import their own custom modules and ultimately create an
+Intersect script that is built around the specific modules they choose.
+
+
+
+[ Modules ]
+
+A module is simply a specific post-exploitation function. Each individual module itself is not capable of stand-alone
+execution until it is imported with the Create application and built into a custom script.
+With Intersect 2.5, there is the arrival of many new modules and some changes to the original features that were included
+in version 2.0.
+
+The modules are broken down into two categories.
+The first category, Standard Modules, includes all of the original Intersect 2.0 features and tasks but they are
+separated into individual modules to provide more control over the finalized custom script.
+For example, the credential gathering feature is now it's own module called "creds" and
+the network information gathering feature is a separate module called "network".
+
+The second category is the Custom modules and includes anything that was not part of Intersect 2.0 and is also where
+any new, additional or custom modules that the user imports will be stored. While the user can import any module
+functionality they wish, the Custom modules packaged with Intersect 2.5 focus on post-exploitation automation, remote
+shell access and various data exfiltration functions.
+
+For more information on writing your own modules or importing modules for use, see the Writing-Modules documentation.
+
+
+
+[ Creation Process ]
+
+The Create.py application is used to generate the actual Intersect script that you will be using on the target system.
+There is no final Intersect script until you make one!
+
+When you start Create, you will be presented with a series of menus that provides the following features:
+* Generate custom Intersect scripts
+  -- choose as many or as few modules as you want
+  -- define specific variables (i.e., shell ports and hosts, crypto keys, proxy ports, etc)
+  -- view, add or remove modules from the queue
+  -- view description and information on any given module
+* Import custom modules
+  -- download and import from a url
+  -- import from a local directory
+* Download Intersect 2.5 updates
+  -- requires Git to be installed locally
+  -- useful for bug fixes, new features, etc
+* Various help menus and lots of other commands
+
+You will be asked to give your newly created script a name. Enter the filename, without the Python file extension, when
+you are prompted. Your final script will be saved in the Scripts directory.
+
+

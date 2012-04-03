@@ -142,6 +142,8 @@ def persistent():
 			os.system("update-rc.d sysupd remove")
 			os.system("rm /etc/default/sysupd")
 			print("[+] Persistent shell successfully removed!")
+		else:
+			print("[!] No existing persistent shell found!")
 	else:
 		print("[!] Invalid option! Enter '1' or '2'")
 

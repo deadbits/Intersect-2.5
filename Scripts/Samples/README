@@ -5,7 +5,7 @@ of a custom built script. Each pre-built script focuses on a specific area, such
 A quick explanation of each sample and the included modules is listed below.
 
 Persist.py Script
-    modules: bshell, persistent, creds, network
+    modules: bshell, persistent, creds
 
 Network.py Script
     modules: network, lanmap, webproxy, egressbuster

@@ -13,6 +13,7 @@ import random
 global ModulesDir
 global CustomDir
 global PayloadTemplate
+global currentloc
 
 currentloc = os.getcwd()
 ModulesDir = (currentloc+"/src/Modules/Standard/")

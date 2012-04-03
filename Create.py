@@ -29,7 +29,7 @@ def banner():
            _| |_| | | | ||  __/ |  \__ \  __/ (__| |_   / /_ _ ___) |
           |_____|_| |_|\__\___|_|  |___/\___|\___|\__| |____(_)____/ 
 
-   		Intersect 2.5 - Script Creation Utility
+   		Intersect 2.5 - Post-Exploitation Framework
 """
 
 
@@ -40,7 +40,7 @@ class payloadgen(object):
     
   def core(self):
       print """
-Intersect 2.0 - Creation Utility
+Intersect 2.5 - Script Creation Utility
 ------------------------------------------
 1 => Create Custom Script
 2 => List Available Modules

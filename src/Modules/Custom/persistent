@@ -1,3 +1,4 @@
+
 # Lets you install an Intersect shell as a persistent service on the target. You must define your shell type and file location when prompted.
 def persistent():
 	header = " => "

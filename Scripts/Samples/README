@@ -1,0 +1,17 @@
+Intersect 2.5 Framework - Sample Scripts
+
+This folder contains some pre-built sample Intersect scripts. These scripts are just examples to show you the end result
+of a custom built script. Each pre-built script focuses on a specific area, such as persistence, network information, exfiltration, etc.
+A quick explanation of each sample and the included modules is listed below.
+
+Persist.py Script
+    modules: bshell, persistent, creds, network
+
+Network.py Script
+    modules: network, lanmap, webproxy, egressbuster
+
+Shells.py Script
+    modules: aeshttp, xorshell, network, persistent, scrub
+
+Gather.py Script
+    modules: osuser, creds, extras, network, archive

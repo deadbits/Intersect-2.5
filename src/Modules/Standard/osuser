@@ -2,7 +2,7 @@
 # Enumerates cron jobs, Linux distro and kernel version, installed applications and services, user lists and user history files.
 def osuser():
     print("[+] Collecting operating system and user information....")
-    os.mkdir(Temp_Dir+"/osinfo/")
+    maketemp("osinfo")
     os.chdir(Temp_Dir+"/osinfo/")
    
     proc = Popen('ps aux',
@@ -54,21 +54,14 @@ def osuser():
     os.system("cat /proc/cpuinfo > cpuinfo.txt")
     os.system("cat /proc/meminfo > meminfo.txt")
 
-    if os.path.exists(Home_Dir+"/.bash_history") is True:
-        shutil.copy2(Home_Dir+"/.bash_history", "bash_history.txt")
-    if os.path.exists(Home_Dir+"/.viminfo") is True:
-        shutil.copy2(Home_Dir+"/.viminfo", "viminfo")
-    if os.path.exists(Home_Dir+"/.mysql_history") is True:
-        shutil.copy2(Home_Dir+"/.mysql_history", "mysql_history")
+    copy2temp(Home_Dir+"/.bash_history")
+    copy2temp(Home_Dir+"/.viminfo")
+    copy2temp(Home_Dir+"/.mysql_history")
    
     sysfiles = ["distro_kernel.txt","filesystem.txt","memory.txt","cpuinfo.txt","meminfo.txt"]
-    content = ''
-    for f in sysfiles:
-        content = content + '\n' + open(f).read()
-    open('SysInfo.txt','wb').write(content)
-    os.system("rm distro_kernel.txt filesystem.txt memory.txt cpuinfo.txt meminfo.txt")
+    combinefiles("SysInfo.txt", sysfiles)
    
-    os.mkdir("users/")
+    maketemp("osinfo/users")
     os.chdir("users/")
    
     os.system("ls -alhR ~/ > CurrentUser.txt")

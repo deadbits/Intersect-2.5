@@ -1,7 +1,7 @@
 
 # Search for commonly installed security measures and applications, gathers important configuration files for apps and services, tries to find source code repos.    
 def extras():
-    os.mkdir(Temp_Dir+"/extras")
+    maketemp("extras")
     protectiondir = (Temp_Dir+"/extras")
     os.chdir(protectiondir)
     os.mkdir(Config_Dir)
@@ -17,8 +17,7 @@ def extras():
 
 
     for x in configs:
-        if os.path.exists(x) is True:
-            shutil.copy2(x, Temp_Dir+"/configs/")
+        copy2temp(x, "configs")
 
     print("[+] Searching for protection and misc extras....")
     program = [ "truecrypt", "bulldog", "ufw", "iptables", "logrotate", "logwatch", 
@@ -31,11 +30,8 @@ def extras():
     for x in program:
         location = whereis(x)
         if location is not None:
-            file = open("FullList.txt","a")
-            content = location + '\n'
-            file.write(content)
-            file.close()
-
+            text = location + '\n'
+            writenew("FullList.txt", text)
                
     if os.path.exists("~/.msf4/") is True:
         os.system("ls -l ~/.msf/loot > MetasploitLoot.txt")

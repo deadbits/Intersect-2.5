@@ -19,11 +19,9 @@ def network():
 
     os.system("lsof -nPi > lsof.txt")
     ports = ["nstat.txt","lsof.txt"]
-    content = ''
-    for f in ports:
-        content = content + '\n' + open(f).read()
-    open('Connections.txt','wb').write(content)
+    combinefiles("Connections.txt", ports)
     os.system("rm nstat.txt lsof.txt")
+
     if whereis('iptables') is not None:
         os.system("iptables -L -n > iptablesLN.txt") 
         os.system("iptables-save > iptables_save.txt")
@@ -44,24 +42,17 @@ def network():
         splitIP[3:] = (['0/24'])
         IPRange = ".".join(splitIP)
         externalIP = ip = urllib2.urlopen("http://myip.ozymo.com/").read()
-        file = open("IPAddresses.txt", "a")
-        file.write("External IP Address: " + externalIP)
-        file.write("Internal IP Address: " + localIP)
-        file.write("Internal IP Range: " + IPRange)
-        file.close
+        text = ("External IP Address: " + externalIP + "\nInternal IP Address: " + localIP + "\nInternal IP Range: " + IPRange)
+        writenew("IPAddresses.txt", text)
    
     os.system("hostname -f > hostname.txt")
    
     netfiles = ["IPAddresses.txt","hostname.txt","ifconfig.txt"]
-    content = ''
-    for f in netfiles:
-        content = content + '\n' + open(f).read()
-    open('NetworkInfo.txt','wb').write(content)
+    combinefiles("NetworkInfo.txt", netfiles)
     os.system("rm IPAddresses.txt hostname.txt ifconfig.txt")
 
     network = [ "/etc/hosts.deny", "/etc/hosts.allow", "/etc/inetd.conf", "/etc/host.conf", "/etc/resolv.conf" ]
     for x in network:
-        if os.path.exists(x) is True:
-            shutil.copy2(x, networkdir)
+        copy2temp(x, networkdir)
    
 

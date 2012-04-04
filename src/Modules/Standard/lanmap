@@ -1,16 +1,11 @@
 
 # Enumerates live hosts running on the internal network. Captures internal and external IP address. Perform LAN network mapping.
-def lanmap():
-    # Combine ARP then portscan. Send IPs to list and iterate through for the scan
-    # Add service identification via socket for all open ports
-    # Add traceroute after finding live hosts. Send all results to graph report.
-   
+def lanmap():   
     print("[+] Searching for live hosts...")
-    os.mkdir(Temp_Dir+"/hosts")
+    maketemp("hosts")
     os.chdir(Temp_Dir+"/hosts")
 
     try:
-        #TODO:Consider scanning all non-loopback addresses for multi-homed machines
         localIP = [x[4] for x in scapy.all.conf.route.routes if x[2] != '0.0.0.0'][0]
     except OSError:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -19,7 +14,6 @@ def lanmap():
         s.close()
     else:
         pass
-    #Get the integer representation of the local IP address
     ipBin = reduce(lambda x, y: (int(x) << 8)+int(y), localIP.split('.'))
     #route = [ network_addr, netmask, gateway, interface, address ]
     for route in scapy.all.conf.route.routes:
@@ -31,21 +25,14 @@ def lanmap():
     
     conf.verb=0
     ans,unans=srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=IPRange),timeout=2)
-    file = open("livehosts.txt", "a")
-    file.write("LAN IP Range: " + IPRange +"\n")
+    write2file("livehosts.txt", "LAN IP Range: " + IPRange +"\n")
     for snd,rcv in ans:
         mac_address=rcv.sprintf("%Ether.src%")
         ip_address=rcv.sprintf("%ARP.psrc%")
-        #print rcv.sprintf("\n\n[+] Live Host\nMAC %Ether.src%\nIP: %ARP.psrc%\n ")
-        file.write("\n[+] Live Host\nIP: "+ip_address + " MAC"+ mac_address + "\n")
-    file.write("\n")
-    file.close
+        write2file("livehosts.txt", "\n[+] Live Host\nIP: "+ip_address + " MAC"+ mac_address + "\n")
 
     externalIP = ip = urllib2.urlopen("http://myip.ozymo.com/").read()
-    file = open("external.txt", "a")
-    file.write("External IP Address: " + externalIP +"\n")
-    file.write("Internal IP Address: " + localIP +"\n")
-    file.write("Internal IP Range: " + IPRange +"\n")
-    file.close
+    results = ("External IP Address: " + externalIP + "\nInternal IP Address: " + localIP + "\nInternal IP Range: " + IPRange +"\n")
+    writenew("external.txt", results)
     
  

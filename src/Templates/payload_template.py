@@ -66,14 +66,14 @@ def environment():
     if os.geteuid() != 0:
         print("[*] Intersect should be executed as a root user. If you are not root, Intersect can check for privilege escalation vulnerabilites.")
         print("[*] Enter '1' to check for possible vulnerabilities (privesc module must be loaded). Enter '99' to exit without checking.")
-	option = raw_input("=> " )
+        option = raw_input("=> " )
         if option == '1':
             privesc()
             sys.exit()
         else:
             sys.exit()
     else:
-         pass
+        pass
 
     signal.signal(signal.SIGINT, signalHandler)
 
@@ -90,7 +90,7 @@ def environment():
 
     print "[!] Reports will be saved in: %s" % Temp_Dir
 
-  
+
 def signalHandler(signal, frame):
     print("[!] Ctrl-C caught, shutting down now");
     Shutdown()
@@ -100,10 +100,83 @@ def Shutdown():
     if not os.listdir(Temp_Dir):
         os.rmdir(Temp_Dir)
 
+
 def whereis(program):
     for path in os.environ.get('PATH', '').split(':'):
-       if os.path.exists(os.path.join(path, program)) and \
+        if os.path.exists(os.path.join(path, program)) and \
             not os.path.isdir(os.path.join(path, program)):
                 return os.path.join(path, program)
     return None
+
+
+def copy2temp(filename, subdir=""):
+    if os.path.exists(filename) is True: 
+        pass
+        if subdir == "" is True:
+            shutil.copy2(filename, Temp_Dir)
+        else:
+            if os.path.exists(Temp_Dir+"/"+subdir) is True:
+                subdir = (Temp_Dir+"/"+subdir)
+                shutil.copy2(filename, subdir)
+            elif os.path.exists(subdir) is True:
+                shutil.copy2(filename, subdir)
+            else:
+                subdir = (Temp_Dir+"/"+subdir)
+                os.mkdir(subdir)
+                shutil.copy2(filename, subdir)
+    else:
+        pass
+
+def write2file(filename, text):
+    if os.path.exists(filename) is True:
+        target = open(filename, "a")
+        target.write(text)
+        target.close()
+    else:
+        pass
+
+def writenew(filename, content):
+    new = open(filename, "a")
+    new.write(content)
+    new.close()
+
+def file2file(readfile, writefile):
+    if os.path.exists(readfile) is True:
+        readfile = open(readfile)
+        if os.path.exists(writefile) is True:
+            writefile = open(writefile, "a")
+            for lines in readfile.readlines():
+                writefile.write(lines)
+            writefile.close()
+            readfile.close()
+        else:
+            readfile.close()
+    else:
+        pass
+			
+def maketemp(subdir):
+    moddir = (Temp_Dir+"/"+subdir)
+    if os.path.exists(moddir) is False:
+        os.mkdir(moddir)
+    else:
+        pass
+
+def users():
+    global userlist
+    userlist = []
+    passwd = open('/etc/passwd')
+    for line in passwd:
+        fields = line.split(':')
+        uid = int(fields[2])
+        if uid > 500 and uid < 32328:
+            userlist.append(fields[0])
+
+def combinefiles(newfile, filelist):
+    content = ''
+    for f in filelist:
+        if os.path.exists(f) is True:
+            content = content + '\n' + open(f).read()
+            open(newfile,'wb').write(content)
+        else:
+            pass
 

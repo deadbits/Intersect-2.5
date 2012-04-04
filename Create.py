@@ -39,42 +39,42 @@ class payloadgen(object):
     self.warning = "[+] "
     
   def core(self):
-      print """
+    print """
 Intersect 2.5 - Script Creation Utility
 ------------------------------------------
 1 => Create Custom Script
 2 => List Available Modules
 3 => Load Plugin Module
 4 => Exit Creation Utility\n\n"""
-      while True:
-          choice = raw_input("%s " % (self.header))
+    while True:
+        choice = raw_input("%s " % (self.header))
 
-          if choice == '1':
-	      self.create()
+        if choice == '1':
+            self.create()
 
-	  elif choice == '2':
-	      print("\nIntersect 2.5 - Script Creation Utility")
-              print("------- List of Intersect Modules --------\n")
-              print("Standard Modules: ")
-              os.system("ls %s" % ModulesDir)
-              print("\nCustom Modules: ")
-              os.system("ls %s" % CustomDir)
-              print("-------------------------------------------")
-              print(" 1 => Return to main menu.")
-	      choice = raw_input("%s " % (self.header))
-              if choice == '1':
-                  os.system("clear")
-                  banner()
-                  self.core()
-              else:
-                  print("%sInvalid Selection!" % (self.warning))
+        elif choice == '2':
+            print("\nIntersect 2.5 - Script Creation Utility")
+            print("------- List of Intersect Modules --------\n")
+            print("Standard Modules: ")
+            os.system("ls %s" % ModulesDir)
+            print("\nCustom Modules: ")
+            os.system("ls %s" % CustomDir)
+            print("-------------------------------------------")
+            print(" 1 => Return to main menu.")
+            choice = raw_input("%s " % (self.header))
+            if choice == '1':
+                os.system("clear")
+                banner()
+                self.core()
+            else:
+                print("%sInvalid Selection!" % (self.warning))
 
-	  elif choice == '3':
-              self.loadfunc()
+        elif choice == '3':
+            self.loadfunc()
 
-	  elif choice == '4':
-	      print("Exiting. See ya later!")
-	      sys.exit(0)
+        elif choice == '4':
+            print("Exiting. See ya later!")
+            sys.exit(0)
 
   def loadfunc(self):
       print("\n----------- Load Plugin Modules ------------")
@@ -87,7 +87,7 @@ Intersect 2.5 - Script Creation Utility
       choice = raw_input("%s " % (self.header))
 
       if choice == '1':
-	  print("Enter the current location of your custom module: ")
+          print("Enter the current location of your custom module: ")
           modloc = raw_input("%s " % (self.header))
 
           if os.path.exists(modloc) is True:
@@ -135,29 +135,29 @@ The command :quit will return you to the main menu.\n""")
 
           if os.path.exists(ModulesDir+modulesInput) is True:
               desired_modules.append(modulesInput)
-	      print ("%s added to queue.\n" % modulesInput)
+              print ("%s added to queue.\n" % modulesInput)
 
           elif os.path.exists(CustomDir+modulesInput) is True:
               desired_modules.append(modulesInput)
-	      print ("%s added to queue.\n" % modulesInput)
+              print ("%s added to queue.\n" % modulesInput)
               
-	  elif modulesInput == ":modules":
+          elif modulesInput == ":modules":
               os.system("ls %s" % ModulesDir)
               os.system("ls %s" % CustomDir)
 
           elif modulesInput == ":create":
-	      createcustom.chooseName()
+              createcustom.chooseName()
               payloadgen.globalconfig(desired_modules)
               for mod in desired_modules:
                   print mod
               createcustom.CombineFeatures(desired_modules)
 
-	  elif modulesInput.startswith(":info"):
+          elif modulesInput.startswith(":info"):
               getname = modulesInput.split(' ')
               modname = getname[1]
 
               if os.path.exists(CustomDir+modname) is True:
-		  info = open(CustomDir+modname, "r")
+                  info = open(CustomDir+modname, "r")
                   lines = info.readlines()
                   print("\nDescription of module %s" % modname)
                   print lines[1]
@@ -170,7 +170,7 @@ The command :quit will return you to the main menu.\n""")
                   print lines[1]
                   info.close()
 
-	      else:
+              else:
                   print("\n[!] Module does not seem to exist or has no description.")
 
 
@@ -187,7 +187,7 @@ The command :quit will return you to the main menu.\n""")
           elif modulesInput == ":help":
               print("\n  Available Commands:")
               print("         :help  =>  display this menu")
-	      print("       :active  =>  shows current module queue")
+              print("       :active  =>  shows current module queue")
               print("       :create  =>  creates payload from selected list")
               print("  :info module  =>  show description of module")
               print("      :modules  =>  list of currently available modules")
@@ -292,19 +292,19 @@ class createcustom:
       if os.path.exists(PayloadTemplate) is True:
           print("Enter a name for your Intersect script. The finished script will be placed in the Scripts directory. Do not include Python file extension.")
           name = raw_input("%s " % (self.header))
-	  script = (currentloc+"/Scripts/%s.py" % name)
+          script = (currentloc+"/Scripts/%s.py" % name)
 
           if os.path.exists(script) is True:
               print("[!] The filename you entered all ready exists. Enter a new filename")
-	      self.chooseName()
+              self.chooseName()
           else: 
               shutil.copy2(PayloadTemplate, script)
               newpayload = open(script, "a")
-	      print("Script will be saved as %s" % script)
+              print("Script will be saved as %s" % script)
 
       else:
           print("[!] Payload template cannot be found!")
-	  payloadgen.core()
+          payloadgen.core()
 
 
   def CombineFeatures(self, moduleList):

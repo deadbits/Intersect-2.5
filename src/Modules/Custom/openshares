@@ -2,28 +2,28 @@
 # Uses smbclient to attempt enumeration of open SMB shares on a specified IP address. Usage: ./Intersect.py --openshares 192.168.1.4
 def openshares():
     
-	ipaddr = sys.argv[2]
+    ipaddr = sys.argv[2]
 
-	if whereis('smbclient') is None:
-		print("[!] SMBClient cannot be found on this system!")
-		sys.exit()
+    if whereis('smbclient') is None:
+        print("[!] SMBClient cannot be found on this system!")
+        sys.exit()
 
-	else:
-		print("[+] Enumerating open shares....\n")
+    else:
+        print("[+] Enumerating open shares....\n")
 
-		os.popen("/usr/bin/smbclient -L %s -N" % ipaddr)
+        os.popen("/usr/bin/smbclient -L %s -N" % ipaddr)
 
-		getdisks = os.popen(r'/usr/bin/smbclient -L %s -N 2>/dev/null| grep " Disk " | sed -e "s/ Disk .*//" | sed -e "s/^[ \t]*//"' % ipaddr)
-		disks = getdisks.readlines()
-		disks = filter(None, disks)
-		disks = [d.strip() for d in disks]
- 		getdisks.close()
+        getdisks = os.popen(r'/usr/bin/smbclient -L %s -N 2>/dev/null| grep " Disk " | sed -e "s/ Disk .*//" | sed -e "s/^[ \t]*//"' % ipaddr)
+        disks = getdisks.readlines()
+        disks = filter(None, disks)
+        disks = [d.strip() for d in disks]
+        getdisks.close()
 
-		for disk in disks:
-			proc = Popen('/usr/bin/smbclient //%s/"%s" -N -c "dir;exit" 2>/dev/null'%(ipaddr,disk),
-						shell=True,
-						stdout=PIPE,
-						)
-			output = proc.communicate()[0]
-			print("[+] Contents of %s " % disk)
-			print output		
+        for disk in disks:
+            proc = Popen('/usr/bin/smbclient //%s/"%s" -N -c "dir;exit" 2>/dev/null'%(ipaddr,disk),
+                        shell=True,
+                        stdout=PIPE,
+                        )
+            output = proc.communicate()[0]
+            print("[+] Contents of %s " % disk)
+            print output		

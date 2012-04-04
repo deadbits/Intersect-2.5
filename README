@@ -4,7 +4,8 @@ website: http://bindshell.it.cx
          https://github.com/ohdae/Intersect-2.5/
          http://www.twitter.com/bindshell_
 
-NOTICE: See the documentation with the Docs directory for a detailed README, Guide documentation and a How-To on writing custom modules.
+NOTICE: See the documentation with the Docs directory for a detailed README, Guide documentation 
+        and a How-To on writing custom modules.
 
 
 LICENSE:

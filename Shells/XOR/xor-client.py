@@ -22,7 +22,7 @@ conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 try:
     HOST = sys.argv[1]
     PORT = int(sys.argv[2])
-	pin = sys.argv[3]
+    pin = sys.argv[3]
 
 except IndexError:
     print("You must specify an IP address, port and XOR cipher key.")
@@ -82,7 +82,6 @@ while True:
 	print(" download <file>  | download file from host")
 	print(" upload <file>    | upload file to host")
 	print(" extask <task>    | run Intersect tasks")
-	print(" httproxy         | HTTP proxy on 8080")
 	print(" adduser <name>   | add new root account")
 	print(" rebootsys        | reboot remote host system")
 	print(" helpme           | display this menu")

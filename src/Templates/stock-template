@@ -180,3 +180,30 @@ def combinefiles(newfile, filelist):
         else:
             pass
 
+def tardir(name, directory):
+    tar = tarfile.open("%s.tar.gz", "w:gz" % name)
+    if os.path.exists(directory) is True:
+        tar.add("%s/" % directory)
+        print("[+] %s added to %s.tar.gz" % (name, directory))
+        tar.close()
+    else:
+        print("[!] Could not find directory %s " % directory)
+        tar.close()
+
+def tarlist(name, filelist):
+    tar = tarfile.open("%s.tar.gz", "w:gz" % name)
+    for files in filelist:
+        if os.path.exists(files) is True:
+            tar.add(files)
+        else:
+            print("[!] %s not found. Skipping.." % files)
+    tar.close()
+    print("[+] %s.tar.gz file created with the following files: " % name)
+    archive = ("%s.tar.gz" % name)
+    items = archive.getnames()
+    for item in items:
+        print item
+    tar.close()
+
+
+

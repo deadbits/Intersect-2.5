@@ -32,7 +32,7 @@ def lanmap():
         ip_address=rcv.sprintf("%ARP.psrc%")
         write2file("livehosts.txt", "\n[+] Live Host\nIP: "+ip_address + " MAC"+ mac_address + "\n")
 
-    externalIP = ip = urllib2.urlopen("http://myip.ozymo.com/").read()
+    externalIP = urllib2.urlopen("http://myip.ozymo.com/").read()
     results = ("External IP Address: " + externalIP + "\nInternal IP Address: " + localIP + "\nInternal IP Range: " + IPRange +"\n")
     writenew("external.txt", results)
     

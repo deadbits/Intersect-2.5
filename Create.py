@@ -18,7 +18,7 @@ global currentloc
 currentloc = os.getcwd()
 ModulesDir = (currentloc+"/src/Modules/Standard/")
 CustomDir = (currentloc+"/src/Modules/Custom/")
-PayloadTemplate = (currentloc+"/src/Templates/payload_template.py")
+PayloadTemplate = (currentloc+"/src/Templates/stock-template")
 
 def banner():
     print """                         

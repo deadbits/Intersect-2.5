@@ -99,7 +99,7 @@ def signalHandler(signal, frame):
 def Shutdown():
     if not os.listdir(Temp_Dir):
         os.rmdir(Temp_Dir)
-
+    sys.exit()
 
 def whereis(program):
     for path in os.environ.get('PATH', '').split(':'):

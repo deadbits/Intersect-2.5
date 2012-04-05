@@ -15,6 +15,18 @@ global CustomDir
 global PayloadTemplate
 global currentloc
 
+global tab_complete
+tab_complete = True
+try:
+    import readline
+        # handle exception if readline isn't imported
+except ImportError:
+    print "[!] Python readline is not installed. Tab completion in the Create menu will be disabled."
+    tab_complete = False
+
+if tab_complete == True:
+    readline.parse_and_bind("tab: complete")
+
 currentloc = os.getcwd()
 ModulesDir = (currentloc+"/src/Modules/Standard/")
 CustomDir = (currentloc+"/src/Modules/Custom/")
@@ -32,6 +44,27 @@ def banner():
    		Intersect 2.5 - Post-Exploitation Framework
 """
 
+class Completer:
+    def __init__(self):
+        standard = os.listdir(ModulesDir)
+        custom = os.listdir(CustomDir)
+        modcom = standard + custom
+        cmds = ["create", "help", "active", "rem", "modules", "quit", "info", "clear"]
+        if menu_option == "build":
+            self.words = cmds + modcom
+            self.prefix = ":"
+	
+    def complete(self, prefix, index):
+        if prefix != self.prefix:
+            self.matching_words = [w for w in self.words if w.startswith(prefix)]
+            self.prefix = prefix
+        else:
+            pass
+        try:
+            return self.matching_words[index]
+            return self.match_mods[index]
+        except IndexError:
+            return None
 
 class payloadgen(object):
   def __init__(self):
@@ -50,6 +83,8 @@ Intersect 2.5 - Script Creation Utility
         choice = raw_input("%s " % (self.header))
 
         if choice == '1':
+            global menu_option
+            menu_option = "build"
             self.create()
 
         elif choice == '2':
@@ -109,6 +144,7 @@ Intersect 2.5 - Script Creation Utility
           self.core()
 
   def create(self):
+      menu_option = "build"
       os.system("clear")
       print("\nIntersect 2.0 - Script Generation Utility")
       print("---------- Create Custom Script -----------\n")
@@ -130,6 +166,9 @@ The command :quit will return you to the main menu.\n""")
       desired_modules = []
 
       while 1:
+          if tab_complete == True:
+              completer = Completer()
+              readline.set_completer(completer.complete)
 
           modulesInput = raw_input("%s " % (self.header))
 

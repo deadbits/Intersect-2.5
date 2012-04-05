@@ -1,7 +1,7 @@
 
-# Uses smbclient to attempt enumeration of open SMB shares on a specified IP address. Usage: ./Intersect.py --openshares 192.168.1.4
 def openshares():
-    
+    __description__ = "Uses smbclient to attempt enumeration of open SMB shared on a specified IP address. Usage: ./Intersect.py --openshares 192.168.1.4"
+    __author__ = "ohdae : bindshell[at]live[dot]com"
     ipaddr = sys.argv[2]
 
     if whereis('smbclient') is None:

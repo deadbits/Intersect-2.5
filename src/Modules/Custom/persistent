@@ -1,6 +1,7 @@
 
-# Lets you install an Intersect shell as a persistent service on the target. You must define your shell type and file location when prompted.
 def persistent():
+    __description__ = "Installs any Intersect shell module as a persistent backdoor. Will start shell on every system reboot."
+    __author__ = "ohdae : bindshell[at]live[dot]com  |  additional code and fixes by bonsaiviking"
     header = " => "
     print("Select option: ")
     print("1. Add new service")

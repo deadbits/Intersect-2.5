@@ -1,6 +1,7 @@
 
-# Starts a XOR ciphered reverse shell from the remote system to your local host. Provides extra security. Specify your local host IP as the RHOST variable in the payload template file.
 def xor(string, key):
+    __description__ = "Opens a reverse XOR ciphered TCP shell to a remote host. Interactive shell with download/upload and remote Intersect module execution."
+    __author__ = "ohdae : bindshell[at]live[dot]com"
     data = ''
     for char in string:
         for ch in key:

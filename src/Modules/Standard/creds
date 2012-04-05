@@ -1,6 +1,7 @@
 
-# Gathers user and system credentials and passwords from the remote host. We look for things like crypto keys, ssh keys, shadow files, app credentials, etc.
 def creds():
+    __description__ = "Gather user and system credentials. Looks for passwords, SSH keys, SSL certs, certain application creds, user histories and more."
+    __author__ = "ohdae : bindshell[at]live[dot]com"
     print("[+] Collecting user and system credentials....")
     maketemp("credentials")
     os.chdir(Temp_Dir+"/credentials/")

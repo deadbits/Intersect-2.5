@@ -1,6 +1,7 @@
 
-# Sends a hash list to remote XMLRPC server for cracking. Crackserver.py must be running on the remote host. Written by Stephen Haywood (averagesecurityguy)
 def xmlcrack():
+    __description__ = "Sends hash list to remote XMLRPC server for cracking. Crackserver.py must be running on the remote host."
+    __author__ = "original code by Stephen Haywood aka averagesecurityguy"
     if len(sys.argv) <=3:
         print("[!] Must specify a filename and hashtype!")
         sys.exit()

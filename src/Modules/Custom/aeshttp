@@ -1,5 +1,7 @@
-# Reverse HTTP AES shell. Originally coded by ReL1K (David Kennedy)
+
 def aeshttp():
+    __description__ = "Starts a reverse HTTP shell with AES encryption that will connect back to a remote host."
+    __author__ = "original code by David Kennedy aka ReL1k"
     import httplib
     import urllib
     try:

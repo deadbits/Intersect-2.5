@@ -1,6 +1,7 @@
 
-# Finds and saves network information such as listening ports, firewall rules, DNS configurations, network interfaces and active connections.
 def network():
+    __description__ = "Finds and stores network information such as services, listening ports, firewall rules, DNS info, active connections, interfaces, etc."
+    __author__ = "ohdae : bindshell[at]live[dot]com"
     print("[+] Collecting network info: services, ports, active connections, dns, gateways, etc...")
     os.mkdir(Temp_Dir+"/network")
     networkdir = (Temp_Dir+"/network")

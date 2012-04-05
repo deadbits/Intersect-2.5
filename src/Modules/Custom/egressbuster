@@ -1,6 +1,7 @@
 
-# Run an egress buster on the target system to determine available outbound ports. Checks ports 1-1000 by default. You can change this in final script or Modules/Custom/egressbuster
 def egressbuster():
+    __description__ = "Checks a range of ports to find available outbound ports. used to break egress filters."
+    __author__ = "original code by David Kennedy aka ReL1K"
     if len(sys.argv) <=2:
         print("[!] Must specify a port-range!")
         sys.exit()

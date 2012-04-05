@@ -1,6 +1,7 @@
 
-# Enumerates live hosts running on the internal network. Captures internal and external IP address. Perform LAN network mapping.
-def lanmap():   
+def lanmap():
+    __description__ = "Uses Scapy to enumerate live hosts on the internal network, grabs internal & public IPs, LAN IP range and saves information."
+    __author__ = "ohdae : bindshell[at]live[dot]com"
     print("[+] Searching for live hosts...")
     maketemp("hosts")
     os.chdir(Temp_Dir+"/hosts")

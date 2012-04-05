@@ -157,21 +157,30 @@ The command :quit will return you to the main menu.\n""")
               modname = getname[1]
 
               if os.path.exists(CustomDir+modname) is True:
-                  info = open(CustomDir+modname, "r")
-                  lines = info.readlines()
-                  print("\nDescription of module %s" % modname)
-                  print lines[1]
-                  info.close()
+                  info = open(CustomDir+modname)
+                  for line in info:
+                      if "__description__" in line:
+                          split = line.split("=")
+                          des = split[1]
+                          print("\nDescription: %s " % des)
+                      if "__author__" in line:
+                          split = line.split("=")
+                          author = split[1]
+                          print("Author: %s " % author)
 
               elif os.path.exists(ModulesDir+modname) is True:
-                  info = open(ModulesDir+modname, "r")
-                  lines = info.readlines()
-                  print("\nDescription of module %s" % modname)
-                  print lines[1]
-                  info.close()
-
+                  info = open(ModulesDir+modname)
+                  for line in info:
+                      if "__description__" in line:
+                          split = line.split("=")
+                          des = split[1]
+                          print("\nDescription: %s " % des)
+                      if "__author__" in line:
+                          split = line.split("=")
+                          author = split[1]
+                          print("Author: %s " % author)
               else:
-                  print("\n[!] Module does not seem to exist or has no description.")
+                  print("No description given for %s module " % modname)
 
 
           elif modulesInput.startswith(":rem"):
@@ -184,11 +193,16 @@ The command :quit will return you to the main menu.\n""")
               print("\nModules you have selected: ")
               print desired_modules
 
+          elif modulesInput == ":clear":
+              os.system("clear")
+              print("Intersect 2.5 - Script Creation Utility")
+
           elif modulesInput == ":help":
               print("\n  Available Commands:")
               print("         :help  =>  display this menu")
               print("       :active  =>  shows current module queue")
               print("       :create  =>  creates payload from selected list")
+              print("        :clear  =>  clears the screen")
               print("  :info module  =>  show description of module")
               print("      :modules  =>  list of currently available modules")
               print("        module  =>  adds module to payload queue")

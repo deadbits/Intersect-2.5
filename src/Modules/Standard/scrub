@@ -1,6 +1,7 @@
 
-# Attempts to remove the current username and IP address from log files such as utmp, wtmp and lastlog. Intrusive method.
-def scrub():  
+def scrub():
+  __description__ = "Attempts to remove the currently logged in username and IP address from utmp, wtmp and lastlog. Intrusive method."
+  __author__ = "ohdae : bindshell[at]live[dot]com"  
   try:
     Current_User = os.getlogin()
   except OSError:

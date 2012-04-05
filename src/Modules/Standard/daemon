@@ -1,6 +1,7 @@
 
-# The daemon function lets you run any or all Intersect tasks as a background process. You are provided with the PID number to monitor or kill the task if needed.
 def daemon(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
+    __description__ = "Daemonize an Intersect script. When executed you'll be given the PID to monitor or kill the task if needed"
+    __author__ = "ohdae : bindshell[at]live[dot]com"
     try: 
         pid = os.fork() 
         if pid > 0:

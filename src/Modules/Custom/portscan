@@ -1,5 +1,7 @@
-# Simple port-scan module. Will scan ports 1-1000. Not threaded, might take a long time on external IPs. Specify an IP address via ./Intersect.py 192.168.1.4
+
 def portscan():
+    __description__ = "Very simple port scan. Scans ports 1 - 1000 on specified IP. Best used against LAN hosts. Usage: ./Intersect.py -p 192.168.1.4"
+    __author__ = "ohdae : bindshell[at]live[dot]com"
     if len(sys.argv) <=2:
         print("[!] Must specify an IP address!")
         Shutdown()

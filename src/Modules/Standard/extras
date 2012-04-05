@@ -1,6 +1,7 @@
 
-# Search for commonly installed security measures and applications, gathers important configuration files for apps and services, tries to find source code repos.    
 def extras():
+    __description__ = "Searches for system, service and app configurations. Also tries to locate certain installed apps and protection measures."
+    __author__ = "ohdae : bindshell[at]live[dot]com"
     maketemp("extras")
     protectiondir = (Temp_Dir+"/extras")
     os.chdir(protectiondir)

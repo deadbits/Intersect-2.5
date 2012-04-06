@@ -8,23 +8,33 @@ def getrepos():
     os.mkdir(Temp_Dir+"/repos")
     repodir = (Temp_Dir+"/repos")
     os.chdir(repodir)
-    
+
+    users()
+
     if whereis('git') is not None:
-        os.system("find ~/ /home -name *.git > GitRepos.txt")
-        proc = Popen('cat /home/*/.gitconfig',
-               shell=True,
-               stdout=PIPE,
-               )
-        output = proc.communicate()[0]
-        file = open("GitRepos.txt","a")
-        file.write(output),
-        file.close()
+        for user in userlist:
+            if os.path.exists("/home/%s" % user) is True:
+                os.system("find /home/%s -name *.git > %sRepos.txt" % (user, user))
+                proc = Popen('cat /home/%s/.gitconfig' % user,
+                                                   shell=True,
+                                                   stdout=PIPE,
+                                                   )
+                userinfo = proc.communicate()[0]
+        
+            if os.geteuid() == 0:
+                os.system("find /root -name *.git > RootRepos.txt")
+                proc = Popen('cat /root/.gitconfig',
+                                       shell = True,
+                                       stdout=PIPE,
+                                       )
+
+                output = proc.communicate()[0]
+                file = open("GitConfigs.txt", "a")
+                file.write("Git Config for %s" % user)
+                file.write(output + userinfo)
+                file.close()    
 
     if whereis('svn') is not None:
-        os.system("/usr/bin/find / -name *.svn > SvnRepos.txt")
-
-    # Add search for Trac and trac www home locations
-    # Add faster search for SVN so it doesn't take 10 years to finish
-    # Fix cat /home/*/.gitconfig search
-    # Add search for gitolite, git-web locations, etc
-       
+        for user in userlist:
+            if os.path.exists("/home/%s" % user) is True:
+                os.system("/usr/bin/find /home/%s -name *.svn > SvnRepos.txt" % user)

@@ -29,10 +29,7 @@ def getrepos():
                                        )
 
                 output = proc.communicate()[0]
-                file = open("GitConfigs.txt", "a")
-                file.write("Git Config for %s" % user)
-                file.write(output + userinfo)
-                file.close()    
+                writenew("GitConfigs.txt", output + userinfo)    
 
     if whereis('svn') is not None:
         for user in userlist:

@@ -9,13 +9,14 @@ import shutil
 import string, socket
 import linecache
 import random
+import urllib, urllib2
 
 global ModulesDir
 global CustomDir
 global PayloadTemplate
 global currentloc
-
 global tab_complete
+
 tab_complete = True
 try:
     import readline
@@ -116,8 +117,9 @@ Intersect 2.5 - Script Creation Utility
       print("")
       print(" Options:")    
       print("1 => Load module by filename")
-      print("2 => List currently loaded custom modules")
-      print("3 => Return to Main Menu")
+      print("2 => Download and import from URL")
+      print("3 => List currently loaded custom modules")
+      print("4 => Return to Main Menu")
 
       choice = raw_input("%s " % (self.header))
 
@@ -134,11 +136,31 @@ Intersect 2.5 - Script Creation Utility
               print("[!] Custom module could not be loaded.")
 
       elif choice == '2':
+          print("Enter the URL where the file is location: ")
+          print("example: http://example.com/mymodule")
+          modloc = raw_input("%s " % (self.header))
+
+          filename = modloc.split('/')[-1]
+        
+          try:
+              urllib.urlretrieve(modloc, filename=CustomDir+filename)
+          except Exception, e:
+              print("\n[!] Error downloading %s: %s" % (modloc, e))
+              self.loadfunc()
+
+          if os.path.exists(CustomDir+filename) is True:
+              print("\n[+] Module successfully downloaded and imported!\n")
+              self.loadfunc()
+          else:
+              print("\n[!] Something went wrong! Download and import not completed!\n")
+              self.loadfunc()
+
+      elif choice == '3':
           print("Currently available custom modules: ")
           os.system("ls %s" % CustomDir)
           self.loadfunc()
 
-      elif choice == '3':
+      elif choice == '4':
           os.system("clear")
           banner()
           self.core()

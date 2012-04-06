@@ -14,10 +14,8 @@ def osuser():
                  stdout=PIPE,
                  )
     output = proc.communicate()[0]
-    file = open("ps_aux.txt","a")
     for items in output:
-        file.write(items),
-    file.close()
+        writenew("ps_aux.txt", items)
 
     os.system("ls -alh /usr/bin > bin.txt")
     os.system("ls -alh /usr/sbin > sbin.txt")

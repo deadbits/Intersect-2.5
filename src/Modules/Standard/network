@@ -7,7 +7,8 @@ def network():
     '''
     print("[+] Collecting network info: services, ports, active connections, dns, gateways, etc...")
     maketemp("network")
-    os.chdir(Temp_Dir+"/network") 
+    networkdir = Temp_Dir+"/network"
+    os.chdir(networkdir) 
 
     proc = Popen('netstat --tcp --listening',
          shell=True,

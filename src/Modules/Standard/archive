@@ -1,8 +1,8 @@
 
-# Creates a tar archive of any files and reports that are generated when you run a task
 def archive():
     __description__ = "Creates a tar archive of any files and reports that are generated and saved into the temporary directory when you execute Standard modules"
     __author__ = "ohdae : bindshell[at]live[dot]com"
+    __short__ = "create tar archive of temp directory"
     print("[!] Generating report archive....This might take a minute or two..")
     os.chdir(Temp_Dir)
     tar = tarfile.open("reports.tar.gz", "w:gz")

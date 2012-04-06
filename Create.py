@@ -394,6 +394,33 @@ class createcustom:
       
   def MakeUsage(self, moduleList):  # Clean up this function
       usage = (currentloc+"/Junk/usage")
+      descriptions = []
+
+      for module in moduleList:
+          if os.path.exists(ModulesDir+module) is True:
+              info = open(ModulesDir+module)
+              for line in info:
+                  if "__short__" in line:
+                      split = line.split("=")
+                      des = split[1]
+                      des = des.rstrip("\n")
+                      short = module[0]
+                      descriptions.append("    -%s    --%s       %s" % (short, module, des))
+
+
+          elif os.path.exists(CustomDir+module) is True:
+              info = open(CustomDir+module)
+              for line in info:
+                  if "__short__" in line:
+                      split = line.split("=")
+                      des = split[1]
+                      des = des.rstrip("\n")
+                      short = module[0]
+                      descriptions.append("    -%s    --%s       %s" % (short, module, des))
+
+          else:
+              descriptions.append("    -%s    --%s" % (short, module))
+
       writeusage = open(usage, "a")
 
       writeusage.write("\n\ndef usage():")
@@ -402,9 +429,12 @@ class createcustom:
       writeusage.write("\n    print('      http://bindshell.it.cx | ohdae')")
       writeusage.write("\n    print(' Modules:')")
 
-      for module in moduleList:
-          short = module[0]
-          writeusage.write("\n    print('     -%s   --%s')" % (short, module))
+      for item in descriptions:
+          writeusage.write("\n    print('%s')" % (str(item)))
+
+      #for module, des in zip(moduleList, shortdes):
+      #   short = module[0]
+      #    writeusage.write("\n    print('     -%s   --%s        %s')" % (short, module, des))
 
       writeusage.close()
 

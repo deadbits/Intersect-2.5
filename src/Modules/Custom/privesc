@@ -2,6 +2,7 @@
 def fix_version(version):
     __description__ = "Checks for the Linux kernel for the existence of possible privilege escalation exploits. Provides CVE and download link if available."
     __author__ = "original code by Bernardo Damele"
+    __short__ = "identify priv-esc vulns"
     split_version = version.split(".")
 
     if len(split_version) >= 3 and len(split_version[2]) == 1:

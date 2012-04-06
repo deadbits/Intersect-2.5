@@ -2,18 +2,19 @@
 def getrepos():
     __description__ = "Tries to find various source code repositories and management tools. Git, SVN."
     __author__ = "ohdae : bindshell[at]live[dot]com"
+    __short__ = "search for source code repos"
     os.mkdir(Temp_Dir+"/repos")
     repodir = (Temp_Dir+"/repos")
     os.chdir(repodir)
     
     if whereis('git') is not None:
-    os.system("find ~/ /home -name *.git > GitRepos.txt")
+        os.system("find ~/ /home -name *.git > GitRepos.txt")
         proc = Popen('cat /home/*/.gitconfig',
                shell=True,
                stdout=PIPE,
                )
         output = proc.communicate()[0]
-    file = open("GitRepos.txt","a")
+        file = open("GitRepos.txt","a")
         file.write(output),
         file.close()
 

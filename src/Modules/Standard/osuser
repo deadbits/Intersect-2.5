@@ -2,6 +2,7 @@
 def osuser():
     __description__ = "Enumerate Linux distro, kernel, installed apps and services, printers, cronjobs, user lists and history files, CPU and memory info, etc."
     __author__ = "ohdae : bindshell[at]live[dot]com"
+    __short__ = "enumerate user and system info"
     print("[+] Collecting operating system and user information....")
     maketemp("osinfo")
     os.chdir(Temp_Dir+"/osinfo/")

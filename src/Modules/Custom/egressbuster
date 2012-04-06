@@ -2,6 +2,7 @@
 def egressbuster():
     __description__ = "Checks a range of ports to find available outbound ports. used to break egress filters."
     __author__ = "original code by David Kennedy aka ReL1K"
+    __short__ = "finds open outbound ports"
     if len(sys.argv) <=2:
         print("[!] Must specify a port-range!")
         sys.exit()

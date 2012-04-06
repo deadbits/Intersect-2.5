@@ -7,6 +7,7 @@ class Proxy(SimpleHTTPServer.SimpleHTTPRequestHandler):
 def httproxy():
     __description__ = "Starts a basic HTTP proxy on the target system."
     __author__ = "ohdae : bindshell[at]live[dot]com"
+    __short__ = "http proxy"
     httpd = SocketServer.ForkingTCPServer(('', PPORT), Proxy)
     print("[+] Serving HTTP proxy on port %s" % PPORT)
     httpd.serve_forever()

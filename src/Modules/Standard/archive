@@ -5,29 +5,8 @@ def archive():
     @short: create tar archive of sessions temp directory 
     @author: ohdae [bindshell@live.com]
     '''
-    print("[!] Generating report archive....This might take a minute or two..")
+
     os.chdir(Temp_Dir)
-    tar = tarfile.open("reports.tar.gz", "w:gz")
-    if os.path.exists("credentials") is True:
-        tar.add("credentials/")
-        os.system("rm -rf credentials/")
-    elif os.path.exists("network/") is True:
-        tar.add("network/")
-        os.system("rm -rf network/")
-    elif os.path.exists("extras/") is True:
-        tar.add("extras/")
-        os.system("rm -rf extras/")
-    elif os.path.exists("configs/") is True:
-        tar.add("configs/")
-        os.system("rm -rf configs/")
-    elif os.path.exists("osinfo/") is True:
-        tar.add("osinfo/")
-        os.system("rm -rf osinfo/")
-    elif os.path.exists("hosts/") is True:
-        tar.add("hosts/")
-        os.system("rm -rf hosts/")
-    else:
-        print("[!] No reports exist to archive!")
-    tar.close()
-    sys.exit(2)
+    temp_files = os.listdir(Temp_Dir)
+    tarlist("reports", temp_files)
 

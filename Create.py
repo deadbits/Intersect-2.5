@@ -198,24 +198,24 @@ The command :quit will return you to the main menu.\n""")
               if os.path.exists(CustomDir+modname) is True:
                   info = open(CustomDir+modname)
                   for line in info:
-                      if "__description__" in line:
-                          split = line.split("=")
+                      if "@description" in line:
+                          split = line.split(":")
                           des = split[1]
                           print("\nDescription: %s " % des)
-                      if "__author__" in line:
-                          split = line.split("=")
+                      if "@author" in line:
+                          split = line.split(":")
                           author = split[1]
                           print("Author: %s " % author)
 
               elif os.path.exists(ModulesDir+modname) is True:
                   info = open(ModulesDir+modname)
                   for line in info:
-                      if "__description__" in line:
-                          split = line.split("=")
+                      if "@description" in line:
+                          split = line.split(":")
                           des = split[1]
                           print("\nDescription: %s " % des)
-                      if "__author__" in line:
-                          split = line.split("=")
+                      if "@author" in line:
+                          split = line.split(":")
                           author = split[1]
                           print("Author: %s " % author)
               else:
@@ -400,8 +400,8 @@ class createcustom:
           if os.path.exists(ModulesDir+module) is True:
               info = open(ModulesDir+module)
               for line in info:
-                  if "__short__" in line:
-                      split = line.split("=")
+                  if "@short" in line:
+                      split = line.split(":")
                       des = split[1]
                       des = des.rstrip("\n")
                       short = module[0]
@@ -411,8 +411,8 @@ class createcustom:
           elif os.path.exists(CustomDir+module) is True:
               info = open(CustomDir+module)
               for line in info:
-                  if "__short__" in line:
-                      split = line.split("=")
+                  if "@short" in line:
+                      split = line.split(":")
                       des = split[1]
                       des = des.rstrip("\n")
                       short = module[0]

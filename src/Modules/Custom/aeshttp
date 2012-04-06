@@ -1,8 +1,10 @@
 
 def aeshttp():
-    __description__ = "Starts a reverse HTTP shell with AES encryption that will connect back to a remote host."
-    __short__ = "reverse AES HTTP shell"
-    __author__ = "original code by David Kennedy aka ReL1k"
+    '''
+    @description: Starts a reverse HTTP shell with AES encryption that will connect back to a remote host.
+    @short: reverse AES HTTP shell
+    @author: original code by David Kennedy aka ReL1k
+    '''
     import httplib
     import urllib
     try:

@@ -1,8 +1,10 @@
 
 def bshell():
-    __description__ = "Starts a TCP bind shell on the target system. Interactive shell with download/upload, cd and ability to execute other modules remotely."
-    __author__ = "ohdae : bindshell[at]live[dot]com"
-    __short__ = "TCP bindshell"
+    '''
+    @description: Starts a TCP bind shell on the target system. Interactive shell with download/upload, cd and ability to execute other modules remotely."
+    @author: ohdae [bindshell@live.com]
+    @short: TCP bindshell
+    '''
     HOST = ''
     socksize = 4096
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

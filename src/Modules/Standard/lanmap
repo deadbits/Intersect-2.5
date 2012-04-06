@@ -1,8 +1,10 @@
 
 def lanmap():
-    __description__ = "Uses Scapy to enumerate live hosts on the internal network, grabs internal & public IPs, LAN IP range and saves information."
-    __author__ = "ohdae : bindshell[at]live[dot]com"
-    __short__ = "find live hosts and LAN info"
+    '''
+    @description: uses Scapy to enumerate live hosts and gather IP addresses
+    @author: ohdae [bindshell@live.com]
+    @short: find live hosts on LAN
+    '''
     print("[+] Searching for live hosts...")
     maketemp("hosts")
     os.chdir(Temp_Dir+"/hosts")

@@ -1,8 +1,10 @@
 
 def openshares():
-    __description__ = "Uses smbclient to attempt enumeration of open SMB shared on a specified IP address. Usage: ./Intersect.py --openshares 192.168.1.4"
-    __author__ = "ohdae : bindshell[at]live[dot]com"
-    __short__ = "finds open smb shares"
+    '''
+    @description: Uses smbclient to find open SMB shares on a specified host. Usage: ./Intersect.py --openshares 192.168.1.4
+    @author: ohdae [bindshell@live.com]
+    @short: find open SMB shares
+    '''
     ipaddr = sys.argv[2]
 
     if whereis('smbclient') is None:

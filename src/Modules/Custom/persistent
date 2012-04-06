@@ -1,8 +1,10 @@
 
 def persistent():
-    __description__ = "Installs any Intersect shell module as a persistent backdoor. Will start shell on every system reboot."
-    __author__ = "ohdae : bindshell[at]live[dot]com  |  additional code and fixes by bonsaiviking"
-    __short__ = "install persistent backdoor"
+    '''
+    @description: Installs any Intersect shell module as a persistent backdoor. Will start shell on every system reboot.
+    @author: ohdae [bindshell@live.com] | additional code and fixes by bonsaiviking
+    @short: install persistent backdoor
+    '''
     header = " => "
     print("Select option: ")
     print("1. Add new service")

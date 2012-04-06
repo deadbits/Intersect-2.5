@@ -12,24 +12,26 @@ def getrepos():
     users()
 
     if whereis('git') is not None:
+        os.system("find %s -name *.git > UserRepos.txt" % Home_Dir)
         for user in userlist:
-            if os.path.exists("/home/%s" % user) is True:
+            if os.path.exists("/home/%s" % user) and os.access("/home/%s" % user, os.R_OK):
                 os.system("find /home/%s -name *.git > %sRepos.txt" % (user, user))
-                proc = Popen('cat /home/%s/.gitconfig' % user,
-                                                   shell=True,
-                                                   stdout=PIPE,
-                                                   )
-                userinfo = proc.communicate()[0]
-        
-            if os.geteuid() == 0:
-                os.system("find /root -name *.git > RootRepos.txt")
-                proc = Popen('cat /root/.gitconfig',
-                                       shell = True,
-                                       stdout=PIPE,
-                                       )
+                if os.path.exists("/home/%s/.gitconfig" % user):
+                    proc = Popen('cat /home/%s/.gitconfig' % user,
+                                                       shell=True,
+                                                      stdout=PIPE,
+                                                      )
+                    config = proc.communicate()[0]
+                    writenew("GitConfigs.txt", config) 
 
-                output = proc.communicate()[0]
-                writenew("GitConfigs.txt", output + userinfo)    
+        if currentuser == "root":
+            if os.path.exists("%s/.gitconfig" % Home_Dir):
+                proc = Popen("cat %s/.gitconfig" % Home_Dir,
+                                                 shell=True,                    
+                                                stdout=PIPE,
+                                                )
+                rootconf = proc.communicate()[0]
+                writenew("GitConfigs.txt", rootconf)
 
     if whereis('svn') is not None:
         for user in userlist:

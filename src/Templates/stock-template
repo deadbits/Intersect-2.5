@@ -44,6 +44,7 @@ def environment():
     global LASTLOG_FILEPATH
     global distro
     global distro2
+    global currentuser
 
     ## Global variables for remote shells are defined during the creation process
     ## Variables for Scrub module. Do not change unless you know what you're doing. 
@@ -64,23 +65,13 @@ def environment():
     Config_Dir = Temp_Dir+"/configs/"
 
     if os.geteuid() != 0:
-        print("[*] Intersect should be executed as a root user. If you are not root, Intersect can check for privilege escalation vulnerabilites.")
-        print("[*] Enter '1' to check for possible vulnerabilities (privesc module must be loaded). Enter '99' to exit without checking.")
-        option = raw_input("=> " )
-        if option == '1':
-            privesc()
-            sys.exit()
-        else:
-            sys.exit()
+        currentuser = "nonroot"
     else:
-        pass
+        currentuser = "root"
 
     signal.signal(signal.SIGINT, signalHandler)
 
     os.system("clear")
-    print("[+] Creating temporary working environment....")
-
-    os.chdir(Home_Dir)
 
     if os.path.exists(Temp_Dir) is True:
         os.system("rm -rf "+Temp_Dir)
@@ -110,7 +101,7 @@ def whereis(program):
 
 
 def copy2temp(filename, subdir=""):
-    if os.path.exists(filename) is True: 
+    if os.path.exists(filename) and os.access(filename, os.R_OK): 
         pass
         if subdir == "" is True:
             shutil.copy2(filename, Temp_Dir)
@@ -128,7 +119,7 @@ def copy2temp(filename, subdir=""):
         pass
 
 def write2file(filename, text):
-    if os.path.exists(filename) is True:
+    if os.path.exists(filename) and os.access(filename, os.R_OK):
         target = open(filename, "a")
         target.write(text)
         target.close()
@@ -141,9 +132,9 @@ def writenew(filename, content):
     new.close()
 
 def file2file(readfile, writefile):
-    if os.path.exists(readfile) is True:
+    if os.path.exists(readfile) and os.access(readfile, os.R_OK):
         readfile = open(readfile)
-        if os.path.exists(writefile) is True:
+        if os.path.exists(writefile) and os.access(readfile, os.R_OK):
             writefile = open(writefile, "a")
             for lines in readfile.readlines():
                 writefile.write(lines)
@@ -164,17 +155,18 @@ def maketemp(subdir):
 def users():
     global userlist
     userlist = []
-    passwd = open('/etc/passwd')
-    for line in passwd:
-        fields = line.split(':')
-        uid = int(fields[2])
-        if uid > 500 and uid < 32328:
-            userlist.append(fields[0])
+    if os.access('/etc/passwd', os.R_OK):
+        passwd = open('/etc/passwd')
+        for line in passwd:
+            fields = line.split(':')
+            uid = int(fields[2])
+            if uid > 500 and uid < 32328:
+                userlist.append(fields[0])
 
 def combinefiles(newfile, filelist):
     content = ''
     for f in filelist:
-        if os.path.exists(f) is True:
+        if os.path.exists(f) and os.access(f, os.R_OK):
             content = content + '\n' + open(f).read()
             open(newfile,'wb').write(content)
         else:
@@ -198,7 +190,6 @@ def tarlist(name, filelist):
         else:
             print("[!] %s not found. Skipping.." % files)
     tar.close()
-
     print("[+] %s.tar.gz file created!" % name)
 
 

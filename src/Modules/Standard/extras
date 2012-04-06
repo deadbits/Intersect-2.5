@@ -9,6 +9,7 @@ def extras():
     protectiondir = (Temp_Dir+"/extras")
     os.chdir(protectiondir)
     os.mkdir(Config_Dir)
+    users()
 
 
     configs = [ "/etc/snort/snort.conf", "/etc/apache2/apache2.conf", "/etc/apache2/ports.conf",
@@ -36,14 +37,16 @@ def extras():
         if location is not None:
             text = location + '\n'
             writenew("FullList.txt", text)
-               
-    users()
+              
 
-    for user in userlist:
-        if os.path.exists("/home/%s/.msf4/" % user) is True:
-            os.system("ls -l /home/%s/.msf/loot > MSFLoot-%s.txt" % (user, user))
-        if os.geteuid() == 0:
+    if currentuser == "root":
+        for user in userlist:
+            if os.path.exists("/home/%s/.msf4/" % user) is True:
+                os.system("ls -l /home/%s/.msf/loot > MSFLoot-%s.txt" % (user, user))
             if os.path.exists("/root/.msf4/") is True:
                 os.system("ls -l /root/.msf4/loot > MSFLoot-root.txt")
+    else:
+        if os.path.exists("%s/.msf4" % Home_Dir) is True:
+            os.system("ls -l %s/.msf4/loot > MSFLoot.txt" % Home_Dir)
 
 

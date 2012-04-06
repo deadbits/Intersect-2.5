@@ -16,7 +16,7 @@ def osuser():
     output = proc.communicate()[0]
     for items in output:
         writenew("ps_aux.txt", items)
-
+    
     os.system("ls -alh /usr/bin > bin.txt")
     os.system("ls -alh /usr/sbin > sbin.txt")
     os.system("ls -al /etc/cron* > cronjobs.txt")
@@ -47,18 +47,20 @@ def osuser():
 
     os.system("mount -l > mount.txt")
     os.system("cat /etc/sysctl.conf > sysctl.txt")
-    os.system("find /var/log -type f -exec ls -la {} \; > loglist.txt")
     os.system("uname -a > distro_kernel.txt")
     os.system("df -hT > filesystem.txt")
     os.system("free -lt > memory.txt")
-    os.system("locate sql | grep [.]sql$ > SQL_locations.txt")
-    os.system("find /home -type f -iname '.*history' > HistoryList.txt")
     os.system("cat /proc/cpuinfo > cpuinfo.txt")
     os.system("cat /proc/meminfo > meminfo.txt")
-
     copy2temp(Home_Dir+"/.bash_history")
     copy2temp(Home_Dir+"/.viminfo")
     copy2temp(Home_Dir+"/.mysql_history")
+
+    if currentuser == "root":
+        os.system("find /var/log -type f -exec ls -la {} \; > loglist.txt")
+        os.system("locate sql | grep [.]sql$ > SQL_locations.txt")
+        os.system("find /home -type f -iname '.*history' > HistoryList.txt")
+
    
     sysfiles = ["distro_kernel.txt","filesystem.txt","memory.txt","cpuinfo.txt","meminfo.txt"]
     combinefiles("SysInfo.txt", sysfiles)
@@ -67,7 +69,10 @@ def osuser():
     os.chdir("users/")
    
     os.system("ls -alhR ~/ > CurrentUser.txt")
-    os.system("ls -alhR /home > AllUsers.txt")
+
+    if currentuser == "root":
+        os.system("ls -alhR /home > AllUsers.txt")
+
     if os.path.exists(Home_Dir+"/.mozilla/") is True:
         os.system("find "+Home_Dir+"/.mozilla -name bookmarks*.json > UsersBookmarks.txt")
 

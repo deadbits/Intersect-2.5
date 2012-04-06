@@ -5,10 +5,14 @@ def scrub():
   @author: ohdae [bindshell@live.com]
   @short: cleans utmp, wtmp and lastlog
   '''
+  if currentuser != "root":
+    print("[!] Must be root to run Scrub.")
+    Shutdown()
+  
   try:
     Current_User = os.getlogin()
   except OSError:
-    print "[!] Cannot find user in logs. Did you all ready run --scrub ?"
+    print("[!] Cannot find user in logs. Did you all ready run --scrub ?")
     return
     
   newUtmp = scrubFile(UTMP_FILEPATH, Current_User)

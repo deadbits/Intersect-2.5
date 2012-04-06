@@ -26,7 +26,7 @@ def network():
     combinefiles("Connections.txt", ports)
     os.system("rm nstat.txt lsof.txt")
 
-    if whereis('iptables') is not None:
+    if currentuser == "root" and whereis('iptables') is not None:
         os.system("iptables -L -n > iptablesLN.txt") 
         os.system("iptables-save > iptables_save.txt")
     else:

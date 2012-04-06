@@ -286,7 +286,6 @@ The command :quit will return you to the main menu.\n""")
           )
 
   def globalconfig(self, modules):
-      print("\nSet shell options\nIf any of these options don't apply to you, press [enter] to ignore them.")
       writeglobals = (currentloc+"/Junk/globals")
       globalstemp = open(writeglobals, "a")
 
@@ -297,8 +296,20 @@ The command :quit will return you to the main menu.\n""")
       globalstemp.write("\n    global PPORT")
       globalstemp.write("\n    global PKEY")
       globalstemp.write("\n    global modList")
+      globalstemp.write("\n    global Temp_Dir")
 
       globalstemp.write("\n\n    modList = %s" % modules)
+
+      print("\nSpecify the directory on the target system where the gathered files and information will be saved to.")
+      print("*Important* This should be a NEW directory. When exiting Intersect, this directory will be deleted if it contains no files.")
+      print("If you skip this option, the default (/tmp/lift+$randomstring) will be used.")
+
+      tempdir = raw_input("temp directory %s " % (self.header))
+      if tempdir == "":
+          globalstemp.write("\n    Rand_Dir = ''.join(random.choice(string.letters) for i in xrange(12))")
+          globalstemp.write("\n    Temp_Dir = '/tmp/lift-'+'%s' % Rand_Dir")
+      else:
+          globalstemp.write("\n    Temp_Dir = '%s'" % tempdir)
 
       bport = raw_input("bind port %s " % (self.header))
       if bport == "":
@@ -364,18 +375,27 @@ class createcustom:
       global newpayload
       global script
 
+      print("\n[ Set Options ]\nIf any of these options don't apply to you, press [enter] to skip.")
+
       if os.path.exists(PayloadTemplate) is True:
           print("Enter a name for your Intersect script. The finished script will be placed in the Scripts directory. Do not include Python file extension.")
           name = raw_input("%s " % (self.header))
           script = (currentloc+"/Scripts/%s.py" % name)
 
-          if os.path.exists(script) is True:
-              print("[!] The filename you entered all ready exists. Enter a new filename")
-              self.chooseName()
-          else: 
+          if name == "":
+              script = (currentloc+"/Scripts/Intersect.py")
               shutil.copy2(PayloadTemplate, script)
               newpayload = open(script, "a")
-              print("Script will be saved as %s" % script)
+
+          else:
+
+              if os.path.exists(script) is True:
+                  print("[!] The filename you entered all ready exists. Enter a new filename")
+                  self.chooseName()
+              else: 
+                  shutil.copy2(PayloadTemplate, script)
+                  newpayload = open(script, "a")
+                  print("Script will be saved as %s" % script)
 
       else:
           print("[!] Payload template cannot be found!")

@@ -34,8 +34,6 @@ except ImportError:
 
 def environment():
     global Home_Dir
-    global Temp_Dir
-    global Config_Dir
     global User_Ip_Address
     global UTMP_STRUCT_SIZE    
     global LASTLOG_STRUCT_SIZE
@@ -59,10 +57,6 @@ def environment():
  
     Home_Dir = os.environ['HOME']
     User_Ip_Address = socket.gethostbyname(socket.gethostname())
-    
-    Rand_Dir = ''.join(random.choice(string.letters) for i in xrange(12))
-    Temp_Dir = "/tmp/lift-"+"%s" % Rand_Dir
-    Config_Dir = Temp_Dir+"/configs/"
 
     if os.geteuid() != 0:
         currentuser = "nonroot"
@@ -74,10 +68,10 @@ def environment():
     os.system("clear")
 
     if os.path.exists(Temp_Dir) is True:
-        os.system("rm -rf "+Temp_Dir)
-
-    if os.path.exists(Temp_Dir) is False:
+        os.chdir(Temp_Dir)
+    else:
         os.mkdir(Temp_Dir)
+        os.chdir(Temp_Dir)
 
     print "[!] Reports will be saved in: %s" % Temp_Dir
 

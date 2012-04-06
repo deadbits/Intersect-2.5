@@ -37,5 +37,13 @@ def extras():
             text = location + '\n'
             writenew("FullList.txt", text)
                
-    if os.path.exists("~/.msf4/") is True:
-        os.system("ls -l ~/.msf/loot > MetasploitLoot.txt")
+    users()
+
+    for user in userlist:
+        if os.path.exists("/home/%s/.msf4/" % user) is True:
+            os.system("ls -l /home/%s/.msf/loot > MSFLoot-%s.txt" % (user, user))
+        if os.geteuid() == 0:
+            if os.path.exists("/root/.msf4/") is True:
+                os.system("ls -l /root/.msf4/loot > MSFLoot-root.txt")
+
+

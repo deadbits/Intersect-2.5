@@ -29,4 +29,5 @@ def openshares():
                         )
             output = proc.communicate()[0]
             print("[+] Contents of %s " % disk)
-            print output		
+            print output
+

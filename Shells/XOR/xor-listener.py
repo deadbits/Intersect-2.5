@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Intersect 2.0
+# Intersect 2.5
 # XOR Shell Listener
 # trial version. don't expect this to work all that well.
 

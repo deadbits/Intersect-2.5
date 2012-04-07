@@ -86,6 +86,7 @@ def Shutdown():
         os.rmdir(Temp_Dir)
     sys.exit()
 
+
 def whereis(program):
     for path in os.environ.get('PATH', '').split(':'):
         if os.path.exists(os.path.join(path, program)) and \
@@ -112,6 +113,7 @@ def copy2temp(filename, subdir=""):
     else:
         pass
 
+
 def write2file(filename, text):
     if os.path.exists(filename) and os.access(filename, os.R_OK):
         target = open(filename, "a")
@@ -120,10 +122,12 @@ def write2file(filename, text):
     else:
         pass
 
+
 def writenew(filename, content):
     new = open(filename, "a")
     new.write(content)
     new.close()
+
 
 def file2file(readfile, writefile):
     if os.path.exists(readfile) and os.access(readfile, os.R_OK):
@@ -138,6 +142,7 @@ def file2file(readfile, writefile):
             readfile.close()
     else:
         pass
+
 			
 def maketemp(subdir):
     moddir = (Temp_Dir+"/"+subdir)
@@ -145,6 +150,7 @@ def maketemp(subdir):
         os.mkdir(moddir)
     else:
         pass
+
 
 def users():
     global userlist
@@ -157,6 +163,7 @@ def users():
             if uid > 500 and uid < 32328:
                 userlist.append(fields[0])
 
+
 def combinefiles(newfile, filelist):
     content = ''
     for f in filelist:
@@ -165,6 +172,7 @@ def combinefiles(newfile, filelist):
             open(newfile,'wb').write(content)
         else:
             pass
+
 
 def tardir(name, directory):
     tar = tarfile.open("%s.tar.gz", "w:gz" % name)
@@ -176,6 +184,7 @@ def tardir(name, directory):
         print("[!] Could not find directory %s " % directory)
         tar.close()
 
+
 def tarlist(name, filelist):
     tar = tarfile.open("%s.tar.gz" % name, "w:gz")
     for files in filelist:
@@ -185,6 +194,5 @@ def tarlist(name, filelist):
             print("[!] %s not found. Skipping.." % files)
     tar.close()
     print("[+] %s.tar.gz file created!" % name)
-
 
 

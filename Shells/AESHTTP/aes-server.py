@@ -12,10 +12,15 @@
 from BaseHTTPServer import BaseHTTPRequestHandler
 from BaseHTTPServer import HTTPServer
 import urlparse
-import re
-import os
+import os, re, sys
 import base64
 from Crypto.Cipher import AES
+
+if len(sys.argv) <=1:
+    print("Must specify listening port!")
+    sys.exit(0)
+else:
+    PORT = sys.argv[1]
 
 # the block size for the cipher object; must be 16, 24, or 32 for AES
 BLOCK_SIZE = 32
@@ -91,7 +96,7 @@ class GetHandler(BaseHTTPRequestHandler):
 if __name__ == '__main__':
 
 	# bind to all interfaces
-    	server = HTTPServer(('', 80), GetHandler)
+    	server = HTTPServer(('', len(PORT)), GetHandler)
 	print """############################################
 #
 #

@@ -45,7 +45,7 @@ def network():
         splitIP = localIP.split('.')
         splitIP[3:] = (['0/24'])
         IPRange = ".".join(splitIP)
-        externalIP = ip = urllib2.urlopen("http://myip.ozymo.com/").read()
+        externalIP = urllib2.urlopen("http://myip.ozymo.com/").read()
         text = ("External IP Address: " + externalIP + "\nInternal IP Address: " + localIP + "\nInternal IP Range: " + IPRange)
         writenew("IPAddresses.txt", text)
    

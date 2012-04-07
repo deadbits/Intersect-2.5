@@ -474,10 +474,6 @@ class createcustom:
       for item in descriptions:
           writeusage.write("\n    print('%s')" % (str(item)))
 
-      #for module, des in zip(moduleList, shortdes):
-      #   short = module[0]
-      #    writeusage.write("\n    print('     -%s   --%s        %s')" % (short, module, des))
-
       writeusage.close()
 
       newpayload = open(script, "a")

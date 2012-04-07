@@ -76,7 +76,7 @@ def creds():
             saved.close()
 
     for user in userlist:
-        if os.access("/home/%s/.znc/configs/znc.conf" % user, os.R_OK):
+        if os.access("/home/%s/.znc/configs/znc.conf" % user):
             copy2temp("/home/%s/.znc/configs/znc.conf" % user)
         else:
             pass

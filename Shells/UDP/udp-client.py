@@ -27,7 +27,7 @@ while 1:
     cmd = raw_input("Intersect => ")
     (UDPSock.sendto(cmd,addr))
 
-    if cmd == "killme":
+    if cmd == ":killme":
         (UDPSock.sendto(":killme",addr))
         print("[!] Closing shell connection!")
         sys.exit(0)

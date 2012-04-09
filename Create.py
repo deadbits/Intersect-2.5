@@ -319,6 +319,7 @@ The command :quit will return you to the main menu.\n""")
       globalstemp.write("\n    global PKEY")
       globalstemp.write("\n    global modList")
       globalstemp.write("\n    global Temp_Dir")
+      globalstemp.write("\n    global Logging")
 
       globalstemp.write("\n\n    modList = %s" % modules)
 
@@ -332,6 +333,18 @@ The command :quit will return you to the main menu.\n""")
           globalstemp.write("\n    Temp_Dir = '/tmp/lift-'+'%s' % Rand_Dir")
       else:
           globalstemp.write("\n    Temp_Dir = '%s'" % tempdir)
+
+      logopt = raw_input("enable logging %s " % (self.header))
+      if logopt == "":
+          writelog.write("\n"+logtime+" Task logging DISABLED")
+          globalstemp.write("\n    Logging = 'no'")
+      elif logopt == "yes" or logopt.startswith("y"):
+          writelog.write("\n"+logtime+" Task logging ENABLED")
+          globalstemp.write("\n    Logging = 'yes'")
+      else:
+          globalstemp.write("\n    Logging = 'no'")
+          writelog.write("\n"+logtime+" Task logging DISABLED")
+
 
       bport = raw_input("bind port %s " % (self.header))
       if bport == "":

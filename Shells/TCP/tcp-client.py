@@ -44,7 +44,7 @@ while True:
         sys.exit(0)
 
     elif cmd.startswith(':download'):
-        getname = msg.split(" ")
+        getname = cmd.split(" ")
         rem_file = getname[1]
         filename = rem_file.replace("/","_")
         data = server.recv(socksize)
@@ -56,7 +56,7 @@ while True:
             print("[+] File location: " + os.getcwd()+"/"+filename)
 
     elif cmd.startswith(':upload'):
-        getname = msg.split(" ")
+        getname = cmd.split(" ")
         loc_file = getname[1]
         sendfile = open(loc_file, "r")
         filedata = sendfile.read()

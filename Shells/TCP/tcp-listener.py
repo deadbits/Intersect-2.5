@@ -23,7 +23,7 @@ server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR,1)
 try:
     server.bind((HOST, PORT))
     server.listen(10)
-    print "[+] Shell listening on 443"
+    print "[+] Shell listening on %s" % PORT
     conn, addr = server.accept()
     print "[+] New Connection: %s" % addr[0]
     print "[+] Type ':help' to view all available commands"

@@ -21,7 +21,7 @@ server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 try:
     server.connect((HOST, PORT))
-    print("[+] New serverection established!")
+    print("[+] New connection established!")
     print("[+] Starting Intersecting shell....")
     print("[+] Type ':help' for all commands.")
     print("[+] Available Modules: ")

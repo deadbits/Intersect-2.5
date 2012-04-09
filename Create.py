@@ -10,17 +10,21 @@ import string, socket
 import linecache
 import random
 import urllib, urllib2
+import datetime
+
 
 global ModulesDir
 global CustomDir
 global PayloadTemplate
 global currentloc
 global tab_complete
+global BuildLog
+global now
+
 
 tab_complete = True
 try:
     import readline
-        # handle exception if readline isn't imported
 except ImportError:
     print "[!] Python readline is not installed. Tab completion in the Create menu will be disabled."
     tab_complete = False
@@ -32,6 +36,12 @@ currentloc = os.getcwd()
 ModulesDir = (currentloc+"/src/Modules/Standard/")
 CustomDir = (currentloc+"/src/Modules/Custom/")
 PayloadTemplate = (currentloc+"/src/Templates/stock-template")
+BuildLog = (currentloc+"/Logs/build_log")
+
+# Setup time format for build logs
+now = datetime.datetime.now()
+logtime = (str(now.month)+"-"+str(now.day)+"-"+str(now.year)+" @ "+str(now.hour)+":"+str(now.minute))
+writelog = open(BuildLog, "a")
 
 def banner():
     print """                         
@@ -129,11 +139,14 @@ Intersect 2.5 - Script Creation Utility
 
           if os.path.exists(modloc) is True:
               shutil.copy2(modloc, CustomDir)
+              writelog.write("\n\n[ New Module Imported ]")
+              writelog.write("\n"+logtime+" %s imported successfully." % modloc)
               print("[+] Module successfully loaded into the custom modules directory!")
               self.loadfunc()
 
           else:
               print("[!] Custom module could not be loaded.")
+              writelog.write("\n"+logtime+" [Error] Module import failed.")
 
       elif choice == '2':
           print("Enter the URL where the file is location: ")
@@ -150,9 +163,12 @@ Intersect 2.5 - Script Creation Utility
 
           if os.path.exists(CustomDir+filename) is True:
               print("\n[+] Module successfully downloaded and imported!\n")
+              writelog.write("\n\n[ New Module Imported ]")
+              writelog.write("\n"+logtime+" %s downloaded and imported successfully." % modloc)
               self.loadfunc()
           else:
               print("\n[!] Something went wrong! Download and import not completed!\n")
+              writelog.write("\n"+logtime+" [Error] Download and import of %s failed." % modloc)
               self.loadfunc()
 
       elif choice == '3':
@@ -186,6 +202,7 @@ into the queue, start the build process by typing :create.
 The command :quit will return you to the main menu.\n""")
 
       desired_modules = []
+      writelog.write("\n\n[ New Build Process Started ]\n")
 
       while 1:
           if tab_complete == True:
@@ -196,10 +213,12 @@ The command :quit will return you to the main menu.\n""")
 
           if os.path.exists(ModulesDir+modulesInput) is True:
               desired_modules.append(modulesInput)
+              writelog.write("\n"+logtime + " %s added to queue" % modulesInput)
               print ("%s added to queue.\n" % modulesInput)
 
           elif os.path.exists(CustomDir+modulesInput) is True:
               desired_modules.append(modulesInput)
+              writelog.write("\n"+logtime + " %s added to queue" % modulesInput)
               print ("%s added to queue.\n" % modulesInput)
               
           elif modulesInput == ":modules":
@@ -209,6 +228,8 @@ The command :quit will return you to the main menu.\n""")
           elif modulesInput == ":create":
               createcustom.chooseName()
               payloadgen.globalconfig(desired_modules)
+              writelog.write("\n"+logtime + " Building Script with: ")
+              writelog.write("\n%s" % desired_modules)
               for mod in desired_modules:
                   print mod
               createcustom.CombineFeatures(desired_modules)
@@ -248,6 +269,7 @@ The command :quit will return you to the main menu.\n""")
               getname = modulesInput.split(' ')
               modname = getname[1]
               desired_modules.remove(modname)
+              writelog.write("\n"+logtime + "%s removed from queue" % moduleInput)
               print("[+] Removed module %s from queue" % modname)
 
           elif modulesInput == ":active":
@@ -314,8 +336,10 @@ The command :quit will return you to the main menu.\n""")
       bport = raw_input("bind port %s " % (self.header))
       if bport == "":
           globalstemp.write("\n    PORT = 8888")
+          writelog.write("\n"+logtime + " PORT: 8888")
       elif bport.isdigit() is True:
           globalstemp.write("\n    PORT = %s" % bport)
+          writelog.write("\n"+logtime + " PORT: %s" % bport)
           print("[+] bind port saved.")
       else:
           print("[!] invalid port!")
@@ -325,8 +349,10 @@ The command :quit will return you to the main menu.\n""")
       rhost = raw_input("remote host %s " % (self.header))
       if rhost == "":
           globalstemp.write("\n    RHOST = ''")
+          writelog.write("\n"+logtime + " RHOST: ''")
       elif self.valid_ip(rhost) is True:
           globalstemp.write("\n    RHOST = '%s'" % rhost)
+          writelog.write("\n"+logtime + " RHOST: %s" % rhost)
           print("[+] remote host saved.")
       else:
           print("[!] invalid ipv4 address!")
@@ -336,8 +362,10 @@ The command :quit will return you to the main menu.\n""")
       rport = raw_input("remote port %s " % (self.header))
       if rport == "":
           globalstemp.write("\n    RPORT = 8888")
+          writelog.write("\n"+logtime + " RPORT: 8888")
       elif rport.isdigit() is True:
           globalstemp.write("\n    RPORT = %s" % rport)
+          writelog.write("\n"+logtime + " RPORT: %s" % rport)
           print("[+] remote port saved.")
       else:
           print("[!] invalid port!")
@@ -347,8 +375,10 @@ The command :quit will return you to the main menu.\n""")
       pport = raw_input("proxy port %s " % (self.header))
       if pport == "":
           globalstemp.write("\n    PPORT = 8080")
+          writelog.write("\n"+logtime + " PPORT: 8080")
       elif pport.isdigit() is True:
           globalstemp.write("\n    PPORT = %s" % pport)
+          writelog.write("\n"+logtime + " PPORT: %s" % pport)
           print("[+] proxy port saved.")
       else:
           print("[!] invalid port!")
@@ -386,19 +416,23 @@ class createcustom:
               script = (currentloc+"/Scripts/Intersect.py")
               shutil.copy2(PayloadTemplate, script)
               newpayload = open(script, "a")
+              writelog.write("\n"+logtime+ " Script named: Intersect.py")
 
           else:
 
               if os.path.exists(script) is True:
                   print("[!] The filename you entered all ready exists. Enter a new filename")
+                  writelog.write("\n"+logtime+" [Error] User selected invalid script name.")
                   self.chooseName()
               else: 
                   shutil.copy2(PayloadTemplate, script)
                   newpayload = open(script, "a")
                   print("Script will be saved as %s" % script)
+                  writelog.write("\n"+logtime + " Script named: %s " % script)
 
       else:
           print("[!] Payload template cannot be found!")
+          writelog.write("\n"+logtime+" [Error] Cannot find the base Intersect template.")
           payloadgen.core()
 
 
@@ -431,6 +465,7 @@ class createcustom:
 
       print("\n[+] Your custom Intersect script has been created!")
       print("   Location: %s" % script)
+      writelog.write("\n"+logtime + " Script saved to: %s \n" % script)
       sys.exit(0)
 
       

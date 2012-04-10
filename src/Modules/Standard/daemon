@@ -5,6 +5,10 @@ def daemon(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
     @author: ohdae [bindshell@live.com]
     @short: run as background process
     '''
+
+    if Logging == "yes":
+        write2file(ActivityLog, "\n\n [ Executed as Daemon ]")
+
     try: 
         pid = os.fork() 
         if pid > 0:

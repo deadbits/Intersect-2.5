@@ -5,6 +5,9 @@ def network():
     @author: ohdae [bindshell@live.com]
     @short: enumerate network info
     '''
+    if Logging == "yes":
+        write2file(ActivityLog, "\n\n [ Network Module ]")
+
     print("[+] Collecting network info: services, ports, active connections, dns, gateways, etc...")
     maketemp("network")
     networkdir = Temp_Dir+"/network"
@@ -29,6 +32,8 @@ def network():
     if currentuser == "root" and whereis('iptables') is not None:
         os.system("iptables -L -n > iptablesLN.txt") 
         os.system("iptables-save > iptables_save.txt")
+        if Logging == "yes":
+            write2file(ActivityLog, "\n IPTables information saved.")
     else:
         pass
 

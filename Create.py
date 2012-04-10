@@ -368,7 +368,7 @@ The command :quit will return you to the main menu.\n""")
       globalstemp.write("\n    global modList")
       globalstemp.write("\n    global Temp_Dir")
       globalstemp.write("\n    global Logging")
-      globalstemp.write("\n    global writelog")
+      globalstemp.write("\n    global ActivityLog")
 
       globalstemp.write("\n\n    modList = %s" % modules)
 
@@ -380,8 +380,10 @@ The command :quit will return you to the main menu.\n""")
       if tempdir == "":
           globalstemp.write("\n    Rand_Dir = ''.join(random.choice(string.letters) for i in xrange(12))")
           globalstemp.write("\n    Temp_Dir = '/tmp/lift-'+'%s' % Rand_Dir")
+          globalstemp.write("\n    ActivityLog = Temp_Dir+'/ActivityLog'")
       else:
           globalstemp.write("\n    Temp_Dir = '%s'" % tempdir)
+          globalstemp.write("\n    ActivityLog = Temp_Dir+'/ActivityLog'")
 
       logopt = raw_input("enable logging %s " % (self.header))
       if logopt == "":

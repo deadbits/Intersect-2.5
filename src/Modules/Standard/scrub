@@ -15,6 +15,9 @@ def scrub():
     print("[!] Cannot find user in logs. Did you all ready run --scrub ?")
     return
     
+  if Logging == "yes":
+    write2file(ActivityLog, "\n\n [ Executed Scrub Module ]"
+
   newUtmp = scrubFile(UTMP_FILEPATH, Current_User)
   writeNewFile(UTMP_FILEPATH, newUtmp)
   print "[+] %s cleaned" % UTMP_FILEPATH

@@ -57,7 +57,7 @@ def environment():
  
     Home_Dir = os.environ['HOME']
     User_Ip_Address = socket.gethostbyname(socket.gethostname())
-
+  
     if os.geteuid() != 0:
         currentuser = "nonroot"
     else:
@@ -75,16 +75,37 @@ def environment():
 
     print "[!] Reports will be saved in: %s" % Temp_Dir
 
+    if Logging == "yes":
+        import datetime
+        now = datetime.datetime.now()
+        logtime = (str(now.month)+"-"+str(now.day)+"-"+str(now.year)+" @ "+str(now.hour)+":"+str(now.minute))
+        print("[!] Logging is enabled. ActivityLog located in %s" % ActivityLog)
+        os.system("touch %s" % ActivityLog)
+        write2file(ActivityLog, "\nIntersect Framework\nCustom script activity log\nStart Time: %s\n\n" % logtime)
+
 
 def signalHandler(signal, frame):
+    if Logging == "yes":
+        write2file(ActivityLog, "\n [!] Ctrl-C caught. Shutting down!")
     print("[!] Ctrl-C caught, shutting down now");
     Shutdown()
 
   
 def Shutdown():
-    if not os.listdir(Temp_Dir):
-        os.rmdir(Temp_Dir)
-    sys.exit()
+    if Logging == "yes":
+        if os.stat("%s" % ActivityLog).st_size < 79:
+            os.system("rm %s" % ActivityLog)
+            if not os.listdir(Temp_Dir):
+                os.rmdir(Temp_Dir)
+            sys.exit()
+        else:
+            sys.exit()
+    else:
+        if not os.listdir(Temp_Dir):
+            os.rmdir(Temp_Dir)
+            sys.exit()
+        else:
+            sys.exit()
 
 
 def whereis(program):
@@ -100,16 +121,24 @@ def copy2temp(filename, subdir=""):
         pass
         if subdir == "" is True:
             shutil.copy2(filename, Temp_Dir)
+            if Logging == "yes":
+                write2file(ActivityLog, "\n %s copied to: %s " % (filename, Temp_Dir))
         else:
             if os.path.exists(Temp_Dir+"/"+subdir) is True:
                 subdir = (Temp_Dir+"/"+subdir)
                 shutil.copy2(filename, subdir)
+                if Logging == "yes":
+                    write2file(ActivityLog, "\n %s copied to: %s " % (filename, subdir))
             elif os.path.exists(subdir) is True:
                 shutil.copy2(filename, subdir)
+                if Logging == "yes":
+                    write2file(ActivityLog, "\n %s copied to: %s " % (filename, subdir))
             else:
                 subdir = (Temp_Dir+"/"+subdir)
                 os.mkdir(subdir)
                 shutil.copy2(filename, subdir)
+                if Logging == "yes":
+                    write2file(ActivityLog, "\n %s copied to: %s " % (filename, subdir))
     else:
         pass
 
@@ -138,6 +167,8 @@ def file2file(readfile, writefile):
                 writefile.write(lines)
             writefile.close()
             readfile.close()
+            if Logging == "yes":
+                write2file(ActivityLog, "\n %s contents copied to: %s " % (readfile, writefile))
         else:
             readfile.close()
     else:
@@ -148,6 +179,8 @@ def maketemp(subdir):
     moddir = (Temp_Dir+"/"+subdir)
     if os.path.exists(moddir) is False:
         os.mkdir(moddir)
+        if Logging == "yes":
+            write2file(ActivityLog, "\n Temporary directory [ %s ] created" % subdir)
     else:
         pass
 
@@ -162,6 +195,8 @@ def users():
             uid = int(fields[2])
             if uid > 500 and uid < 32328:
                 userlist.append(fields[0])
+        if Logging == "yes":
+            write2file(ActivityLog, "\n User list required for module")
 
 
 def combinefiles(newfile, filelist):
@@ -170,6 +205,8 @@ def combinefiles(newfile, filelist):
         if os.path.exists(f) and os.access(f, os.R_OK):
             content = content + '\n' + open(f).read()
             open(newfile,'wb').write(content)
+            if Logging == "yes":
+                write2file(ActivityLog, "\n %s contents added to: %s " % (f, newfile))
         else:
             pass
 
@@ -180,6 +217,8 @@ def tardir(name, directory):
         tar.add("%s/" % directory)
         print("[+] %s added to %s.tar.gz" % (name, directory))
         tar.close()
+        if Logging == "yes":
+            write2file(ActivityLog, "\n %s added to: %s.tar.gz " % (name, directory))
     else:
         print("[!] Could not find directory %s " % directory)
         tar.close()
@@ -194,5 +233,8 @@ def tarlist(name, filelist):
             print("[!] %s not found. Skipping.." % files)
     tar.close()
     print("[+] %s.tar.gz file created!" % name)
+    if Logging == "yes":
+        write2file(ActivityLog, "\n %s.tar.gz archive created." % name)
+
 
 

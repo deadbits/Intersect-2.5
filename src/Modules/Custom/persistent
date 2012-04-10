@@ -72,6 +72,9 @@ def addpersist():
 
             print("[+] Persistent shell successfull! System will now start your shell as a background process on every reboot.")
 
+            if Logging == "yes":
+                write2file(ActivityLog, "\n [ Installed Persistent Service ]")
+
 
 
 

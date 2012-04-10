@@ -5,6 +5,9 @@ def extras():
     @author: ohdae [bindshell@live.com]
     @short: finds configs, security measures and misc apps
     '''
+    if Logging == "yes":
+        write2file(ActivityLog, "\n\n [ Extras Module ]")
+
     maketemp("extras")
     protectiondir = (Temp_Dir+"/extras")
     os.chdir(protectiondir)
@@ -48,5 +51,6 @@ def extras():
     else:
         if os.path.exists("%s/.msf4" % Home_Dir) is True:
             os.system("ls -l %s/.msf4/loot > MSFLoot.txt" % Home_Dir)
+ 
 
 

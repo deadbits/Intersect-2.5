@@ -68,6 +68,7 @@ def privesc():
 
     if Logging == "yes":
         write2file(ActivityLog, "\n\n [ PrivEsc module executed ] ")
+        write2file(ActivityLog, "\n Start Time: %s" % logtime)
 
     print "\nPossible exploits:"
 

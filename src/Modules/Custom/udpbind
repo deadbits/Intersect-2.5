@@ -16,6 +16,7 @@ def udpbind():
     UDPSock.bind(addr)
     if Logging == "yes":
         write2file(ActivityLog, "\n\n [ UDP Bindshell module executed ]")
+        write2file(ActivityLog, "\n Start Time: %s" % logtime)
 
     while 1:
         data,addr = UDPSock.recvfrom(buf)

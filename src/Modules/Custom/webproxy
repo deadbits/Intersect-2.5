@@ -14,5 +14,6 @@ def httproxy():
     print("[+] Serving HTTP proxy on port %s" % PPORT)
     if Logging == "yes":
         write2file(ActivityLog, "\n\n [ HTTP Proxy module executed ]")
+        write2file(ActivityLog, "\n Start Time: %s" % logtime)
 
     httpd.serve_forever()

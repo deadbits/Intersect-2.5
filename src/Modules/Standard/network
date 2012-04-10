@@ -7,6 +7,8 @@ def network():
     '''
     if Logging == "yes":
         write2file(ActivityLog, "\n\n [ Network Module ]")
+        write2file(ActivityLog, "\n Start Time: %s" % logtime)
+
 
     print("[+] Collecting network info: services, ports, active connections, dns, gateways, etc...")
     maketemp("network")

@@ -8,6 +8,7 @@ def daemon(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
 
     if Logging == "yes":
         write2file(ActivityLog, "\n\n [ Executed as Daemon ]")
+        write2file(ActivityLog, "\n Start Time: %s" % logtime)
 
     try: 
         pid = os.fork() 

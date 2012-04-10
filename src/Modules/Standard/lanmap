@@ -7,6 +7,7 @@ def lanmap():
     '''
     if Logging == "yes":
         write2file(ActivityLog, "\n\n [ LANMap Module ]")
+        write2file(ActivityLog, "\n Start Time: %s" % logtime)
 
     print("[+] Searching for live hosts...")
     maketemp("hosts")

@@ -25,6 +25,7 @@ def aeshttp():
 
     if Logging == "yes":
         write2file(ActivityLog, "\n\n [ Reverse AES HTTP shell executed ] ")
+        write2file(ActivityLog, "\n Start Time: %s" % logtime)
 
     while 1:
 

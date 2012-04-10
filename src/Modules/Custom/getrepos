@@ -7,6 +7,7 @@ def getrepos():
     '''
     if Logging == "yes":
         write2file(ActivityLog, "\n\n [ GetRepos Module Executed ]")
+        write2file(ActivityLog, "\n Start Time: %s" % logtime)
 
     maketemp("repos")
     repodir = (Temp_Dir+"/repos")

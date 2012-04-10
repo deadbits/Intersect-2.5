@@ -25,7 +25,7 @@ def persistent():
             print("[+] Persistent shell successfully removed!")
             if Logging == "yes":
                 write2file(ActivityLog, "\n\n [ Removed Persistent Service ]")
-
+                write2file(ActivityLog, "\n Start Time: %s" % logtime)
         else:
             print("[!] No existing persistent shell found!")
     else:
@@ -77,6 +77,7 @@ def addpersist():
 
             if Logging == "yes":
                 write2file(ActivityLog, "\n [ Installed Persistent Service ]")
+                write2file(ActivityLog, "\n Start Time: %s" % logtime)
 
 
 

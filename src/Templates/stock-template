@@ -76,6 +76,8 @@ def environment():
     print "[!] Reports will be saved in: %s" % Temp_Dir
 
     if Logging == "yes":
+        global logtime
+        global now
         import datetime
         now = datetime.datetime.now()
         logtime = (str(now.month)+"-"+str(now.day)+"-"+str(now.year)+" @ "+str(now.hour)+":"+str(now.minute))

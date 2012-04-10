@@ -5,6 +5,10 @@ def osuser():
     @author: ohdae [bindshell@live.com]
     @short: enumerate user and system information
     '''
+    if Logging == "yes":
+        write2file(ActivityLog, "\n\n  [ OS & User module ]")
+        write2file(ActivityLog, "\n Start Time: %s" % logtime)
+
     print("[+] Collecting operating system and user information....")
     maketemp("osinfo")
     os.chdir(Temp_Dir+"/osinfo/")
@@ -22,6 +26,9 @@ def osuser():
     os.system("ls -al /etc/cron* > cronjobs.txt")
     os.system("ls -alhtr /media > media.txt")
     os.system("/usr/bin/lpstat -v > printers.txt")
+
+    if Logging == "yes":
+        write2file(ActivityLog, "\n Listings of sbin, bin, cronjobs, printers, media, ps aux")
 
     if distro == "ubuntu" or distro2 == "Ubuntu":
         os.system("dpkg -l > dpkg_list.txt")
@@ -45,6 +52,9 @@ def osuser():
     elif whereis('chkconfig') is not None:
         os.system("chkconfig -A > services_list.txt")
 
+    if Logging == "yes":
+        write2file(ActivityLog, "\n Listings of installed packages, list of installed services.")
+
     os.system("mount -l > mount.txt")
     os.system("cat /etc/sysctl.conf > sysctl.txt")
     os.system("uname -a > distro_kernel.txt")
@@ -56,10 +66,16 @@ def osuser():
     copy2temp(Home_Dir+"/.viminfo")
     copy2temp(Home_Dir+"/.mysql_history")
 
+    if Logging == "yes":
+        write2file(ActivityLog, "\n Collected: mount, sysctl, uname, diskspace, memory/cpu info..")
+
     if currentuser == "root":
         os.system("find /var/log -type f -exec ls -la {} \; > loglist.txt")
         os.system("locate sql | grep [.]sql$ > SQL_locations.txt")
         os.system("find /home -type f -iname '.*history' > HistoryList.txt")
+
+    if Logging == "yes":
+        write2file(ActivityLog, "\n Enumeration of history files, SQL locations and log lists.")
 
    
     sysfiles = ["distro_kernel.txt","filesystem.txt","memory.txt","cpuinfo.txt","meminfo.txt"]
@@ -75,5 +91,8 @@ def osuser():
 
     if os.path.exists(Home_Dir+"/.mozilla/") is True:
         os.system("find "+Home_Dir+"/.mozilla -name bookmarks*.json > UsersBookmarks.txt")
+
+    if Logging == "yes":
+        write2file(ActivityLog, "\n Listings of home user directories, Mozilla bookmarks and history..")
 
    

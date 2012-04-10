@@ -30,6 +30,7 @@ def egressbuster():
     print "All packets have been sent"
     if Logging == "yes":
         write2file(ActivityLog, "\n\n [ Executed Egress Buster ]")
+        write2file(ActivityLog, "\n Start Time: %s" % logtime)
 
 
 def start_socket(RHOST,base_port):

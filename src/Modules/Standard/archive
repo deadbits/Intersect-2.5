@@ -7,6 +7,7 @@ def archive():
     '''
     if Logging == "yes":
         write2file(ActivityLog, "\n\n [ Archive Module ]")
+        write2file(ActivityLog, "\n Start Time: %s" % logtime)
 
     os.chdir(Temp_Dir)
     temp_files = os.listdir(Temp_Dir)

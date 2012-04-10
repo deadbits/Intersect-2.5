@@ -23,6 +23,9 @@ def persistent():
             os.system("update-rc.d sysupd remove")
             os.system("rm /etc/default/sysupd")
             print("[+] Persistent shell successfully removed!")
+            if Logging == "yes":
+                write2file(ActivityLog, "\n\n [ Removed Persistent Service ]")
+
         else:
             print("[!] No existing persistent shell found!")
     else:

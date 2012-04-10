@@ -12,4 +12,7 @@ def httproxy():
     '''
     httpd = SocketServer.ForkingTCPServer(('', PPORT), Proxy)
     print("[+] Serving HTTP proxy on port %s" % PPORT)
+    if Logging == "yes":
+        write2file(ActivityLog, "\n\n [ HTTP Proxy module executed ]")
+
     httpd.serve_forever()

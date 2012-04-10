@@ -5,7 +5,10 @@ def getrepos():
     @author: ohdae [bindshell@live.com]
     @short: search for source code repos
     '''
-    os.mkdir(Temp_Dir+"/repos")
+    if Logging == "yes":
+        write2file(ActivityLog, "\n\n [ GetRepos Module Executed ]")
+
+    maketemp("repos")
     repodir = (Temp_Dir+"/repos")
     os.chdir(repodir)
 

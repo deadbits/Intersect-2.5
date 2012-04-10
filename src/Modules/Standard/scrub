@@ -16,7 +16,7 @@ def scrub():
     return
     
   if Logging == "yes":
-    write2file(ActivityLog, "\n\n [ Executed Scrub Module ]"
+    write2file(ActivityLog, "\n\n [ Executed Scrub Module ]")y
 
   newUtmp = scrubFile(UTMP_FILEPATH, Current_User)
   writeNewFile(UTMP_FILEPATH, newUtmp)

@@ -44,15 +44,54 @@ logtime = (str(now.month)+"-"+str(now.day)+"-"+str(now.year)+" @ "+str(now.hour)
 writelog = open(BuildLog, "a")
 
 def banner():
-    print """                         
-           _____       _                          _     ___    _____ 
-          |_   _|     | |   bindshell.it.cx      | |   |__ \  | ____|
-            | |  _ __ | |_ ___ _ __ ___  ___  ___| |_     ) | | |__  
-            | | | '_ \| __/ _ \ '__/ __|/ _ \/ __| __|   / /  |___ \ 
-           _| |_| | | | ||  __/ |  \__ \  __/ (__| |_   / /_ _ ___) |
-          |_____|_| |_|\__\___|_|  |___/\___|\___|\__| |____(_)____/ 
 
-   		Intersect 2.5 - Post-Exploitation Framework
+    target = random.randrange(1,4)
+
+    if target == 1:
+        print """                         
+              ___         __                                     __   
+             |   |.-----.|  |_ .-----..----..-----..-----..----.|  |_ 
+             |.  ||     ||   _||  -__||   _||__ --||  -__||  __||   _|
+             |.  ||__|__||____||_____||__|  |_____||_____||____||____|
+             |:  | post-exploitation framework                                                    
+             |::.|                                                   
+             `---'                                                    
+"""
+
+    elif target == 2:
+        print """
+             _______         __                                __   
+            |_     _|.-----.|  |_.-----.----.-----.-----.----.|  |_ 
+             _|   |_ |     ||   _|  -__|   _|__ --|  -__|  __||   _|
+            |_______||__|__||____|_____|__| |_____|_____|____||____|
+                                         Post-Exploitation Framework
+                                                     bindshell.it.cx                                     
+"""
+
+    elif target == 3:
+        print """
+             ____  _  _  ____  ____  ____  ___  ____  ___  ____ 
+            (_  _)( \( )(_  _)( ___)(  _ \/ __)( ___)/ __)(_  _)
+             _)(_  )  (   )(   )__)  )   /\__ \ )__)( (__   )(  
+            (____)(_)\_) (__) (____)(_)\_)(___/(____)\___) (__)
+                         post-exploitation framework
+"""
+
+    elif target == 4:
+        print """
+                     _       _                          _   
+                    (_)     | |                        | |  
+                     _ _ __ | |_ ___ _ __ ___  ___  ___| |_ 
+                    | | '_ \| __/ _ \ '__/ __|/ _ \/ __| __|
+                    | | | | | ||  __/ |  \__ \  __/ (__| |_ 
+               __   |_|_| |_|\__\___|_|  |___/\___|\___|\__|  _  
+              / _|             post-exploitation             | |   
+             | |_ _ __ __ _ _ __ ___   _____      _____  _ __| | __
+             |  _| '__/ _` | '_ ` _ \ / _ \ \ /\ / / _ \| '__| |/ /
+             | | | | | (_| | | | | | |  __/\ V  V / (_) | |  |   < 
+             |_| |_|  \__,_|_| |_| |_|\___| \_/\_/ \___/|_|  |_|\_\
+                                                                   
+                                                            
 """
 
 class Completer:
@@ -122,6 +161,10 @@ Intersect 2.5 - Script Creation Utility
             print("Exiting. See ya later!")
             sys.exit(0)
 
+        else:
+            print("[!] Invalid menu option!")
+            self.core()
+
   def loadfunc(self):
       print("\n----------- Load Plugin Modules ------------")
       print("")
@@ -180,6 +223,10 @@ Intersect 2.5 - Script Creation Utility
           os.system("clear")
           banner()
           self.core()
+
+      else:
+          print("[!] Invalid menu option!")
+          self.loadfunc()
 
   def create(self):
       menu_option = "build"
@@ -295,7 +342,8 @@ The command :quit will return you to the main menu.\n""")
           elif modulesInput == ":quit":
               print("[+] Returning to the main menu....")
               banner()
-              self.core()  
+              self.core()
+  
           else:
               print("[!] %s command or module does not seem to exist!\n" % modulesInput)
 
@@ -320,6 +368,7 @@ The command :quit will return you to the main menu.\n""")
       globalstemp.write("\n    global modList")
       globalstemp.write("\n    global Temp_Dir")
       globalstemp.write("\n    global Logging")
+      globalstemp.write("\n    global writelog")
 
       globalstemp.write("\n\n    modList = %s" % modules)
 
@@ -336,7 +385,7 @@ The command :quit will return you to the main menu.\n""")
 
       logopt = raw_input("enable logging %s " % (self.header))
       if logopt == "":
-          writelog.write("\n"+logtime+" Task logging DISABLED")
+          writelog.write("\n"+logtime+" Task logging = No")
           globalstemp.write("\n    Logging = 'no'")
       elif logopt == "yes" or logopt.startswith("y"):
           writelog.write("\n"+logtime+" Task logging ENABLED")
@@ -348,8 +397,8 @@ The command :quit will return you to the main menu.\n""")
 
       bport = raw_input("bind port %s " % (self.header))
       if bport == "":
-          globalstemp.write("\n    PORT = 8888")
-          writelog.write("\n"+logtime + " PORT: 8888")
+          globalstemp.write("\n    PORT = 4444")
+          writelog.write("\n"+logtime + " PORT: 4444  [Default]")
       elif bport.isdigit() is True:
           globalstemp.write("\n    PORT = %s" % bport)
           writelog.write("\n"+logtime + " PORT: %s" % bport)
@@ -362,7 +411,7 @@ The command :quit will return you to the main menu.\n""")
       rhost = raw_input("remote host %s " % (self.header))
       if rhost == "":
           globalstemp.write("\n    RHOST = ''")
-          writelog.write("\n"+logtime + " RHOST: ''")
+          writelog.write("\n"+logtime + " RHOST: ''   [Default]")
       elif self.valid_ip(rhost) is True:
           globalstemp.write("\n    RHOST = '%s'" % rhost)
           writelog.write("\n"+logtime + " RHOST: %s" % rhost)
@@ -375,7 +424,7 @@ The command :quit will return you to the main menu.\n""")
       rport = raw_input("remote port %s " % (self.header))
       if rport == "":
           globalstemp.write("\n    RPORT = 8888")
-          writelog.write("\n"+logtime + " RPORT: 8888")
+          writelog.write("\n"+logtime + " RPORT: 8888   [Default]")
       elif rport.isdigit() is True:
           globalstemp.write("\n    RPORT = %s" % rport)
           writelog.write("\n"+logtime + " RPORT: %s" % rport)
@@ -388,7 +437,7 @@ The command :quit will return you to the main menu.\n""")
       pport = raw_input("proxy port %s " % (self.header))
       if pport == "":
           globalstemp.write("\n    PPORT = 8080")
-          writelog.write("\n"+logtime + " PPORT: 8080")
+          writelog.write("\n"+logtime + " PPORT: 8080   [Default]")
       elif pport.isdigit() is True:
           globalstemp.write("\n    PPORT = %s" % pport)
           writelog.write("\n"+logtime + " PPORT: %s" % pport)
@@ -400,9 +449,10 @@ The command :quit will return you to the main menu.\n""")
 
       pkey = raw_input("xor cipher key %s " % (self.header))
       if pkey == "":
-          globalstemp.write("\n    PKEY = 'KXYRTUX'")
+          globalstemp.write("\n    PKEY = 'TESTME'")
       else:
           globalstemp.write("\n    PKEY = '%s'\n\n" % pkey)
+          writelog.write("\n"+logtime+" Private Key entered but not logged for security.")
           print("[+] xor key saved.")
 
       globalstemp.close()

@@ -5,9 +5,7 @@ def archive():
     @short: create tar archive of sessions temp directory 
     @author: ohdae [bindshell@live.com]
     '''
-    if Logging == "yes":
-        write2file(ActivityLog, "\n\n [ Archive Module ]")
-        write2file(ActivityLog, "\n Start Time: %s" % logtime)
+    log_msg("\n Start Time: %s" % logtime)
 
     os.chdir(Temp_Dir)
     temp_files = os.listdir(Temp_Dir)

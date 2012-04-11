@@ -13,9 +13,8 @@ def openshares():
 
     else:
         print("[+] Enumerating open shares....\n")
-        if Logging == "yes":
-            write2file(ActivityLog, "\n\n [ SMB Shares Module executed ]")
-            write2file(ActivityLog, "\n Start Time: %s" % logtime)
+        log_msg("\n\n [ SMB Shares Module executed ]")
+        log_msg("\n Start Time: %s" % logtime)
 
         os.popen("/usr/bin/smbclient -L %s -N" % ipaddr)
 

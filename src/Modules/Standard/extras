@@ -5,9 +5,8 @@ def extras():
     @author: ohdae [bindshell@live.com]
     @short: finds configs, security measures and misc apps
     '''
-    if Logging == "yes":
-        write2file(ActivityLog, "\n\n [ Extras Module ]")
-        write2file(ActivityLog, "\n Start Time: %s" % logtime)
+    log_msg("\n\n [ Extras Module ]")
+    log_msg("\n Start Time: %s" % logtime)
 
     maketemp("extras")
     protectiondir = (Temp_Dir+"/extras")

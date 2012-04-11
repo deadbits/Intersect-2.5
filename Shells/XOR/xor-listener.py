@@ -33,7 +33,7 @@ except IndexError:
 try:
     server.bind((HOST, PORT))
     server.listen(10)
-    print "[+] Shell listening on 443"
+    print "[+] Shell listening on %s" % PORT
     conn, addr = server.accept()
     print "[+] New Connection: %s" % addr[0]
     print "[+] Type ':help' for extra available commands"

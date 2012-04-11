@@ -316,7 +316,7 @@ The command :quit will return you to the main menu.\n""")
               getname = modulesInput.split(' ')
               modname = getname[1]
               desired_modules.remove(modname)
-              writelog.write("\n"+logtime + "%s removed from queue" % moduleInput)
+              writelog.write("\n"+logtime + "%s removed from queue" % modulesInput)
               print("[+] Removed module %s from queue" % modname)
 
           elif modulesInput == ":active":

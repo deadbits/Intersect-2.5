@@ -23,9 +23,8 @@ def aeshttp():
 
     cipher = AES.new(secret)
 
-    if Logging == "yes":
-        write2file(ActivityLog, "\n\n [ Reverse AES HTTP shell executed ] ")
-        write2file(ActivityLog, "\n Start Time: %s" % logtime)
+    log_msg("\n\n [ Reverse AES HTTP shell executed ] ")
+    log_msg("\n Start Time: %s" % logtime)
 
     while 1:
 

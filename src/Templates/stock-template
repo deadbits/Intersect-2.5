@@ -239,4 +239,11 @@ def tarlist(name, filelist):
         write2file(ActivityLog, "\n %s.tar.gz archive created." % name)
 
 
+def log_msg(message):
+    if Logging == "yes":
+        write2file(ActivityLog, message)
+        
+
+
+
 

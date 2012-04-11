@@ -5,9 +5,8 @@ def getrepos():
     @author: ohdae [bindshell@live.com]
     @short: search for source code repos
     '''
-    if Logging == "yes":
-        write2file(ActivityLog, "\n\n [ GetRepos Module Executed ]")
-        write2file(ActivityLog, "\n Start Time: %s" % logtime)
+    log_msg("\n\n [ GetRepos Module Executed ]")
+    log_msg("\n Start Time: %s" % logtime)
 
     maketemp("repos")
     repodir = (Temp_Dir+"/repos")

@@ -6,9 +6,8 @@ def daemon(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
     @short: run as background process
     '''
 
-    if Logging == "yes":
-        write2file(ActivityLog, "\n\n [ Executed as Daemon ]")
-        write2file(ActivityLog, "\n Start Time: %s" % logtime)
+    log_msg("\n\n [ Executed as Daemon ]")
+    log_msg("\n Start Time: %s" % logtime)
 
     try: 
         pid = os.fork() 

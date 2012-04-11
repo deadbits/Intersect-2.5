@@ -5,9 +5,8 @@ def lanmap():
     @author: ohdae [bindshell@live.com]
     @short: find live hosts on LAN
     '''
-    if Logging == "yes":
-        write2file(ActivityLog, "\n\n [ LANMap Module ]")
-        write2file(ActivityLog, "\n Start Time: %s" % logtime)
+    log_msg("\n\n [ LANMap Module ]")
+    log_msg("\n Start Time: %s" % logtime)
 
     print("[+] Searching for live hosts...")
     maketemp("hosts")

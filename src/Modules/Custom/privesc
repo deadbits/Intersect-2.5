@@ -66,9 +66,8 @@ def privesc():
                  "ipc - half-nelson": { "CVE": "2010-4073", "versions": ("2.6.0-2.6.37rc1",), "exploits": (17787,) },
                }
 
-    if Logging == "yes":
-        write2file(ActivityLog, "\n\n [ PrivEsc module executed ] ")
-        write2file(ActivityLog, "\n Start Time: %s" % logtime)
+    log_msg("\n\n [ PrivEsc module executed ] ")
+    log_msg("\n Start Time: %s" % logtime)
 
     print "\nPossible exploits:"
 

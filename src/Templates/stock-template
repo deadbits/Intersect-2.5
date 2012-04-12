@@ -244,6 +244,12 @@ def log_msg(message):
         write2file(ActivityLog, message)
         
 
+def reaper():                              
+    while shellPID:                        
+        pid,stat = os.waitpid(0, os.WNOHANG)     
+        if not pid: break
+        shellPID.remove(pid)
+
 
 
 

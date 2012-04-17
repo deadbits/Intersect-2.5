@@ -1,34 +1,25 @@
-Documentation: How to Update the Intersect Framework
 
-- How to update
-- Update timeline
+Documentation: How to update Intersect Framework
 
-How to update:
---------------
-When you downloaded Intersect, whether it was from Sourceforge, Github, or
-the SVN repo directly, it should have included the .svn subdirectory and a
-script called 'update.py' within the main folder.
-
-All changes and updates to the Github repo are mirrored onto the SVN.
-When you execute, update.py it will check the SVN repo for any new files,
-changes and other updates. These updates will be downloaded and installed
-automatically.
+- How To Update
+- Updates Schedule
 
 
-Update timeline:
-----------------
+How To Update:
 
-    The Intersect Framework is mirrored on Github as well as the SVN repo.
-Development changes will be constantly pushed to Github through-out each
-week. If you want to keep up with the development updates as they are rolled out,
-you will need to either fork the Github repository or manually download the zip/tar.gz
-file from Github. 
+*coming soon*
 
-    The SVN repository is only updated to reflect the stable changes
-once per week. The SVN will be updated every Monday morning at 7:15am.
-If you execute update.py between the weekly updates are pushed to SVN,
-you will not see any changes. A good way to handle weekly updates is to
-plan on executing update.py every Monday morning to make sure you are
-using the latest release.
-    
+
+Updates Schedule:
+
+New features, bug fixes and upgrades are constantly being pushed to
+the Intersect Github repository. I will do my best to make sure that every
+Monday morning, there is a stable release available. The stable release will
+be listed under the 'master' branch and any developmental and beta upgrades
+will be listed under the 'development' branch.
+
+Every Monday morning, you can update to the latest stable release by using
+the command 'git pull master' from your main Intersect directory.
+
+For the beta release use 'git pull development'
 

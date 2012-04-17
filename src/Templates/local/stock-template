@@ -1,0 +1,256 @@
+#!/usr/bin/python
+# intersect 2.0 | created by ohdae
+# copyright 2012
+# payload_template to be used with Create.py
+
+import sys, os, re, signal
+from subprocess import Popen,PIPE,STDOUT,call
+import platform
+import shutil
+import getopt
+import tarfile
+import socket
+import urllib2
+import random, string
+import logging
+import struct
+import getpass
+import pwd
+import thread
+import base64
+import operator
+import SocketServer, SimpleHTTPServer
+from math import log
+
+cut = lambda s: str(s).split("\0",1)[0]
+logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
+
+try:
+    from scapy.all import *
+except ImportError:
+    try:
+        from scapy import *
+    except ImportError:
+        print("Scapy is not installed. It can be downloaded here => https://www.secdev.org/projects/scapy/\n")
+
+def environment():
+    global Home_Dir
+    global User_Ip_Address
+    global UTMP_STRUCT_SIZE    
+    global LASTLOG_STRUCT_SIZE
+    global UTMP_FILEPATH      
+    global WTMP_FILEPATH       
+    global LASTLOG_FILEPATH
+    global distro
+    global distro2
+    global currentuser
+
+    ## Global variables for remote shells are defined during the creation process
+    ## Variables for Scrub module. Do not change unless you know what you're doing. 
+    UTMP_STRUCT_SIZE    = 384
+    LASTLOG_STRUCT_SIZE = 292
+    UTMP_FILEPATH       = "/var/run/utmp"
+    WTMP_FILEPATH       = "/var/log/wtmp"
+    LASTLOG_FILEPATH    = "/var/log/lastlog"
+
+    distro = os.uname()[1]
+    distro2 = platform.linux_distribution()[0]
+ 
+    Home_Dir = os.environ['HOME']
+    User_Ip_Address = socket.gethostbyname(socket.gethostname())
+  
+    if os.geteuid() != 0:
+        currentuser = "nonroot"
+    else:
+        currentuser = "root"
+
+    signal.signal(signal.SIGINT, signalHandler)
+
+    os.system("clear")
+
+    if os.path.exists(Temp_Dir) is True:
+        os.chdir(Temp_Dir)
+    else:
+        os.mkdir(Temp_Dir)
+        os.chdir(Temp_Dir)
+
+    print "[!] Reports will be saved in: %s" % Temp_Dir
+
+    if Logging == "yes":
+        global logtime
+        global now
+        import datetime
+        now = datetime.datetime.now()
+        logtime = (str(now.month)+"-"+str(now.day)+"-"+str(now.year)+" @ "+str(now.hour)+":"+str(now.minute))
+        print("[!] Logging is enabled. ActivityLog located in %s" % ActivityLog)
+        os.system("touch %s" % ActivityLog)
+        write2file(ActivityLog, "\nIntersect Framework\nCustom script activity log\nStart Time: %s\n\n" % logtime)
+
+
+def signalHandler(signal, frame):
+    if Logging == "yes":
+        write2file(ActivityLog, "\n [!] Ctrl-C caught. Shutting down!")
+    print("[!] Ctrl-C caught, shutting down now");
+    Shutdown()
+
+  
+def Shutdown():
+    if Logging == "yes":
+        if os.stat("%s" % ActivityLog).st_size < 79:
+            os.system("rm %s" % ActivityLog)
+            if not os.listdir(Temp_Dir):
+                os.rmdir(Temp_Dir)
+            sys.exit()
+        else:
+            sys.exit()
+    else:
+        if not os.listdir(Temp_Dir):
+            os.rmdir(Temp_Dir)
+            sys.exit()
+        else:
+            sys.exit()
+
+
+def whereis(program):
+    for path in os.environ.get('PATH', '').split(':'):
+        if os.path.exists(os.path.join(path, program)) and \
+            not os.path.isdir(os.path.join(path, program)):
+                return os.path.join(path, program)
+    return None
+
+
+def copy2temp(filename, subdir=""):
+    if os.path.exists(filename) and os.access(filename, os.R_OK): 
+        pass
+        if subdir == "" is True:
+            shutil.copy2(filename, Temp_Dir)
+            if Logging == "yes":
+                write2file(ActivityLog, "\n %s copied to: %s " % (filename, Temp_Dir))
+        else:
+            if os.path.exists(Temp_Dir+"/"+subdir) is True:
+                subdir = (Temp_Dir+"/"+subdir)
+                shutil.copy2(filename, subdir)
+                if Logging == "yes":
+                    write2file(ActivityLog, "\n %s copied to: %s " % (filename, subdir))
+            elif os.path.exists(subdir) is True:
+                shutil.copy2(filename, subdir)
+                if Logging == "yes":
+                    write2file(ActivityLog, "\n %s copied to: %s " % (filename, subdir))
+            else:
+                subdir = (Temp_Dir+"/"+subdir)
+                os.mkdir(subdir)
+                shutil.copy2(filename, subdir)
+                if Logging == "yes":
+                    write2file(ActivityLog, "\n %s copied to: %s " % (filename, subdir))
+    else:
+        pass
+
+
+def write2file(filename, text):
+    if os.path.exists(filename) and os.access(filename, os.R_OK):
+        target = open(filename, "a")
+        target.write(text)
+        target.close()
+    else:
+        pass
+
+
+def writenew(filename, content):
+    new = open(filename, "a")
+    new.write(content)
+    new.close()
+
+
+def file2file(readfile, writefile):
+    if os.path.exists(readfile) and os.access(readfile, os.R_OK):
+        readfile = open(readfile)
+        if os.path.exists(writefile) and os.access(readfile, os.R_OK):
+            writefile = open(writefile, "a")
+            for lines in readfile.readlines():
+                writefile.write(lines)
+            writefile.close()
+            readfile.close()
+            if Logging == "yes":
+                write2file(ActivityLog, "\n %s contents copied to: %s " % (readfile, writefile))
+        else:
+            readfile.close()
+    else:
+        pass
+
+			
+def maketemp(subdir):
+    moddir = (Temp_Dir+"/"+subdir)
+    if os.path.exists(moddir) is False:
+        os.mkdir(moddir)
+        if Logging == "yes":
+            write2file(ActivityLog, "\n Temporary directory [ %s ] created" % subdir)
+    else:
+        pass
+
+
+def users():
+    global userlist
+    userlist = []
+    if os.access('/etc/passwd', os.R_OK):
+        passwd = open('/etc/passwd')
+        for line in passwd:
+            fields = line.split(':')
+            uid = int(fields[2])
+            if uid > 500 and uid < 32328:
+                userlist.append(fields[0])
+        if Logging == "yes":
+            write2file(ActivityLog, "\n User list required for module")
+
+
+def combinefiles(newfile, filelist):
+    content = ''
+    for f in filelist:
+        if os.path.exists(f) and os.access(f, os.R_OK):
+            content = content + '\n' + open(f).read()
+            open(newfile,'wb').write(content)
+            if Logging == "yes":
+                write2file(ActivityLog, "\n %s contents added to: %s " % (f, newfile))
+        else:
+            pass
+
+
+def tardir(name, directory):
+    tar = tarfile.open("%s.tar.gz", "w:gz" % name)
+    if os.path.exists(directory) is True:
+        tar.add("%s/" % directory)
+        print("[+] %s added to %s.tar.gz" % (name, directory))
+        tar.close()
+        if Logging == "yes":
+            write2file(ActivityLog, "\n %s added to: %s.tar.gz " % (name, directory))
+    else:
+        print("[!] Could not find directory %s " % directory)
+        tar.close()
+
+
+def tarlist(name, filelist):
+    tar = tarfile.open("%s.tar.gz" % name, "w:gz")
+    for files in filelist:
+        if os.path.exists(files) is True:
+            tar.add(files)
+        else:
+            print("[!] %s not found. Skipping.." % files)
+    tar.close()
+    print("[+] %s.tar.gz file created!" % name)
+    if Logging == "yes":
+        write2file(ActivityLog, "\n %s.tar.gz archive created." % name)
+
+
+def log_msg(message):
+    if Logging == "yes":
+        write2file(ActivityLog, message)
+        
+
+def reaper():                              
+    while shellPID:                        
+        pid,stat = os.waitpid(0, os.WNOHANG)     
+        if not pid: break
+        shellPID.remove(pid)
+
+
+
+

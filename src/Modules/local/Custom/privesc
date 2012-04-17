@@ -23,7 +23,7 @@ def privesc():
     exploitdb_url = "http://www.exploit-db.com/exploits"
     enlightenment_url = "http://www.grsecurity.net/~spender/enlightenment.tgz"
     
-    print "[+] Results for local kernel version %s" % kernel_version_string
+    status_msg("[+] Results for local kernel version %s" % kernel_version_string)
 
     kernel_parts = kernel_version_string.split("-")
     kernel_version = fix_version(kernel_parts[0])
@@ -66,10 +66,9 @@ def privesc():
                  "ipc - half-nelson": { "CVE": "2010-4073", "versions": ("2.6.0-2.6.37rc1",), "exploits": (17787,) },
                }
 
-    log_msg("\n\n [ PrivEsc module executed ] ")
-    log_msg("\n Start Time: %s" % logtime)
+    log_msg("Executed 'privesc' module")
 
-    print "\nPossible exploits:"
+    status_msg("Possible exploits: ")
 
     for name, data in exploits.items():
         versions = data["versions"] 
@@ -85,10 +84,10 @@ def privesc():
                 exploits = data["exploits"]
                 found_exploit = True
 
-                print "\n* Linux Kernel %s Local Root Exploit\n    CVE: CVE-%s\n    Affected Kernels: %s-%s\n    Exploits:\n%s" % (name, cve, min_version, max_version, "\n".join("      %s/%d" % (exploitdb_url, expl) if isinstance(expl, int) else "      %s" % expl for expl in exploits))
+                status_msg("\n* Linux Kernel %s Local Root Exploit\n    CVE: CVE-%s\n    Affected Kernels: %s-%s\n    Exploits:\n%s" % (name, cve, min_version, max_version, "\n".join("      %s/%d" % (exploitdb_url, expl) if isinstance(expl, int) else "      %s" % expl for expl in exploits)))
 
     if found_exploit:
-        print
+        status_msg("")
 
         if len(kernel_parts) > 1:
             print "WARNING: %s appears to be a modified version of kernel %s." % (kernel_version_string, kernel_version)

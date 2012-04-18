@@ -420,7 +420,7 @@ For a complete list of commands type :help
                 
                                 
             elif choice == "3":
-                template = (templates+"xorbind.py")
+                template = (Templates+"xorbind.py")
                 print("\nEnter a name for your new shell. The final product will be saved in the Scripts directory.")
                 name = raw_input(" xor-bind => ")
                 if os.path.exists(Scripts+name):
@@ -451,7 +451,7 @@ For a complete list of commands type :help
                     management.make_server()
                     
             elif choice == "4":
-                template = (templates+"xorrev.py")
+                template = (Templates+"xorrev.py")
                 print("\nEnter a name for your new shell. The final product will be saved in the Scripts directory.")
                 name = raw_input(" xor-rev => ")
                 if os.path.exists(Scripts+name):

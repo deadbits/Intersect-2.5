@@ -4,7 +4,6 @@
 # https://ohdae.github.com/Intersect-2.5/
 
 import os, sys, re
-import pty
 import urlparse, urllib2
 import random, string
 import socket
@@ -17,7 +16,6 @@ from BaseHTTPServer import HTTPServer
 import datetime
 import logging
 import pexpect
-import fileinput
 
 
 global active_sessions

@@ -670,7 +670,10 @@ class xor_client:
     def start(self, HOST, PORT, pin, name):
         HOST = HOST
         PORT = int(PORT)
+        
+        global pin
         global server
+        pin = pin
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         
         try:

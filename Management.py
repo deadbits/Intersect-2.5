@@ -6,6 +6,7 @@
 import os, sys, re
 import urlparse, urllib2
 import random, string
+import signal
 import socket
 import time
 import shutil
@@ -29,6 +30,7 @@ active_sessions = {}
 
 socksize = 4092
 
+
 # Define all of our directory locations we'll be using through the application
 current_loc = os.getcwd()
 ActivityLog = (current_loc+"/Logs/ActivityLog")
@@ -43,14 +45,8 @@ for mods in os.listdir(ModulesDir):
 
 # Define logging information
 logging.basicConfig(filename=ActivityLog, level=logging.INFO, format='%(asctime)s %(message)s')
-
-try: # attempts to import the Python Crypto library. this is needed for the AES HTTP listener
-    from Crypto.Cipher import AES
-except ImportError:
-    print("[!] Python Crypto library is not installed. You will not be able to use the AES HTTP listener.")
-    logging.info("Python Crypto library not installed. AES HTTP listener disabled.")
-
 tab_complete = True
+
 try: # attempt to setup the tab completion and command history
     import readline
 except ImportError:
@@ -124,6 +120,15 @@ def xor(string, key): # quick XOR encrypt/decrypt function
     return data
 
 
+def signalHandler(signal, frame):
+    print("[!] Ctrl-C caught, Shutting down now!");
+    Shutdown()
+
+
+def Shutdown():
+    sys.exit()
+
+
 def show_active(): # Parses the active_sessions dictionary when :active command is given
     print("\nActive shell sessions: ")
     for key, value in active_sessions.iteritems():
@@ -167,8 +172,8 @@ def about_dialog():
 
 class Completer:
     def __init__(self):
-        self.words = ["help", "active", "about", "client", "listener", "showlogs", "interact", "exit",
-                        "exec", "download", "upload", "background", "mods", "quit", "info", "killme"]
+        self.words = ["help", "active", "about", "client", "clear", "listener", "files", "interact", "exit",
+                        "exec", "download", "upload", "background", "mods", "quit", "info", "killme", "build"]
         self.prefix = ":"
 
 
@@ -198,13 +203,14 @@ Intersect Framework - Shell Management
 For a complete list of commands type :help
 \n\n"""
 
-        menu_option = "main"
         
         while True:
 
             if tab_complete == True:
                 completer = Completer()
                 readline.set_completer(completer.complete)
+                
+            signal.signal(signal.SIGINT, signalHandler)
 
             command = raw_input(" intersect %s " % (self.header))
         
@@ -360,6 +366,8 @@ For a complete list of commands type :help
               
         while True:
             choice = raw_input(" build %s" % (self.header))
+            
+            signal.signal(signal.SIGINT, signalHandler)
                   
             if choice == "1":
                 template = (Templates+"tcpbind.py")
@@ -468,9 +476,9 @@ For a complete list of commands type :help
                     makeshell.write("\n    HOST = '%s'" % host)
                     makeshell.write("\n    PORT = %s" % port)
                     makeshell.write("\n    pin = '%s'" % pin)
-                    newshell.write("\n\nglobalvars()")
-                    newshell.write("\nmain()")
-                    newshell.close()
+                    makeshell.write("\n\nglobalvars()")
+                    makeshell.write("\nmain()")
+                    makeshell.close()
                     makeshell.close()
                     
                     print("[+] New shell created!")
@@ -628,7 +636,6 @@ class tcp_client:
                     
                 elif cmd == (":quit"):
                     print("[!] Closing shell connection.")
-                    print("[!] Server will remain listening.")
                     logging.info("Closing connection to %s" % name)
                     server.close()
                     management.core()
@@ -712,7 +719,6 @@ class xor_client:
                     
                 elif cmd == (':quit'):
                     print("[!] Closing shell connection!")
-                    print("[!] Server will remain listening.")
                     server.close()
                     management.core()
                     
@@ -946,6 +952,11 @@ class tcp_listen:
                     print("\n[+] Contents of Stored directory: ")
                     os.system("ls %s" % Download_Dir)
                     
+                elif cmd == (":quit"):
+                    print("[!] Shutting down connection.")
+                    conn.close()
+                    management.core()
+                    
                     
             elif data:
                 print data
@@ -1093,6 +1104,8 @@ class xor_listen:
                 print data2
                 
         conn.close()
+        
+        
         
 if __name__=='__main__':
   banner()

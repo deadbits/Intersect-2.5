@@ -225,3 +225,10 @@ def globalvars():
 globalvars()
 
 
+
+HOST = '127.0.0.1'
+PORT = 4444
+conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+conn.bind((HOST, PORT))
+conn.listen(5)
+accept()

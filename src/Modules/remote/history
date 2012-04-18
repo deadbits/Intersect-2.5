@@ -1,0 +1,21 @@
+
+def history():
+    '''
+    @description: Enumerate history files (bash, mysql, vim, *history) and SQL file locations.
+    @author: ohdae [bindshell@live.com]
+    '''
+    users()
+    for user in userlist:
+        status_msg("User account: %s" % user)
+        if os.path.exists("/home/%s/.bash_history"):
+            save_file("/home/%s/.bash_history" % user)
+            save_file("/home/%s/.viminfo" % user)
+            save_file("/home/%s/.mysql_history" % user)
+
+    if currentuser == "root":
+        #cmd2txt("locate sql | grep [.]sql$", "SQL_locations.txt")
+        cmd2txt("find /home -type f -iname '.*history'", "HistoryList.txt")
+
+
+history()
+

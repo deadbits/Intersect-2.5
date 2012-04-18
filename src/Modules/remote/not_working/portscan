@@ -1,0 +1,22 @@
+
+def portscan():
+    '''
+    @description: Very simple port scan. Scans ports 1 - 1000 on specified IP. Best used against LAN hosts. Usage: ./Intersect.py -p 192.168.1.4
+    @author: ohdae [bindshell@live.com]
+    @short: port scanner (-p <ip>)
+    '''
+    if len(sys.argv) <=2:
+        print("[!] Must specify an IP address!")
+        Shutdown()
+        
+    ipaddr = sys.argv[2]    
+    print("[+] Starting portscan of: %s " % ipaddr)
+
+    for i in range(1, 1000):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        result = s.connect_ex((ipaddr, i))
+        if(result == 0) :
+            print("[+] Port open %d " % (i,))
+        s.close()
+        

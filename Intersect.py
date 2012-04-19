@@ -19,17 +19,9 @@ import logging
 import pexpect
 
 
-global active_sessions
-global socksize
-global Modules
-global Download_Dir
-global Scripts
-global Templates
 
 active_sessions = {}
-
 socksize = 4092
-
 
 # Define all of our directory locations we'll be using through the application
 current_loc = os.getcwd()

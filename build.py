@@ -28,7 +28,6 @@ parser.add_argument('--type', help='Type of shell.', required=True, choices=["tc
 parser.add_argument('--name', help='Filename new shell will be saved as.', required=True)
 parser.add_argument('--key', help='XOR private key')
 
-# Setup necessary variables
 args = parser.parse_args()
 
 
@@ -104,3 +103,4 @@ elif args.type == "xorrev":
     logging.info("TCP XOR reverse shell created. %s:%s %s" % (args.address, args.port, args.name))
     print("New shell created!")
     print("Location: %s" % Scripts+args.name)
+

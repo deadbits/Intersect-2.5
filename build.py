@@ -63,7 +63,7 @@ elif args.type == "tcprev":
         makeshell.write("\nmain()")
         makeshell.close()
         os.system("chmod u+x %s" % Scripts+args.name)
-        logging.info("TCP bind shell created. %s:%s %s" % (args.address, args.port, args.name))
+        logging.info("TCP reverse shell created. %s:%s %s" % (args.address, args.port, args.name))
         print("New shell created!")
         print("Location: %s" % Scripts+args.name)
     else:
@@ -85,7 +85,7 @@ elif args.type == "xorbind":
         makeshell.write("\naccept()")
         makeshell.close()
         os.system("chmod u+x %s" % Scripts+args.name)
-        logging.info("TCP bind shell created. %s:%s %s" % (args.address, args.port, args.name))
+        logging.info("TCP XOR bind shell created. %s:%s %s" % (args.address, args.port, args.name))
         print("New shell created!")
         print("Location: %s" % Scripts+args.name)
                     
@@ -101,6 +101,6 @@ elif args.type == "xorrev":
     makeshell.write("\nmain()")
     makeshell.close()
     os.system("chmod u+x %s" % Scripts+args.name)
-    logging.info("TCP bind shell created. %s:%s %s" % (args.address, args.port, args.name))
+    logging.info("TCP XOR reverse shell created. %s:%s %s" % (args.address, args.port, args.name))
     print("New shell created!")
     print("Location: %s" % Scripts+args.name)

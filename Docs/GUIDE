@@ -2,114 +2,132 @@ Intersect 2.5 - Documentation
 How-To Guide
 
 Table Of Contents
-* Create.py
-* Building custom scripts
-* Using your finished script
+* Build.py
+* Intersect.py
+* Droppers
 
 
 
-						[ Create.py Application ]
 
-The Create application is the core application within the Intersect 2.5 framework.
-The main focus of Create is to help you in building customized Intersect scripts, but it can also be used for importing
-new modules from a local file or webserver, viewing their descriptions or author information, check for updates to the
-Intersect framework and some other creation-centric features.
+						[ Build.py Application ]
 
-Create.py is a menu-driven script that guides you through the process of building your custom script.
-When you start Create you will be brought to the Main Menu, where you can choose whether to build a new script, import
-a new module or view a list of all currently available modules within the Custom and Standard directories.
+The Build application can be used to quickly generate Intersect server-side shells. You need to specify an IP address,
+port number, script name and shell type. Build.py will copy the server-side template you pick into the Scripts directory
+and then add the options you entered. Remember that if you choose a XOR shell, you must also specify a XOR private key.
+If you don't the information will be left blank and defeats the entire purpose of using XOR to begin with.
 
-Within any menu of Create, you can type ':help' to be presented with a detailed list of commands for the specific menu
-you are in. You can also type ':exit' or ':quit' at any menu to be brought back to the Main Menu or completely exit
-the application, if you are all ready there.
+Since Build.py is executed purely from the command line, it can be easily called from other applications or scripts that
+you might write. The help menu is displayed below.
+
+user@system (Intersect)# ./build.py -h
+usage: build.py [-h] --address ADDRESS --port PORT --type
+                {tcpbind,tcprev,xorbind,xorrev} --name NAME [--key KEY]
+
+Quickly create an Intersect server-side shell. Specify the shell type, host
+and port information and a name for your new shell.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --address ADDRESS     IP address for listen or bind shell
+  --port PORT           Port for listen or bind shell.
+  --type {tcpbind,tcprev,xorbind,xorrev}
+                        Type of shell.
+  --name NAME           Filename new shell will be saved as.
+  --key KEY             XOR private key
+
+To create a bind shell script, for example, you would run the following command:
+./build.py --address 192.168.1.4 --port 4444 --type tcpbind --name my-new-shell
+
+The process will only take a few seconds and then 'my-new-shell' will be placed into the Scripts directory and is ready
+to be executed on your targets system.
+
+
+
+
+
+						[ Intersect main application ]
+
+
+* Main menu
+* Interacting with target systems
+* Downloaded files and logs
 
 Main Menu:
-	1 => Create Custom Script
-	2 => List Available Modules
-	3 => Load Plugin Module
-	4 => Check for updates
-	5 => Exit Creation Utility
+
+Intersect.py is the main application within the Intersect framework. When you execute the script, you will be presented
+with an interactive console where you can build new server-side shells, interact with targets and start shell listeners.
+
+Intersect help menu:
+    :active  =>  list active Intersect sessions
+     :about  =>  display the 'about' dialog
+     :clear  =>  clears the screen
+    :client  =>  start a new client
+     :build  =>  build a new server-side shell
+      :help  =>  show this help menu
+  :listener  =>  start a new listener
+  :interact  =>  interact with an active session
+      :exit  =>  exit Intersect completely
+
+
+The :build command can be used to create a server-side script, just like the build.py script, except it is done
+interactively through the console. You will be prompted for a script name and host/port information. Once the script
+is built, it will be saved to the Scripts folder. This option is included so you can generate server scripts and then
+interact with them without having to leave the Intersect console.
+
+At the time of writing this, the :interact command does not work. The idea behind it is that while in a shell session,
+you can use the :background command to keep your shell open and return to the Intersect main menu. While the :background
+command *does* work and will send your session to the background, there is currently no way to interact with your shell
+once you do this. I am working on a fix for this problem and it's on the very top of my To-Do list.
+
+The :active command will show you a list of shell sessions that have been sent to the background, displaying their
+session name and the host/port information.
+
+
+
+Interacting with target systems:
+
+Once you build and execute your shell on the target system, you can interact with the system by using the :client or
+:listener commands. Choose the appropriate option whether you are using a bind or reverse shell.
+You will be asked to give your shell session a name which will be used to identify that system for logging purposes
+and tagging any files you download from the target system.
+
+All files downloaded, whether through the use of the :download command or by executing modules, will be saved into the
+Storage folder. The files will be prepended with your session name. For example, if you download the file 'passwords.txt'
+from a session named 'office', it will be saved as 'Storage/office-passwords.txt'.
+
+The session name is also used for the ActivityLog file that is kept in the Logs folder. A log entry is created any time
+you start a new shell connection, download or upload a file and execute a module on the target. This is done so when you
+are preparing your documentation or just looking for information, you can just grep the ActivityLog file for your desired
+session name and view all the actions that took place.
+
+This new release of Intersect uses an entirely new method for executing modules and gathering information, as opposed to
+the previous versions. All of the modules are stored on the attackers system and sent to the target only when called
+upon. To view an available list of modules, type :mods or execute modules by using the :exec command from a shell session.
+When you execute a module, the local file is read, encoded with base64 and sent to the target. The target system will
+decode the module, read the commands in memory, execute and pipe the information back to the attacker.
+
+This way there is no need for any modules to be stored on the targets file system and any module can be called remotely.
+In the older versions of Intersect, any files would be gathered to the temporary directory and saved there until you
+manually downloaded them. Now, all the files are downloaded directly back to your system just by running the module.
+
+Again, all files and information that is downloaded by running a module will either be displayed on screen or saved to
+the Storage directory, prepended by the session name. You can view a list of all downloaded files for your session by
+using the :files command.
+
+Shell session help menu:
+    :background  =>  send this shell to the background
+          :mods  =>  show available modules
+   :info module  =>  display module information
+ :download file  =>  download file from host
+   :upload file  =>  upload file to host
+   :exec module  =>  sends script to host and executes
+         :files  =>  display contents of your files directory
+        :killme  =>  shuts down server completely
+          :quit  =>  closes shell connection
 
 
 
 
-						[ Building Custom Scripts ]
+                                       [ Droppers ]
 
-The entire purpose of Intersect 2.5 is to help you create custom post-exploitation scripts. This is done by using the
-Create application and selecting option '1' from the Main Menu.
-
-After you select the first option from the Main Menu, you'll be presented with a quick tutorial on how the creation
-process works and how to add modules to your script.
-At any point during this process you can type ':help' for a full list of commands or type ':quit' to return to the main
-menu.
-
-Enter the name of each module you wish to add to your script, pressing [enter] after each addition.
-Once you've added everything you want included, type ':create' to start the build process.
-You'll then be prompted to enter a name for your script and define some options for things like encryption keys and
-ports.
-The entries will checked to make sure your entries are valid. If you enter an invalid IP address or port, you will be
-notified and asked to re-enter the correct information.
-
-After all the options are saved, your script will be built.
-You'll be shown a list of all the modules that were built into the script and the location where the final product is
-saved.
-
-[Example of :create command] 
-	 =>  :create
-	Enter a name for your Intersect script. The finished script will be placed in the Scripts directory.
-	Do not include Python file extension.
-	 =>  TutorialTest
-	Script will be saved as /home/ohdae/Git/Intersect-2.5/Scripts/TutorialTest.py
-
-	Configure Options:
-	If any of these options don't apply to you, press [enter] to ignore them.
-	bind port  =>  4444
-	[+] bind port saved.
-	remote host  =>  
-	[+] remote host saved.
-	remote port  =>  
-	[+] remote port saved.
-	proxy port  =>  
-	[+] proxy port saved.
-	xor cipher key  =>  
-	[+] xor key saved.
-	bshell
-	extras
-	network
-
-	[+] Your custom Intersect script has been created!
-   	    Location: /home/ohdae/Git/Intersect-2.5/Scripts/TutorialTest.py
-
-
-
-
-<<<<<<< HEAD
-						[ Using your custom Intersect script ]
-=======
-					[ Using your custom Intersect script ]
->>>>>>> 528f569ec22cc25259cbe6f12258205e2f68dbdf
-
-There is a large variety of ways you can use your Intersect script. The options are only limited by the modules you
-choose for each script.
-
-The most straight-forward and common method of use is uploading or downloading the Intersect script onto a target system
-and then running the post-exploitation automation tasks right from the command line.
-
-If you do not have direct shell access, you can still make full use of Intersect and run any of the includes modules
-over any of the remote shells (TCP, XOR, ICMP, UDP, AES, etc).
-This might occur in a situation where you only have command execution access on the target host, through a vulnerable
-web application for example. 
-In that case, simply wget the Intersect script onto the target box and execute "./Intersect.py --rshell", for example,
-to start an interactive reverse shell back to your listening box. Once you get a successfull connection, you can run any
-of the included modules over the shell by using the 'extask' command.
-For a full list of commands and help within any of the remote shells, type 'helpme'.
-
-<<<<<<< HEAD
-=======
-When you run most of the Intersect modules, the information and files that are gathered will be saved into a temporary
-directory within /tmp.
-The files and data will be separated into sub-folders so the information is easier to identify and locate.
-
-This section will be filled in with more details eventually.
->>>>>>> 528f569ec22cc25259cbe6f12258205e2f68dbdf
-
+Content coming soon...

@@ -7,11 +7,9 @@
 import os, sys, re
 from src import core
 from src import shells
-import urlparse, urllib2
-import random, string
+import string
 import signal
 import shutil
-import pexpect
 
 
 Templates = ("src/Templates/remote/")
@@ -241,7 +239,7 @@ class build:
                 else:
                     print("[!] invalid IPv4 address!")
                     
-            elif options == (":clear"):
+            elif option == (":clear"):
                 os.system("clear")
                     
             else:
@@ -335,14 +333,14 @@ class build:
                 else:
                     print("[!] invalid IPv4 address!")
                                         
-            elif options == (":clear"):
+            elif option == (":clear"):
                 os.system("clear")
                     
             else:
                 print("[!] invalid option!")
 
     def server(self):
-        print("Configuration Menu\n")
+        print("Build a handler")
         print("""
               1 => TCP bind
               2 => TCP reverse

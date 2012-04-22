@@ -1,9 +1,0 @@
-Intersect Framework
-Sample server-side shells
-
-A few samples of server-side shells built using the build.py script.
-Only difference will be the HOST, PORT and pin (if you created a xor shell).
-
-You can use these to familarize yourself with how the shells operate, test out
-some custom code of yours or just delete them. They are really just here as a place
-holder for some upcoming stuff.

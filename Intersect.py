@@ -59,7 +59,8 @@ def show_active(): # Parses the active_sessions dictionary when :active command 
 class Completer:
     def __init__(self):
         self.words = ["help", "about", "client", "clear", "listener", "files", "exit",
-                        "exec", "download", "upload", "mods", "quit", "info", "killme", "build"]
+                        "exec", "download", "upload", "mods", "quit", "info", "killme", "build"
+                        "addr", "port", "name", "key", "view", "type" ]
         self.prefix = ":"
 
 
@@ -122,6 +123,10 @@ For a complete list of commands type :help
                 about_dialog()
                 
             elif command == (":exit"):
+                print("[!] Shutting down Intersect!")
+                sys.exit(0)
+                
+            elif command == (":quit"):
                 print("[!] Shutting down Intersect!")
                 sys.exit(0)
                                         
@@ -214,7 +219,10 @@ class build:
                 pkey = key[1]
                 print("key: %s" % pkey)
                 
-            elif option.startswith(":exit"):
+            elif option == (":exit"):
+                manage.main()
+                
+            elif option == (":quit"):
                 manage.main()
                 
             elif option == (":view"):
@@ -306,7 +314,10 @@ class build:
                 key = option.split(" ")
                 pkey = key[1]
                 
-            elif option.startswith(":exit"):
+            elif option == (":exit"):
+                manage.main()
+                
+            elif option == (":quit"):
                 manage.main()
                 
             elif option == (":view"):
@@ -347,9 +358,7 @@ class build:
               3 => XOR TCP bind
               4 => XOR TCP reverse
               5 => Return to Main Menu
-              
-              NOTICE: The AESHTTP shell and the UDP shell are still being built.
-                        They both will be implemented soon.
+
               """)
               
               
@@ -364,28 +373,32 @@ class build:
                 name = raw_input(" tcp-bind => ")
                 if os.path.exists(Scripts+name):
                     print("[!] A file by this name all ready exists!")
-                    manage.make_server()
+                    build.server()
                 else:
                     shutil.copy2(template, Scripts+name)
                 
                 host = raw_input(" bind IP => ")
-                port = raw_input(" bind port => ")
-                if port.isdigit():
-                    makeshell = open(Scripts+name, "a")
-                    makeshell.write("\nHOST = '%s'" % host)
-                    makeshell.write("\nPORT = %s" % port)
-                    makeshell.write("\nconn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)")
-                    makeshell.write("\nconn.bind((HOST, PORT))")
-                    makeshell.write("\nconn.listen(5)")
-                    makeshell.write("\naccept()")
-                    makeshell.close()
+                if self.valid_ip(host):
+                    port = raw_input(" bind port => ")
+                    if port.isdigit():
+                        makeshell = open(Scripts+name, "a")
+                        makeshell.write("\nHOST = '%s'" % host)
+                        makeshell.write("\nPORT = %s" % port)
+                        makeshell.write("\nconn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)")
+                        makeshell.write("\nconn.bind((HOST, PORT))")
+                        makeshell.write("\nconn.listen(5)")
+                        makeshell.write("\naccept()")
+                        makeshell.close()
                     
-                    print("[+] New shell created!")
-                    print("[+] Location: %s" % Scripts+name)
-                    manage.main()
+                        print("[+] New shell created!")
+                        print("[+] Location: %s" % Scripts+name)
+                        manage.main()
+                    else:
+                        print("[!] Invalid port!")
+                        build.server()
                 else:
-                    print("[!] Invalid port!")
-                    manage.make_server()
+                    print("[!] Invalid IPv4 address!")
+                    build.server()
                 
                 
             elif choice == "2":
@@ -394,27 +407,30 @@ class build:
                 name = raw_input(" tcp-rev => ")
                 if os.path.exists(Scripts+name):
                     print("[!] A file by this name all ready exists!")
-                    manage.make_server()
+                    build.server()
                 else:
                     shutil.copy2(template, Scripts+name)
                 
                 host = raw_input(" listen IP => ")
-                port = raw_input(" listen port => ")
-                if port.isdigit():
-                    newshell = open(Scripts+name, "a")
-                    newshell.write("\n    HOST = '%s'" % host)
-                    newshell.write("\n    PORT = %s" % port)
-                    newshell.write("\n\nglobalvars()")
-                    newshell.write("\nmain()")
-                    newshell.close()
+                if self.valid_ip(host):
+                    port = raw_input(" listen port => ")
+                    if port.isdigit():
+                        newshell = open(Scripts+name, "a")
+                        newshell.write("\n    HOST = '%s'" % host)
+                        newshell.write("\n    PORT = %s" % port)
+                        newshell.write("\n\nglobalvars()")
+                        newshell.write("\nmain()")
+                        newshell.close()
                     
-                    print("[+] New shell created!")
-                    print("[+] Location: %s" % Scripts+name)
-                    manage.main()
+                        print("[+] New shell created!")
+                        print("[+] Location: %s" % Scripts+name)
+                        manage.main()
+                    else:
+                        print("[!] Invalid port!")
+                        build.server()
                 else:
-                    print("[!] Invalid port!")
-                    manage.make_server()
-                
+                    print("[!] Invalid IPv4 address!")
+                    build.server()
                                 
             elif choice == "3":
                 template = (Templates+"xorbind.py")
@@ -422,30 +438,34 @@ class build:
                 name = raw_input(" xor-bind => ")
                 if os.path.exists(Scripts+name):
                     print("[!] A file by this name all ready exists!")
-                    manage.make_server()
+                    build.server()
                 else:
                     shutil.copy2(template, Scripts+name)
                 
                 host = raw_input(" bind IP => ")
-                port = raw_input(" bind port => ")
-                pin = raw_input(" xor key => ")
-                if port.isdigit():
-                    makeshell = open(Scripts+name, "a")
-                    makeshell.write("\nHOST = '%s'" % host)
-                    makeshell.write("\nPORT = %s" % port)
-                    makeshell.write("\npin = '%s'" % pin)
-                    makeshell.write("\nconn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)")
-                    makeshell.write("\nconn.bind((HOST, PORT))")
-                    makeshell.write("\nconn.listen(5)")
-                    makeshell.write("\naccept()")
-                    makeshell.close()
+                if self.valid_ip(host):
+                    port = raw_input(" bind port => ")
+                    pin = raw_input(" xor key => ")
+                    if port.isdigit():
+                        makeshell = open(Scripts+name, "a")
+                        makeshell.write("\nHOST = '%s'" % host)
+                        makeshell.write("\nPORT = %s" % port)
+                        makeshell.write("\npin = '%s'" % pin)
+                        makeshell.write("\nconn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)")
+                        makeshell.write("\nconn.bind((HOST, PORT))")
+                        makeshell.write("\nconn.listen(5)")
+                        makeshell.write("\naccept()")
+                        makeshell.close()
                     
-                    print("[+] New shell created!")
-                    print("[+] Location: %s" % Scripts+name)
-                    manage.main()
+                        print("[+] New shell created!")
+                        print("[+] Location: %s" % Scripts+name)
+                        manage.main()
+                    else:
+                        print("[!] Invalid port!")
+                        build.server()
                 else:
-                    print("[!] Invalid port!")
-                    manage.make_server()
+                    print("[!] Invalid IPv4 address!")
+                    build.server()
                     
             elif choice == "4":
                 template = (Templates+"xorrev.py")
@@ -453,29 +473,33 @@ class build:
                 name = raw_input(" xor-rev => ")
                 if os.path.exists(Scripts+name):
                     print("[!] A file by this name all ready exists!")
-                    management.make_server()
+                    build.server()
                 else:
                     shutil.copy2(template, Scripts+name)
                 
                 host = raw_input(" listen IP => ")
-                port = raw_input(" listen port => ")
-                pin = raw_input(" xor key => ")
-                if port.isdigit():
-                    makeshell = open(Scripts+name, "a")
-                    makeshell.write("\n    HOST = '%s'" % host)
-                    makeshell.write("\n    PORT = %s" % port)
-                    makeshell.write("\n    pin = '%s'" % pin)
-                    makeshell.write("\n\nglobalvars()")
-                    makeshell.write("\nmain()")
-                    makeshell.close()
-                    makeshell.close()
+                if self.valid_ip(host):
+                    port = raw_input(" listen port => ")
+                    pin = raw_input(" xor key => ")
+                    if port.isdigit():
+                        makeshell = open(Scripts+name, "a")
+                        makeshell.write("\n    HOST = '%s'" % host)
+                        makeshell.write("\n    PORT = %s" % port)
+                        makeshell.write("\n    pin = '%s'" % pin)
+                        makeshell.write("\n\nglobalvars()")
+                        makeshell.write("\nmain()")
+                        makeshell.close()
+                        makeshell.close()
                     
-                    print("[+] New shell created!")
-                    print("[+] Location: %s" % Scripts+name)
-                    manage.main()
+                        print("[+] New shell created!")
+                        print("[+] Location: %s" % Scripts+name)
+                        manage.main()
+                    else:
+                        print("[!] Invalid port!")
+                        build.server()
                 else:
-                    print("[!] Invalid port!")
-                    manage.make_server()
+                    print("[!] Invalid IPv4 address!")
+                    build.server()
                 
             elif choice == "5":
                 os.system("clear")

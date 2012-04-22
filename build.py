@@ -73,8 +73,8 @@ elif args.type == "tcprev":
 elif args.type == "xorbind":
     template = (Templates+"xorbind.py")
     if os.path.exists(Scripts+args.name) is False:
-        shutil.copy2(template, Scripts+name)
-        makeshell = open(Scripts+name, "a")
+        shutil.copy2(template, Scripts+args.name)
+        makeshell = open(Scripts+args.name, "a")
         makeshell.write("\nHOST = '%s'" % args.address)
         makeshell.write("\nPORT = %s" % int(args.port))
         makeshell.write("\npin = '%s'" % args.key)

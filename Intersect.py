@@ -356,7 +356,7 @@ class build:
         while True:
             choice = raw_input(" build %s" % (self.header))
             
-            signal.signal(signal.SIGINT, signalHandler)
+            signal.signal(signal.SIGINT, core.signalHandler)
                   
             if choice == "1":
                 template = (Templates+"tcpbind.py")

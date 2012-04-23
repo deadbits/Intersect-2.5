@@ -286,10 +286,10 @@ class xor:
             conn.connect((HOST, PORT))
             print("[+] Connection established!")
             print("[+] Type :help to view commands")
-            logging.info("New connection established to %s" % name)
+            core.logging.info("New connection established to %s" % name)
         except:
             print("[!] Connection error!")
-            logging.error("Connection to %s failed." % name)
+            core.logging.error("Connection to %s failed." % name)
         
         while True:
             data = xor(conn.recv(socksize), pin)
@@ -297,7 +297,7 @@ class xor:
             if data.startswith(":savef"):
                 getname = data.split(" ")
                 fname = getname[1]
-                logging.info("Saved file %s from %s" % (fname, name))
+                core.logging.info("Saved file %s from %s" % (fname, name))
                 self.download(fname, name)
                 
             elif data == ("Complete"):
@@ -401,7 +401,7 @@ class xor:
             if data.startswith(":savef"):
                 getname = data.split(" ")
                 fname = getname[1]
-                logging.info("Saved file %s from %s" % (fname, name))
+                core.logging.info("Saved file %s from %s" % (fname, name))
                 self.download(fname, name)
                 
             elif data == ("Complete"):

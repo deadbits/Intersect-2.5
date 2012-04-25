@@ -11,14 +11,13 @@ sys.path.append(fwpath+"src")
 ActivityLog = ("Logs/ActivityLog")
 DownloadDir = ("Storage/")
 ModulesDir = ("src/Modules/remote/")
-
+logging.basicConfig(filename=ActivityLog, level=logging.INFO, format='%(asctime)s %(message)s')
 Modules = []
+
 for mods in os.listdir(ModulesDir):
     Modules.append(mods)
     
-logging.basicConfig(filename=ActivityLog, level=logging.INFO, format='%(asctime)s %(message)s')
-
-
+    
 def signalHandler(signal, frame):
     print("[!] Ctrl-C caught, Shutting down now!");
     Shutdown()
@@ -30,7 +29,7 @@ def Shutdown():
 
 def banner():
 
-    target = random.randrange(1,4)
+    target = random.randrange(1,3)
 
     if target == 1:
         print """                         
@@ -55,15 +54,6 @@ def banner():
 
     elif target == 3:
         print """
-             ____  _  _  ____  ____  ____  ___  ____  ___  ____ 
-            (_  _)( \( )(_  _)( ___)(  _ \/ __)( ___)/ __)(_  _)
-             _)(_  )  (   )(   )__)  )   /\__ \ )__)( (__   )(  
-            (____)(_)\_) (__) (____)(_)\_)(___/(____)\___) (__)
-                         post-exploitation framework
-"""
-
-    elif target == 4:
-        print """
                      _       _                          _   
                     (_)     | |                        | |  
                      _ _ __ | |_ ___ _ __ ___  ___  ___| |_ 
@@ -81,15 +71,13 @@ def banner():
 
 
 def shell_help(): # help menu displayed for all shells
-    print(" Available Commands: ")
-    print("---------------------------------")
+    print("\n")
     print("          :mods  =>  show available modules")
-    print("   :info module  =>  display module information")
-    print(" :download file  =>  download file from host")
-    print("   :upload file  =>  upload file to host")
-    print("   :exec module  =>  sends script to host and executes")
-    print("         :files  =>  display contents of your files directory")
-    print("        :killme  =>  shuts down server completely")
-    print("          :quit  =>  closes shell connection\n")
-    
+    print("    :info module => display module information"
+    print("  :download file => download file from remote host")
+    print("    :upload file => upload file to remote host")
+    print("    :exec module => execute module on remote host")
+    print("          :files => display stored files for session")
+    print("         :killme => shuts down server completely")
+    print("           :exit => closes shell connection\n") 
     

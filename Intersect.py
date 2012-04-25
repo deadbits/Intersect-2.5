@@ -3,7 +3,6 @@
 # Intersect Framework (c) 2012
 # https://ohdae.github.com/Intersect-2.5/
 
-
 import os, sys, re
 from src import core
 from src import shells
@@ -16,7 +15,6 @@ Templates = ("src/Templates/remote/")
 Scripts = ("Scripts/")
 active_sessions = {}
 tab_complete = True
-
 
 try:
     import readline
@@ -50,7 +48,7 @@ def about_dialog():
     """
 
 
-def show_active(): # Parses the active_sessions dictionary when :active command is given
+def show_active(): # TODO: Implement the multi-session stuff here.
     print("\nActive shell sessions: ")
     for key, value in active_sessions.iteritems():
         print "%s-%s" % (key, value)
@@ -62,7 +60,6 @@ class Completer:
                         "exec", "download", "upload", "mods", "quit", "info", "killme", "build"
                         "addr", "port", "name", "key", "view", "type" ]
         self.prefix = ":"
-
 
     def complete(self, prefix, index):
         if prefix != self.prefix:
@@ -110,13 +107,12 @@ For a complete list of commands type :help
                 build.server()
                 
             elif command == (":help"):
-                print("\nAvailable Commands: ")
-                print("     :about  =>  display the 'about' dialog")
+                print("\n\n     :about  =>  display the 'about' dialog")
                 print("     :clear  =>  clears the screen")
-                print("    :client  =>  start a new client")
-                print("     :build  =>  build a new server-side shell")
+                print("    :client  =>  start new client")
+                print("     :build  =>  build server-side handler ")
                 print("      :help  =>  show this help menu")
-                print("  :listener  =>  start a new listener")
+                print("  :listener  =>  start new listener")
                 print("      :exit  =>  exit Intersect completely\n")    
             
             elif command == (":about"):
@@ -169,7 +165,7 @@ class build:
             option = raw_input(" client %s" % (self.header))
             
             if option == (":help"):
-                print("\nAvailable Options: ")
+                print("\n")
                 print("     :type  =>  shell type [tcp, xor, udp]")
                 print("   :addr i  =>  remote IP")
                 print("   :port p  =>  remote port")
@@ -179,7 +175,7 @@ class build:
                 print("     :view  =>  display current settings")
                 print("     :help  =>  view this menu")
                 print("    :clear  =>  clears the screen")
-                print("     :exit  =>  return to main menu")
+                print("     :exit  =>  return to main menu\n")
                 
             elif option.startswith(":type"):
                 type = option.split(" ")
@@ -254,7 +250,6 @@ class build:
                 print("[!] invalid option!")
                     
                     
-        
     def listener(self):
         os.system("clear")
         print("\nConfigure your listener settings")
@@ -350,8 +345,9 @@ class build:
             else:
                 print("[!] invalid option!")
 
+
     def server(self):
-        print("Build a handler")
+        print("Build server-side handler")
         print("""
               1 => TCP bind
               2 => TCP reverse

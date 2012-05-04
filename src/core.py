@@ -1,4 +1,6 @@
 #!/usr/bin/python
+# Intersect Framework (c) 2012
+# Core module for basic stuff
 
 import os, sys
 import string
@@ -12,8 +14,8 @@ ActivityLog = ("Logs/ActivityLog")
 DownloadDir = ("Storage/")
 ModulesDir = ("src/Modules/remote/")
 logging.basicConfig(filename=ActivityLog, level=logging.INFO, format='%(asctime)s %(message)s')
-Modules = []
 
+Modules = []
 for mods in os.listdir(ModulesDir):
     Modules.append(mods)
     
@@ -24,6 +26,8 @@ def signalHandler(signal, frame):
 
 
 def Shutdown():
+    if active_session is True:
+        shutdown_session()
     sys.exit()
 
 

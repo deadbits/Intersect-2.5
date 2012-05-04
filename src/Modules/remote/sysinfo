@@ -4,8 +4,8 @@
 @author: ohdae [bindshell@live.com]
 '''
 
-cmd("uname -a")
-cmd("df -hT")
+cmd_exec("uname -a")
+cmd_exec("df -hT")
 
 cmd2txt("ls -al /etc/cron*", "cronjobs.txt")
 cmd2txt("ls -alhtr /media", "media.txt")

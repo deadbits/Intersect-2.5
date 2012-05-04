@@ -93,20 +93,24 @@ class tcp:
                         print("[!] Must specify upload file!")
                     
                 elif cmd.startswith(":exec"):
-                    getname = cmd.split(" ")
-                    modname = getname[1]
+                    try:
+                        getname = cmd.split(" ")
+                        modname = getname[1]
 
-                    if os.path.exists(core.ModulesDir+modname):
-                        sendfile = open(core.ModulesDir+modname, "rb")         # read the file into buffer
-                        filedata = sendfile.read()
-                        sendfile.close()
-                        time.sleep(3)
-                        filedata = b64encode(filedata)                  # base64 encode file and send to server
-                        conn.sendall(filedata)
-                        core.logging.info("Executing %s on %s" % (modname, name))
-                        data = conn.recv(socksize)
-                    else:
-                        print("[!] Module not found!")
+                        if os.path.exists(core.ModulesDir+modname):
+                            sendfile = open(core.ModulesDir+modname, "rb")         # read the file into buffer
+                            filedata = sendfile.read()
+                            sendfile.close()
+                            time.sleep(3)
+                            filedata = b64encode(filedata)                  # base64 encode file and send to server
+                            conn.sendall(filedata)
+                            core.logging.info("Executing %s on %s" % (modname, name))
+                            data = conn.recv(socksize)
+                        else:
+                            print("[!] Module not found!")
+                            
+                    except IndexError:
+                        print("[!] Must specify module name!")
                         
                 elif cmd == (":help"):
                     core.shell_help()

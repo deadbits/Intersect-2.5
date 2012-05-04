@@ -12,7 +12,6 @@ for user in userlist:
         save_file("/home/%s/.mysql_history" % user)
 
 if currentuser == "root":
-    #cmd2txt("locate sql | grep [.]sql$", "SQL_locations.txt")
     cmd2txt("find /home -type f -iname '.*history'", "HistoryList.txt")
 
 

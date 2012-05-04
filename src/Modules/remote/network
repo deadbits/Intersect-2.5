@@ -22,7 +22,7 @@ def network():
         status_msg("Internal IP Range: %s\n" % IPRange)
 
     status_msg("Hostname: ")
-    cmd("hostname -f")
+    cmd_exec("hostname -f")
 
     cmd2txt("netstat --tcp --listening", "netstat.txt")
     #cmd2txt("lsof -nPi", "lsof.txt")

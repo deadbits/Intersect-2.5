@@ -77,7 +77,7 @@ def banner():
 def shell_help(): # help menu displayed for all shells
     print("\n")
     print("          :mods  =>  show available modules")
-    print("    :info module => display module information"
+    print("    :info module => display module information")
     print("  :download file => download file from remote host")
     print("    :upload file => upload file to remote host")
     print("    :exec module => execute module on remote host")

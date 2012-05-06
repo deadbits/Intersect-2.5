@@ -158,7 +158,7 @@ Type :help for all available commands
                 os.system("clear")
                 
             else:
-                core.inputerr()
+                print("[!] invalid command!")
 
 
 # functions for interacting with remote hosts. setup clients, listeners and handlers.
@@ -269,24 +269,24 @@ class interact:
         
         while True:
             
-            option = raw_input(" listener %s" % header)
+            option = raw_input(" client %s" % header)
             
             if option == (":help"):
-                print("\nAvailable Options: ")
+                print("\n")
                 print("     :type  =>  shell type [tcp, xor]")
-                print("   :addr i  =>  local IP")
-                print("   :port p  =>  local port")
+                print("   :addr i  =>  remote IP/host")
+                print("   :port p  =>  remote port")
                 print("   :name n  =>  session name")
-                print("    :key k  =>  xor private key [optional]")
-                print("    :start  =>  start listener shell")
+                print("    :key k  =>  xor private key")
+                print("    :start  =>  start client shell")
                 print("     :view  =>  display current settings")
                 print("     :help  =>  view this menu")
                 print("    :clear  =>  clears the screen")
-                print("     :exit  =>  return to main menu")
+                print("     :exit  =>  return to main menu\n")
                 
             elif option.startswith(":type"):
                 self.TYPE = core.get_choice(option)
-                if self.TYPE in listeners and self.TYPE != "":
+                if self.TYPE in clients:
                     print("type: %s" % self.TYPE)
                 else:
                     print("[!] invalid type!")
@@ -294,7 +294,7 @@ class interact:
             elif option.startswith(":addr"):
                 self.HOST = core.get_choice(option)
                 if self.HOST != "" and core.valid_ip(self.HOST):
-                    print("host: %s" % self.HOST)
+                    print("ip address: %s" % self.HOST)
                 else:
                     print("[!] invalid IPv4 address!")
                     
@@ -310,7 +310,7 @@ class interact:
                 if self.NAME != "":
                     print("name: %s" % self.NAME)
                 else:
-                    print("[!] invalid session name!")
+                    print("[!] invalid name!")
                 
             elif option.startswith(":key"):
                 self.PKEY = core.get_choice(option)
@@ -335,18 +335,17 @@ class interact:
             elif option.startswith(":start"):
                 if core.check_options(self.HOST, self.PORT, self.TYPE, self.PKEY, self.NAME):
                     if self.TYPE == "tcp":
-                        shells.tcp.client(self.HOST, self.PORT, self.NAME)
+                        shells.tcp.server(self.HOST, self.PORT, self.NAME)
                     elif self.TYPE == "xor":
-                        shells.xor.client(self.HOST, self.PORT, self.NAME, self.PKEY)
+                        shells.xor.server(self.HOST, self.PORT, self.NAME, self.PKEY)
                     else:
                         print("[!] invalid shell type!")
-                                        
+                    
             elif option == (":clear"):
                 os.system("clear")
                     
             else:
                 core.inputerr()
-
 
 # functions to build payloads and Intersect shells
 class build:

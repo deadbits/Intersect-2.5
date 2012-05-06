@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # Intersect Framework (c) 2012
-# Server-side shell generation
-# usage: ./build.py --type=tcpbind --host=192.168.1.4 --port=4444 --name=newshell
+# Quick Intersect shell build
+# do it do it.
 
 import sys, os
 import argparse

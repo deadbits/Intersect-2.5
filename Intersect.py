@@ -10,7 +10,7 @@ import string
 import signal
 import shutil
 
-
+# define general information used through-out this script
 Shell_Templates = ("src/Templates/Shells/")
 Scripts = ("Scripts/")
 active_sessions = {}
@@ -20,6 +20,7 @@ header = " => "
 clients = [ "tcp", "xor" ]
 listeners = [ "tcp", "xor" ]
 
+# check if readline is installed. we can't use tab completion without it. :(
 try:
     import readline
 except ImportError:
@@ -55,8 +56,9 @@ def about_dialog():
     repository:     https://github.com/ohdae/Intersect-2.5\n
     """ % fw_version)
 
-        
 
+# configure tab completion commands and such.
+# one day i'll fix this so each aspect of the script pulls from an individual wordlist
 class Completer:
     def __init__(self):
         self.words = ["help", "about", "client", "clear", "listener", "files", "exit",
@@ -75,14 +77,14 @@ class Completer:
             return self.match_mods[index]
         except IndexError:
             return None
-                
-                
+
+
+# main Intersect console. not much to see here.
 class manage(object):
     def __init__(self):
         signal.signal(signal.SIGINT, core.signalHandler)
 
-
-    def main(self): # Central menu of this application
+    def main(self):
         print("""
 Intersect Framework - version %s
 ====================================
@@ -141,8 +143,6 @@ Type :help for all available commands
                 print("   :globals  =>  set global variables")
                 print("   :storage  =>  change storage directory\n")
                   
-   
-            
             elif command == (":about"):
                 about_dialog()
                 
@@ -158,9 +158,10 @@ Type :help for all available commands
                 os.system("clear")
                 
             else:
-                print(" %s Invalid Command!" % (self.warning))
+                core.inputerr()
 
 
+# functions for interacting with remote hosts. setup clients, listeners and handlers.
 class interact:
     def __init__(self):
         self.HOST = ""
@@ -168,6 +169,11 @@ class interact:
         self.TYPE = ""
         self.NAME = ""
         self.PKEY = ""
+        
+    def handler(self): # place-holder 
+        os.system("clear")
+        print("\nConfigure handler and shell settings")
+        print("Type :help for all commands")
         
 
     def client(self):
@@ -253,7 +259,7 @@ class interact:
                 os.system("clear")
                     
             else:
-                print("[!] invalid option!")
+                core.inputerr()
                     
                     
     def listener(self):
@@ -287,7 +293,7 @@ class interact:
                     
             elif option.startswith(":addr"):
                 self.HOST = core.get_choice(option)
-                if self.HOST != "" and core.valid_ip(ip):
+                if self.HOST != "" and core.valid_ip(self.HOST):
                     print("host: %s" % self.HOST)
                 else:
                     print("[!] invalid IPv4 address!")
@@ -339,9 +345,10 @@ class interact:
                 os.system("clear")
                     
             else:
-                print("[!] invalid option!")
+                core.inputerr()
 
 
+# functions to build payloads and Intersect shells
 class build:
     def __init__(self):
         self.HOST = ""
@@ -351,73 +358,13 @@ class build:
         self.PKEY = ""
         
         
-    def handler(self):
+    def payload(self): # place holder
         os.system("clear")
-        print("\nSetup your handler & shell settings")
-        print("Type :help for all commands")
+        print("\nConfigure your payload settings")
         
-        while True:
-            
-            option = raw_input(" handler %s " % header)
-            
-            if option == (":help"):
-                print("\n")
-                print("Info: ")
-                print(" This console can be used to start a handler that will complete")
-                print(" the staged payload process. If you created a staged dropper, ")
-                print(" you need a client-side handler that will listen for the target")
-                print(" connection, send the Intersect shell to the target and then spawn")
-                print(" the actual Intersect shell connection. Use the commands listed below")
-                print(" to setup your options, then start the handler and wait for the target")
-                print(" to connect back.\n")
-                print("      :enc  =>  encoding [xor, b64]")
-                print("    :stype  =>  shell type [btcp, rtcp, bxor, rxor]")
-                print("    :htype  =>  handler type [bind, reverse, web]")
-                print("  :lhost i  =>  local IP")
-                print("  :lport p  =>  local port")
-                print("  :rhost i  =>  remote IP")
-                print("  :rport p  =>  remote port")
-                print("    :key k  =>  xor private key")
-                print("     :help  =>  display this menu")
-                print("    :clear  =>  clears the screen")
-                print("     :info  =>  show current options")
-                print("    :start  =>  starts the handler")
-                print("     :exit  =>  return to main menu")
-                
-            elif option.startswith(":enc"):
-                types = ["xor, base64", "b64"]
-                try:
-                    enc = option.split(" ")
-                    enc = enc[1]
-                    if enc in types:
-                        print("encoding: %s" % enc)
-                        senc = enc
-                    else:
-                        print("[!] invalid choice!")
-                except IndexError:
-                    print("Available Encoders: ")
-                    print(" xor ")
-                    print(" base64")
-                    
-            elif options.startswith(":stype"):
-                types = ["btcp", "rtcp", "bxor", "rxor"]
-                try:
-                    shell = option.split(" ")
-                    shell = shell[1]
-                    if shell in types:
-                        print("shell: %s" % shell)
-                        shellt = shell
-                    else:
-                        print("[!] invalid choice!")
-                except IndexError:
-                    print("Available Shells: ")
-                    print(" btcp (bind tcp)")
-                    print(" rtcp (reverse tcp)")
-                    print(" bxor (bind xor)")
-                    print(" rxor (reverse xor)")
-
 
     def server(self):
+        os.system("clear")
         print("Build Intersect shell")
         print("""
               1 => TCP bind
@@ -430,7 +377,7 @@ class build:
               
               
         while True:
-            choice = raw_input(" build %s" % header)
+            choice = raw_input(" build => ")
             
             signal.signal(signal.SIGINT, core.signalHandler)
                   
@@ -573,7 +520,7 @@ class build:
                 manage.main()
                 
             else:
-                print("[!] Invalid option!")
+                core.inputerr()
 
 
 

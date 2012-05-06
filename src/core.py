@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # Intersect Framework (c) 2012
-# Core module for basic stuff
+# Core module for framework wide stuff
 
 import os, sys
 import string
@@ -10,25 +10,25 @@ import logging
 fwpath = os.getcwd()
 sys.path.append(fwpath+"src")
 
+# Location for logs, modules and storage
 ActivityLog = ("Logs/ActivityLog")
 DownloadDir = ("Storage/")
-ModulesDir = ("src/Modules/remote/")
+ModulesDir = ("src/Modules/")
+Config = ("Config/core.conf")
+
+# Define the logging messages
 logging.basicConfig(filename=ActivityLog, level=logging.INFO, format='%(asctime)s %(message)s')
 
+# Build list of modules
 Modules = []
 for mods in os.listdir(ModulesDir):
     Modules.append(mods)
     
-    
+
+# catch for ctrl+c so we can exit smoothly
 def signalHandler(signal, frame):
     print("[!] Ctrl-C caught, Shutting down now!");
-    Shutdown()
-
-
-def Shutdown():
-    if active_session is True:
-        shutdown_session()
-    sys.exit()
+    logging.info("[!] Ctrl+C signal caught. Shutting down Intersect!")
 
 
 def banner():
@@ -74,7 +74,8 @@ def banner():
 """
 
 
-def shell_help(): # help menu displayed for all shells
+# help menu displayed for all of the shells
+def shell_help():
     print("\n")
     print("          :mods  =>  show available modules")
     print("    :info module => display module information")
@@ -86,6 +87,8 @@ def shell_help(): # help menu displayed for all shells
     print("           :exit => closes shell connection\n") 
     
 
+# verify that ipv4 addresses are in the correct format
+# only performs basic checks so things like 1.1.4 won't get through
 def valid_ip(ip):
     parts = ip.split('.')
     return (
@@ -94,7 +97,8 @@ def valid_ip(ip):
         and all(0 <= int(part) <= 255 for part in parts)
         )
         
-        
+
+# attempt to parse option from console commands
 def get_choice(string):
     try:
         choice = string.split(" ")
@@ -104,7 +108,9 @@ def get_choice(string):
         choice = ""
         return choice
     
-    
+
+# verifies that shell options are correct
+# before we try to make a connection
 def check_options(host, port, type, key, name):
     if valid_ip(host):
         if port.isdigit():
@@ -128,6 +134,8 @@ def check_options(host, port, type, key, name):
     return False
 
 
+# parses author and description from individual modules
+# when users call the :info command
 def module_info(module):
     if os.path.exists(ModulesDir+module):
         info = open(ModulesDir+modname)
@@ -144,4 +152,24 @@ def module_info(module):
                 pass
     else:
         print("[!] module not found!")
+
+
+# define some common error messages
+# i got tired of typing these out every time. derp.
+def downloaderr(filename, session):
+    print("[!] Error saving file: %s" % filename)
+    logging.info("[%s] File '%s' download failed." % (session, filename)) 
+
+
+def uploaderr(filename, session):
+    print("[!] Error uploading file: %s" % filename)
+    logging.info("[%s] File '%s' upload failed." % (session, filename))
+
     
+def inputerr():
+    print("[!] must specify an option!")
+
+    
+def socketerr(session):
+    print("[!] connection error!")
+    logging.info("[%s] connection error occured!" % session)

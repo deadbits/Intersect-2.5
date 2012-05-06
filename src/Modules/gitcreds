@@ -1,17 +1,17 @@
 
-def gitcreds():
-    '''
-    @description: Tries to find various source code repositories and management tools. Git, SVN.
-    @author: ohdae [bindshell@live.com]
-    '''
 
-    users()
+'''
+@description: Tries to find various source code repositories and management tools. Git, SVN.
+@author: ohdae [bindshell@live.com]
+'''
 
-    if whereis('git') is not None:
-        for user in userlist:
-            cat_file("/home/%s/.gitconfig" % user)
+users()
 
-        if currentuser == "root":
-                cat_file("%s/.gitconfig" % Home_Dir)
+if whereis('git') is not None:
+    for user in userlist:
+        cat_file("/home/%s/.gitconfig" % user)
 
-gitcreds()
+    if currentuser == "root":
+        cat_file("%s/.gitconfig" % Home_Dir)
+
+

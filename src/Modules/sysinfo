@@ -15,3 +15,5 @@ save_file('/etc/sysctl.conf')
 save_file('/proc/cpuinfo')
 save_file('/proc/meminfo')
 cmd2txt("find /var/log -type f -exec ls -la {} \;", "loglist.txt")
+
+

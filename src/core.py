@@ -85,3 +85,63 @@ def shell_help(): # help menu displayed for all shells
     print("         :killme => shuts down server completely")
     print("           :exit => closes shell connection\n") 
     
+
+def valid_ip(ip):
+    parts = ip.split('.')
+    return (
+        len(parts) == 4
+        and all(part.isdigit() for part in parts)
+        and all(0 <= int(part) <= 255 for part in parts)
+        )
+        
+        
+def get_choice(string):
+    try:
+        choice = string.split(" ")
+        choice = choice[1]
+        return choice
+    except IndexError:
+        choice = ""
+        return choice
+    
+    
+def check_options(host, port, type, key, name):
+    if valid_ip(host):
+        if port.isdigit():
+            if name != "":
+                if type != "":
+                    if type == "xor" and key != "":
+                        return True
+                    elif type != "xor":
+                        return True
+                    else:
+                        print("[!] invalid private key!")
+                else:
+                    print("[!] invalid shell type!")
+            else:
+                print("[!] invalid session name!")
+        else:
+            print("[!] invalid port number!")
+    else:
+        print("[!] invalid ipv4 address!")
+        
+    return False
+
+
+def module_info(module):
+    if os.path.exists(ModulesDir+module):
+        info = open(ModulesDir+modname)
+        for line in info:
+            if "@description" in line:
+                des = line.split(":")
+                des = des[1]
+                print("\nDescription: %s" % des)
+            if "@author" in line:
+                author = line.split(":")
+                author = author[1]
+                print("Author: %s" % author)
+            else:
+                pass
+    else:
+        print("[!] module not found!")
+    

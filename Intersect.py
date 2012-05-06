@@ -11,10 +11,14 @@ import signal
 import shutil
 
 
-Templates = ("src/Templates/remote/")
+Shell_Templates = ("src/Templates/Shells/")
 Scripts = ("Scripts/")
 active_sessions = {}
+fw_version = "2.5.4"
 tab_complete = True
+header = " => "
+clients = [ "tcp", "xor" ]
+listeners = [ "tcp", "xor" ]
 
 try:
     import readline
@@ -28,9 +32,9 @@ if tab_complete == True:
 
 
 def about_dialog():
-    print """\n
+    print("""\n
                 Intersect Framework
-                  revision 2.5.5
+                  revision %s
               created by bindshell labs
     
     Intersect is a post-exploitation framework written in Python.
@@ -44,20 +48,19 @@ def about_dialog():
     targets that are running an Intersect shell, whether they are
     serving a client or listener. You can interact with multiple
     remote targets at once, setup listeners to accept multiple
-    connections and execute Intersect modules remotely.\n
-    """
+    connections and execute Intersect modules remotely.
+    
+    bindshell labs: http://bindshell.it.cx
+    project home:   https://ohdae.github.com/Intersect-2.5
+    repository:     https://github.com/ohdae/Intersect-2.5\n
+    """ % fw_version)
 
-
-def show_active(): # TODO: Implement the multi-session stuff here.
-    print("\nActive shell sessions: ")
-    for key, value in active_sessions.iteritems():
-        print "%s-%s" % (key, value)
-
+        
 
 class Completer:
     def __init__(self):
         self.words = ["help", "about", "client", "clear", "listener", "files", "exit",
-                        "exec", "download", "upload", "mods", "quit", "info", "killme", "build"
+                        "exec", "download", "upload", "mods", "quit", "info", "killme", "build",
                         "addr", "port", "name", "key", "view", "type" ]
         self.prefix = ":"
 
@@ -76,17 +79,15 @@ class Completer:
                 
 class manage(object):
     def __init__(self):
-        self.header = " => "
-        self.warning = " [!] "
         signal.signal(signal.SIGINT, core.signalHandler)
 
 
     def main(self): # Central menu of this application
-        print """
-Intersect Framework - Shell Management
---------------------------------------
-For a complete list of commands type :help
-\n\n"""
+        print("""
+Intersect Framework - version %s
+====================================
+Type :help for all available commands
+\n\n""" % fw_version)
 
         
         while True:
@@ -95,25 +96,52 @@ For a complete list of commands type :help
                 completer = Completer()
                 readline.set_completer(completer.complete)
                 
-            command = raw_input(" intersect %s " % (self.header))
+            command = raw_input(" intersect %s " % header)
         
             if command == (":client"):
-                build.client()
+                interact.client()
                     
             elif command == (":listener"):
-                build.listener()
+                interact.listener()
                 
-            elif command == (":build"):
+            elif command == (":handler"):
+                interact.handler()
+                
+            elif command == (":shell"):
                 build.server()
                 
+            elif command == (":payload"):
+                build.payload()
+                
+            elif command == (":logging"):
+                options.logs()
+                
+            elif command == (":globals"):
+                options.globals()
+                
+            elif command == (":storage"):
+                options.storage()
+                
             elif command == (":help"):
-                print("\n\n     :about  =>  display the 'about' dialog")
+                print("\n\n          [ Intersect ]")
+                print("     :about  =>  display the 'about' dialog")
                 print("     :clear  =>  clears the screen")
-                print("    :client  =>  start new client")
-                print("     :build  =>  build server-side handler ")
-                print("      :help  =>  show this help menu")
-                print("  :listener  =>  start new listener")
-                print("      :exit  =>  exit Intersect completely\n")    
+                print("   :modules  =>  view or import modules")
+                print("      :help  =>  display this help menu")
+                print("      :exit  =>  exit Intersect completely\n")
+                print("           [ Build ]")
+                print("     :shell  =>  create server-side Intersect shell")
+                print("   :payload  =>  create staged or web-dl payload\n")
+                print("           [ Interact ] ")
+                print("    :client  =>  start standalone client")
+                print("  :listener  =>  start standalone listener")
+                print("   :handler  =>  setup payload handler & shell\n")
+                print("           [ Configure ] ")
+                print("   :logging  =>  customize log options")
+                print("   :globals  =>  set global variables")
+                print("   :storage  =>  change storage directory\n")
+                  
+   
             
             elif command == (":about"):
                 about_dialog()
@@ -133,28 +161,15 @@ For a complete list of commands type :help
                 print(" %s Invalid Command!" % (self.warning))
 
 
-class build:
+class interact:
     def __init__(self):
-        self.header = " => "
-        self.warning = " [!] "
         self.HOST = ""
         self.PORT = ""
-        self.type = ""
-        self.name = ""
-        self.pkey = ""
-        self.clients = [ "tcp", "xor", "udp" ]
-        self.listeners = [ "tcp", "xor", "aes" ]
+        self.TYPE = ""
+        self.NAME = ""
+        self.PKEY = ""
         
-        
-    def valid_ip(self, ip):
-        parts = ip.split('.')
-        return (
-            len(parts) == 4
-            and all(part.isdigit() for part in parts)
-            and all(0 <= int(part) <= 255 for part in parts)
-            )
-        
-        
+
     def client(self):
         os.system("clear")
         print("\nConfigure your client settings")
@@ -162,15 +177,15 @@ class build:
         
         while True:
             
-            option = raw_input(" client %s" % (self.header))
+            option = raw_input(" client %s" % header)
             
             if option == (":help"):
                 print("\n")
-                print("     :type  =>  shell type [tcp, xor, udp]")
-                print("   :addr i  =>  remote IP")
+                print("     :type  =>  shell type [tcp, xor]")
+                print("   :addr i  =>  remote IP/host")
                 print("   :port p  =>  remote port")
                 print("   :name n  =>  session name")
-                print("    :key k  =>  xor private key [optional]")
+                print("    :key k  =>  xor private key")
                 print("    :start  =>  start client shell")
                 print("     :view  =>  display current settings")
                 print("     :help  =>  view this menu")
@@ -178,42 +193,39 @@ class build:
                 print("     :exit  =>  return to main menu\n")
                 
             elif option.startswith(":type"):
-                type = option.split(" ")
-                type = type[1]
-                if type in self.clients:
-                    self.type = type
-                    print("type: %s" % self.type)
+                self.TYPE = core.get_choice(option)
+                if self.TYPE in clients:
+                    print("type: %s" % self.TYPE)
                 else:
                     print("[!] invalid type!")
                     
             elif option.startswith(":addr"):
-                ip = option.split(" ")
-                ip = ip[1]
-                if self.valid_ip(ip):
-                    self.HOST = ip
+                self.HOST = core.get_choice(option)
+                if self.HOST != "" and core.valid_ip(self.HOST):
                     print("ip address: %s" % self.HOST)
                 else:
                     print("[!] invalid IPv4 address!")
                     
             elif option.startswith(":port"):
-                port = option.split(" ")
-                port = port[1]
-                if port.isdigit():
-                    self.PORT = port
+                self.PORT = core.get_choice(option)
+                if self.PORT != "" and self.PORT.isdigit():
                     print("port: %s" % self.PORT)
                 else:
                     print("[!] invalid port number!")
-                    self.PORT = ""
                     
             elif option.startswith(":name"):
-                name = option.split(" ")
-                self.name = name[1]
-                print("name: %s" % self.name)
+                self.NAME = core.get_choice(option)
+                if self.NAME != "":
+                    print("name: %s" % self.NAME)
+                else:
+                    print("[!] invalid name!")
                 
             elif option.startswith(":key"):
-                key = option.split(" ")
-                pkey = key[1]
-                print("key: %s" % pkey)
+                self.PKEY = core.get_choice(option)
+                if self.PKEY != "":
+                    print("key: %s" % self.PKEY)
+                else:
+                    print("[!] invalid key!")
                 
             elif option == (":exit"):
                 manage.main()
@@ -222,26 +234,20 @@ class build:
                 manage.main()
                 
             elif option == (":view"):
-                print("\nName: %s" % self.name)
-                print("Shell: %s" % self.type)
+                print("\nName: %s" % self.NAME)
+                print("Shell: %s" % self.TYPE)
                 print("Host: %s" % self.HOST)
                 print("Port: %s" % self.PORT)
-                print("Key: %s\n" % self.pkey)
+                print("Key: %s\n" % self.PKEY)
                 
             elif option.startswith(":start"):
-                if self.valid_ip(self.HOST):
-                    if self.PORT.isdigit():
-                        if self.name != "":
-                            if self.type == "tcp":
-                                shells.tcp.client(self.HOST, self.PORT, self.name)
-                            elif self.type == "xor":
-                                shells.xor.client(self.HOST, self.PORT, self.name, self.pkey)
-                        else:
-                            print("[!] enter session name!")
+                if core.check_options(self.HOST, self.PORT, self.TYPE, self.PKEY, self.NAME):
+                    if self.TYPE == "tcp":
+                        shells.tcp.client(self.HOST, self.PORT, self.NAME)
+                    elif self.TYPE == "xor":
+                        shells.xor.client(self.HOST, self.PORT, self.NAME, self.PKEY)
                     else:
-                        print("[!] invalid port number!")
-                else:
-                    print("[!] invalid IPv4 address!")
+                        print("[!] invalid shell type!")
                     
             elif option == (":clear"):
                 os.system("clear")
@@ -257,11 +263,11 @@ class build:
         
         while True:
             
-            option = raw_input(" client %s" % (self.header))
+            option = raw_input(" listener %s" % header)
             
             if option == (":help"):
                 print("\nAvailable Options: ")
-                print("     :type  =>  shell type [tcp, xor, aeshttp]")
+                print("     :type  =>  shell type [tcp, xor]")
                 print("   :addr i  =>  local IP")
                 print("   :port p  =>  local port")
                 print("   :name n  =>  session name")
@@ -273,41 +279,39 @@ class build:
                 print("     :exit  =>  return to main menu")
                 
             elif option.startswith(":type"):
-                type = option.split(" ")
-                type = type[1]
-                if type in self.listeners:
-                    print("accepted.")
-                    self.type = type
+                self.TYPE = core.get_choice(option)
+                if self.TYPE in listeners and self.TYPE != "":
+                    print("type: %s" % self.TYPE)
                 else:
                     print("[!] invalid type!")
                     
             elif option.startswith(":addr"):
-                ip = option.split(" ")
-                ip = ip[1]
-                if self.valid_ip(ip):
-                    print("accepted.")
-                    self.HOST = ip
+                self.HOST = core.get_choice(option)
+                if self.HOST != "" and core.valid_ip(ip):
+                    print("host: %s" % self.HOST)
                 else:
                     print("[!] invalid IPv4 address!")
                     
             elif option.startswith(":port"):
-                port = option.split(" ")
-                port = port[1]
-                if port.isdigit():
-                    print("accepted.")
-                    self.PORT = port
+                self.PORT = core.get_choice(option)
+                if self.PORT != "" and self.PORT.isdigit():
+                    print("port: %s" % self.PORT)
                 else:
                     print("[!] invalid port number!")
-                    self.PORT = ""
                     
             elif option.startswith(":name"):
-                name = option.split(" ")
-                self.name = name[1]
-                print("accepted.")
+                self.NAME = core.get_choice(option)
+                if self.NAME != "":
+                    print("name: %s" % self.NAME)
+                else:
+                    print("[!] invalid session name!")
                 
             elif option.startswith(":key"):
-                key = option.split(" ")
-                pkey = key[1]
+                self.PKEY = core.get_choice(option)
+                if self.PKEY != "":
+                    print("key: %s" % self.PKEY)
+                else:
+                    print("[!] invalid key!")
                 
             elif option == (":exit"):
                 manage.main()
@@ -316,28 +320,20 @@ class build:
                 manage.main()
                 
             elif option == (":view"):
-                print("\nName: %s" % self.name)
-                print("Shell: %s" % self.type)
+                print("\nName: %s" % self.NAME)
+                print("Shell: %s" % self.TYPE)
                 print("Host: %s" % self.HOST)
                 print("Port: %s" % self.PORT)
-                print("Key: %s\n" % self.pkey)
+                print("Key: %s\n" % self.PKEY)
                 
             elif option.startswith(":start"):
-                if self.valid_ip(self.HOST):
-                    if self.PORT.isdigit():
-                        if self.name != "":
-                            if self.type == "tcp":
-                                shells.tcp.server(self.HOST, self.PORT, self.name)
-                            elif self.type == "xor":
-                                shells.xor.server(self.HOST, self.PORT, self.name, self.pkey)
-                            elif self.type == "aeshttp":
-                                print("[!] aeshttp listener not yet implemented!")
-                        else:
-                            print("[!] enter session name!")
+                if core.check_options(self.HOST, self.PORT, self.TYPE, self.PKEY, self.NAME):
+                    if self.TYPE == "tcp":
+                        shells.tcp.client(self.HOST, self.PORT, self.NAME)
+                    elif self.TYPE == "xor":
+                        shells.xor.client(self.HOST, self.PORT, self.NAME, self.PKEY)
                     else:
-                        print("[!] invalid port number!")
-                else:
-                    print("[!] invalid IPv4 address!")
+                        print("[!] invalid shell type!")
                                         
             elif option == (":clear"):
                 os.system("clear")
@@ -346,8 +342,83 @@ class build:
                 print("[!] invalid option!")
 
 
+class build:
+    def __init__(self):
+        self.HOST = ""
+        self.PORT = ""
+        self.TYPE = ""
+        self.NAME = ""
+        self.PKEY = ""
+        
+        
+    def handler(self):
+        os.system("clear")
+        print("\nSetup your handler & shell settings")
+        print("Type :help for all commands")
+        
+        while True:
+            
+            option = raw_input(" handler %s " % header)
+            
+            if option == (":help"):
+                print("\n")
+                print("Info: ")
+                print(" This console can be used to start a handler that will complete")
+                print(" the staged payload process. If you created a staged dropper, ")
+                print(" you need a client-side handler that will listen for the target")
+                print(" connection, send the Intersect shell to the target and then spawn")
+                print(" the actual Intersect shell connection. Use the commands listed below")
+                print(" to setup your options, then start the handler and wait for the target")
+                print(" to connect back.\n")
+                print("      :enc  =>  encoding [xor, b64]")
+                print("    :stype  =>  shell type [btcp, rtcp, bxor, rxor]")
+                print("    :htype  =>  handler type [bind, reverse, web]")
+                print("  :lhost i  =>  local IP")
+                print("  :lport p  =>  local port")
+                print("  :rhost i  =>  remote IP")
+                print("  :rport p  =>  remote port")
+                print("    :key k  =>  xor private key")
+                print("     :help  =>  display this menu")
+                print("    :clear  =>  clears the screen")
+                print("     :info  =>  show current options")
+                print("    :start  =>  starts the handler")
+                print("     :exit  =>  return to main menu")
+                
+            elif option.startswith(":enc"):
+                types = ["xor, base64", "b64"]
+                try:
+                    enc = option.split(" ")
+                    enc = enc[1]
+                    if enc in types:
+                        print("encoding: %s" % enc)
+                        senc = enc
+                    else:
+                        print("[!] invalid choice!")
+                except IndexError:
+                    print("Available Encoders: ")
+                    print(" xor ")
+                    print(" base64")
+                    
+            elif options.startswith(":stype"):
+                types = ["btcp", "rtcp", "bxor", "rxor"]
+                try:
+                    shell = option.split(" ")
+                    shell = shell[1]
+                    if shell in types:
+                        print("shell: %s" % shell)
+                        shellt = shell
+                    else:
+                        print("[!] invalid choice!")
+                except IndexError:
+                    print("Available Shells: ")
+                    print(" btcp (bind tcp)")
+                    print(" rtcp (reverse tcp)")
+                    print(" bxor (bind xor)")
+                    print(" rxor (reverse xor)")
+
+
     def server(self):
-        print("Build server-side handler")
+        print("Build Intersect shell")
         print("""
               1 => TCP bind
               2 => TCP reverse
@@ -359,12 +430,12 @@ class build:
               
               
         while True:
-            choice = raw_input(" build %s" % (self.header))
+            choice = raw_input(" build %s" % header)
             
             signal.signal(signal.SIGINT, core.signalHandler)
                   
             if choice == "1":
-                template = (Templates+"tcpbind.py")
+                template = (Shell_Templates+"tcpbind.py")
                 print("\nEnter a name for your new shell. The final product will be saved in the Scripts directory.")
                 name = raw_input(" tcp-bind => ")
                 if os.path.exists(Scripts+name):
@@ -374,7 +445,7 @@ class build:
                     shutil.copy2(template, Scripts+name)
                 
                 host = raw_input(" bind IP => ")
-                if self.valid_ip(host):
+                if core.valid_ip(host):
                     port = raw_input(" bind port => ")
                     if port.isdigit():
                         makeshell = open(Scripts+name, "a")
@@ -398,7 +469,7 @@ class build:
                 
                 
             elif choice == "2":
-                template = (Templates+"tcprev.py")
+                template = (Shell_Templates+"tcprev.py")
                 print("\nEnter a name for your new shell. The final product will be saved in the Scripts directory.")
                 name = raw_input(" tcp-rev => ")
                 if os.path.exists(Scripts+name):
@@ -408,7 +479,7 @@ class build:
                     shutil.copy2(template, Scripts+name)
                 
                 host = raw_input(" listen IP => ")
-                if self.valid_ip(host):
+                if core.valid_ip(host):
                     port = raw_input(" listen port => ")
                     if port.isdigit():
                         newshell = open(Scripts+name, "a")
@@ -429,7 +500,7 @@ class build:
                     build.server()
                                 
             elif choice == "3":
-                template = (Templates+"xorbind.py")
+                template = (Shell_Templates+"xorbind.py")
                 print("\nEnter a name for your new shell. The final product will be saved in the Scripts directory.")
                 name = raw_input(" xor-bind => ")
                 if os.path.exists(Scripts+name):
@@ -439,7 +510,7 @@ class build:
                     shutil.copy2(template, Scripts+name)
                 
                 host = raw_input(" bind IP => ")
-                if self.valid_ip(host):
+                if core.valid_ip(host):
                     port = raw_input(" bind port => ")
                     pin = raw_input(" xor key => ")
                     if port.isdigit():
@@ -464,7 +535,7 @@ class build:
                     build.server()
                     
             elif choice == "4":
-                template = (Templates+"xorrev.py")
+                template = (Shell_Templates+"xorrev.py")
                 print("\nEnter a name for your new shell. The final product will be saved in the Scripts directory.")
                 name = raw_input(" xor-rev => ")
                 if os.path.exists(Scripts+name):
@@ -474,7 +545,7 @@ class build:
                     shutil.copy2(template, Scripts+name)
                 
                 host = raw_input(" listen IP => ")
-                if self.valid_ip(host):
+                if core.valid_ip(host):
                     port = raw_input(" listen port => ")
                     pin = raw_input(" xor key => ")
                     if port.isdigit():
@@ -502,7 +573,7 @@ class build:
                 manage.main()
                 
             else:
-                print("%s Invalid option!" % (self.header))
+                print("[!] Invalid option!")
 
 
 
@@ -510,5 +581,6 @@ if __name__=='__main__':
     core.banner()
     manage = manage()
     build = build()
+    interact = interact()
     manage.main()
 

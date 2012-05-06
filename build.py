@@ -9,7 +9,7 @@ import shutil
 import logging
 import base64
 
-Templates = ("src/Templates/remote/")
+Templates = ("src/Templates/Shells/")
 Scripts = ("Scripts/")
 BuildLog = ("Logs/build_log")
 

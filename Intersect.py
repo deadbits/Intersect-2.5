@@ -10,9 +10,13 @@ import string
 import signal
 import shutil
 
-# define general information used through-out this script
-Shell_Templates = ("src/Templates/Shells/")
-Scripts = ("Scripts/")
+# Aliases for directory locations
+Scripts = core.Scripts            # location for generated Intersect shells
+Payloads = core.Payloads          # location for generated payloads
+ModulesDir = core.ModulesDir      # contains all the modules
+ShellTmp = core.ShellTemps        # contains templates for Intersect shells
+PayloadTmp = core.PayloadTemps    # contains templates for payloads
+
 active_sessions = {}
 fw_version = "2.5.4"
 tab_complete = True
@@ -24,7 +28,7 @@ listeners = [ "tcp", "xor" ]
 try:
     import readline
 except ImportError:
-    print "[!] Python readline is not installed. Tab completion will be disabled."
+    core.warning("Python readline is not installed. Tab completion will be disabled.")
     tab_complete = False
     core.logging.info("Python Readline library not installed. Tab completion is disabled.")
 
@@ -34,9 +38,9 @@ if tab_complete == True:
 
 def about_dialog():
     print("""\n
-                Intersect Framework
+                %sIntersect Framework
                   revision %s
-              created by bindshell labs
+              created by bindshell labs%s
     
     Intersect is a post-exploitation framework written in Python.
     The purpose of this framework and the included modules are to
@@ -54,7 +58,7 @@ def about_dialog():
     bindshell labs: http://bindshell.it.cx
     project home:   https://ohdae.github.com/Intersect-2.5
     repository:     https://github.com/ohdae/Intersect-2.5\n
-    """ % fw_version)
+    """ % (core.bold, fw_version, core.reset))
 
 
 # configure tab completion commands and such.
@@ -86,10 +90,9 @@ class manage(object):
 
     def main(self):
         print("""
-Intersect Framework - version %s
-====================================
+%sIntersect Framework - version %s%s
 Type :help for all available commands
-\n\n""" % fw_version)
+\n\n""" % (core.uline, fw_version, core.reset))
 
         
         while True:
@@ -98,47 +101,55 @@ Type :help for all available commands
                 completer = Completer()
                 readline.set_completer(completer.complete)
                 
-            command = raw_input(" intersect %s " % header)
+            command = raw_input("intersect => ")
         
             if command == (":client"):
+                os.system("clear")
                 interact.client()
                     
             elif command == (":listener"):
+                os.system("clear")
                 interact.listener()
                 
             elif command == (":handler"):
+                os.system("clear")
                 interact.handler()
                 
             elif command == (":shell"):
+                os.system("clear")
                 build.server()
                 
             elif command == (":payload"):
+                os.system("clear")
                 build.payload()
                 
             elif command == (":logging"):
+                os.system("clear")
                 options.logs()
                 
             elif command == (":globals"):
+                os.system("clear")
                 options.globals()
                 
             elif command == (":storage"):
+                os.system("clear")
                 options.storage()
                 
             elif command == (":help"):
-                print("\n\n          [ Intersect ]")
+                print("\n\n          %sIntersect%s" % (core.uline, core.reset))
                 print("     :about  =>  display the 'about' dialog")
                 print("     :clear  =>  clears the screen")
                 print("   :modules  =>  view or import modules")
                 print("      :help  =>  display this help menu")
                 print("      :exit  =>  exit Intersect completely\n")
-                print("           [ Build ]")
+                print("           %sBuild%s" % (core.uline, core.reset))
                 print("     :shell  =>  create server-side Intersect shell")
                 print("   :payload  =>  create staged or web-dl payload\n")
-                print("           [ Interact ] ")
+                print("           %sInteract%s " % (core.uline, core.reset))
                 print("    :client  =>  start standalone client")
                 print("  :listener  =>  start standalone listener")
                 print("   :handler  =>  setup payload handler & shell\n")
-                print("           [ Configure ] ")
+                print("           %sConfigure%s " % (core.uline, core.reset))
                 print("   :logging  =>  customize log options")
                 print("   :globals  =>  set global variables")
                 print("   :storage  =>  change storage directory\n")
@@ -147,18 +158,18 @@ Type :help for all available commands
                 about_dialog()
                 
             elif command == (":exit"):
-                print("[!] Shutting down Intersect!")
+                core.warning("Shutting down Intersect!")
                 sys.exit(0)
                 
             elif command == (":quit"):
-                print("[!] Shutting down Intersect!")
+                core.warning("Shutting down Intersect!")
                 sys.exit(0)
                                         
             elif command == (":clear"):
                 os.system("clear")
                 
             else:
-                print("[!] invalid command!")
+                core.warning("invalid command!")
 
 
 # functions for interacting with remote hosts. setup clients, listeners and handlers.
@@ -167,30 +178,26 @@ class interact:
         self.HOST = ""
         self.PORT = ""
         self.TYPE = ""
-        self.NAME = ""
         self.PKEY = ""
         
     def handler(self): # place-holder 
-        os.system("clear")
-        print("\nConfigure handler and shell settings")
-        print("Type :help for all commands")
+        print("\n%sConfigure handler and shell settings" % core.bold)
+        print("Type :help for all commands%s" % core.reset)
         
 
     def client(self):
-        os.system("clear")
-        print("\nConfigure your client settings")
-        print("Type :help for all commands")
+        print("\n%sConfigure your client settings" % core.bold)
+        print("Type :help for all commands%s" % core.reset)
         
         while True:
             
-            option = raw_input(" client %s" % header)
+            option = raw_input("client => ")
             
             if option == (":help"):
                 print("\n")
                 print("     :type  =>  shell type [tcp, xor]")
                 print("   :addr i  =>  remote IP/host")
                 print("   :port p  =>  remote port")
-                print("   :name n  =>  session name")
                 print("    :key k  =>  xor private key")
                 print("    :start  =>  start client shell")
                 print("     :view  =>  display current settings")
@@ -203,35 +210,28 @@ class interact:
                 if self.TYPE in clients:
                     print("type: %s" % self.TYPE)
                 else:
-                    print("[!] invalid type!")
+                    core.warning("invalid shell type!")
                     
             elif option.startswith(":addr"):
                 self.HOST = core.get_choice(option)
                 if self.HOST != "" and core.valid_ip(self.HOST):
                     print("ip address: %s" % self.HOST)
                 else:
-                    print("[!] invalid IPv4 address!")
+                    core.warning("invalid IPv4 address!")
                     
             elif option.startswith(":port"):
                 self.PORT = core.get_choice(option)
                 if self.PORT != "" and self.PORT.isdigit():
                     print("port: %s" % self.PORT)
                 else:
-                    print("[!] invalid port number!")
-                    
-            elif option.startswith(":name"):
-                self.NAME = core.get_choice(option)
-                if self.NAME != "":
-                    print("name: %s" % self.NAME)
-                else:
-                    print("[!] invalid name!")
+                    core.warning("invalid port number!")
                 
             elif option.startswith(":key"):
                 self.PKEY = core.get_choice(option)
                 if self.PKEY != "":
                     print("key: %s" % self.PKEY)
                 else:
-                    print("[!] invalid key!")
+                    core.warning("invalid key!")
                 
             elif option == (":exit"):
                 manage.main()
@@ -240,20 +240,19 @@ class interact:
                 manage.main()
                 
             elif option == (":view"):
-                print("\nName: %s" % self.NAME)
-                print("Shell: %s" % self.TYPE)
+                print("\nShell: %s" % self.TYPE)
                 print("Host: %s" % self.HOST)
                 print("Port: %s" % self.PORT)
                 print("Key: %s\n" % self.PKEY)
                 
             elif option.startswith(":start"):
-                if core.check_options(self.HOST, self.PORT, self.TYPE, self.PKEY, self.NAME):
+                if core.check_options(self.HOST, self.PORT, self.TYPE, self.PKEY):
                     if self.TYPE == "tcp":
-                        shells.tcp.client(self.HOST, self.PORT, self.NAME)
+                        shells.tcp.client(self.HOST, self.PORT)
                     elif self.TYPE == "xor":
-                        shells.xor.client(self.HOST, self.PORT, self.NAME, self.PKEY)
+                        shells.xor.client(self.HOST, self.PORT, self.PKEY)
                     else:
-                        print("[!] invalid shell type!")
+                        core.warning("invalid shell type!")
                     
             elif option == (":clear"):
                 os.system("clear")
@@ -263,20 +262,18 @@ class interact:
                     
                     
     def listener(self):
-        os.system("clear")
-        print("\nConfigure your listener settings")
+        print("\n%sConfigure your listener settings%s" % (core.uline, core.reset))
         print("Type :help for all commands")
         
         while True:
             
-            option = raw_input(" client %s" % header)
+            option = raw_input("listener => ")
             
             if option == (":help"):
                 print("\n")
                 print("     :type  =>  shell type [tcp, xor]")
                 print("   :addr i  =>  remote IP/host")
                 print("   :port p  =>  remote port")
-                print("   :name n  =>  session name")
                 print("    :key k  =>  xor private key")
                 print("    :start  =>  start client shell")
                 print("     :view  =>  display current settings")
@@ -289,35 +286,28 @@ class interact:
                 if self.TYPE in clients:
                     print("type: %s" % self.TYPE)
                 else:
-                    print("[!] invalid type!")
+                    core.warning("invalid type!")
                     
             elif option.startswith(":addr"):
                 self.HOST = core.get_choice(option)
                 if self.HOST != "" and core.valid_ip(self.HOST):
                     print("ip address: %s" % self.HOST)
                 else:
-                    print("[!] invalid IPv4 address!")
+                    core.warning("invalid IPv4 address!")
                     
             elif option.startswith(":port"):
                 self.PORT = core.get_choice(option)
                 if self.PORT != "" and self.PORT.isdigit():
                     print("port: %s" % self.PORT)
                 else:
-                    print("[!] invalid port number!")
-                    
-            elif option.startswith(":name"):
-                self.NAME = core.get_choice(option)
-                if self.NAME != "":
-                    print("name: %s" % self.NAME)
-                else:
-                    print("[!] invalid name!")
+                    core.warning("invalid port number!")
                 
             elif option.startswith(":key"):
                 self.PKEY = core.get_choice(option)
                 if self.PKEY != "":
                     print("key: %s" % self.PKEY)
                 else:
-                    print("[!] invalid key!")
+                    core.warning("invalid key!")
                 
             elif option == (":exit"):
                 manage.main()
@@ -326,20 +316,19 @@ class interact:
                 manage.main()
                 
             elif option == (":view"):
-                print("\nName: %s" % self.NAME)
-                print("Shell: %s" % self.TYPE)
+                print("\nShell: %s" % self.TYPE)
                 print("Host: %s" % self.HOST)
                 print("Port: %s" % self.PORT)
                 print("Key: %s\n" % self.PKEY)
                 
             elif option.startswith(":start"):
-                if core.check_options(self.HOST, self.PORT, self.TYPE, self.PKEY, self.NAME):
+                if core.check_options(self.HOST, self.PORT, self.TYPE, self.PKEY):
                     if self.TYPE == "tcp":
                         shells.tcp.server(self.HOST, self.PORT, self.NAME)
                     elif self.TYPE == "xor":
-                        shells.xor.server(self.HOST, self.PORT, self.NAME, self.PKEY)
+                        shells.xor.server(self.HOST, self.PORT, self.PKEY)
                     else:
-                        print("[!] invalid shell type!")
+                        core.warning("invalid shell type!")
                     
             elif option == (":clear"):
                 os.system("clear")
@@ -358,13 +347,11 @@ class build:
         
         
     def payload(self): # place holder
-        os.system("clear")
         print("\nConfigure your payload settings")
         
 
     def server(self):
-        os.system("clear")
-        print("Build Intersect shell")
+        print("\n\nBuild Intersect shell")
         print("""
               1 => TCP bind
               2 => TCP reverse
@@ -376,142 +363,122 @@ class build:
               
               
         while True:
-            choice = raw_input(" build => ")
+            choice = raw_input("build => ")
             
             signal.signal(signal.SIGINT, core.signalHandler)
                   
             if choice == "1":
-                template = (Shell_Templates+"tcpbind.py")
+                template = (ShellTmp+"tcpbind.py")
                 print("\nEnter a name for your new shell. The final product will be saved in the Scripts directory.")
-                name = raw_input(" tcp-bind => ")
+                name = raw_input("tcp-bind => ")
                 if os.path.exists(Scripts+name):
-                    print("[!] A file by this name all ready exists!")
+                    core.warning("filename all ready exists!")
                     build.server()
                 else:
                     shutil.copy2(template, Scripts+name)
                 
-                host = raw_input(" bind IP => ")
-                if core.valid_ip(host):
-                    port = raw_input(" bind port => ")
-                    if port.isdigit():
-                        makeshell = open(Scripts+name, "a")
-                        makeshell.write("\nHOST = '%s'" % host)
-                        makeshell.write("\nPORT = %s" % port)
-                        makeshell.write("\nconn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)")
-                        makeshell.write("\nconn.bind((HOST, PORT))")
-                        makeshell.write("\nconn.listen(5)")
-                        makeshell.write("\naccept()")
-                        makeshell.close()
-                    
-                        print("[+] New shell created!")
-                        print("[+] Location: %s" % Scripts+name)
-                        manage.main()
-                    else:
-                        print("[!] Invalid port!")
-                        build.server()
+                host = raw_input("bind IP => ")
+                port = raw_input("bind port => ")
+                core.status("verifying options...")
+                if core.check_options(host, port, 'tcp', ''):
+                    makeshell = open(Scripts+name, "a")
+                    makeshell.write("\nHOST = '%s'" % host)
+                    makeshell.write("\nPORT = %s" % port)
+                    makeshell.write("\nconn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)")
+                    makeshell.write("\nconn.bind((HOST, PORT))")
+                    makeshell.write("\nconn.listen(5)")
+                    makeshell.write("\naccept()")
+                    makeshell.close()
+                    core.status("new shell created!")
+                    core.status("location: %s" % Scripts+name)
+                    manage.main()
                 else:
-                    print("[!] Invalid IPv4 address!")
                     build.server()
                 
                 
             elif choice == "2":
-                template = (Shell_Templates+"tcprev.py")
+                template = (ShellTmp+"tcprev.py")
                 print("\nEnter a name for your new shell. The final product will be saved in the Scripts directory.")
-                name = raw_input(" tcp-rev => ")
+                name = raw_input("tcp-rev => ")
                 if os.path.exists(Scripts+name):
-                    print("[!] A file by this name all ready exists!")
+                    core.warning("filename all ready exists!")
                     build.server()
                 else:
                     shutil.copy2(template, Scripts+name)
                 
-                host = raw_input(" listen IP => ")
-                if core.valid_ip(host):
-                    port = raw_input(" listen port => ")
-                    if port.isdigit():
-                        newshell = open(Scripts+name, "a")
-                        newshell.write("\n    HOST = '%s'" % host)
-                        newshell.write("\n    PORT = %s" % port)
-                        newshell.write("\n\nglobalvars()")
-                        newshell.write("\nmain()")
-                        newshell.close()
-                    
-                        print("[+] New shell created!")
-                        print("[+] Location: %s" % Scripts+name)
-                        manage.main()
-                    else:
-                        print("[!] Invalid port!")
-                        build.server()
+                host = raw_input("listen IP => ")
+                port = raw_input("listen port => ")
+                core.status("verifying options...")
+                if core.check_options(host, port, 'tcp', ''):
+                    newshell = open(Scripts+name, "a")
+                    newshell.write("\n    HOST = '%s'" % host)
+                    newshell.write("\n    PORT = %s" % port)
+                    newshell.write("\n\nglobalvars()")
+                    newshell.write("\nmain()")
+                    newshell.close()
+                    core.status("new shell created!")
+                    core.status("location: %s" % Scripts+name)
+                    manage.main()
                 else:
-                    print("[!] Invalid IPv4 address!")
                     build.server()
                                 
             elif choice == "3":
-                template = (Shell_Templates+"xorbind.py")
+                template = (ShellTmp+"xorbind.py")
                 print("\nEnter a name for your new shell. The final product will be saved in the Scripts directory.")
-                name = raw_input(" xor-bind => ")
+                name = raw_input("xor-bind => ")
                 if os.path.exists(Scripts+name):
-                    print("[!] A file by this name all ready exists!")
+                    print("[!] filename all ready exists!")
                     build.server()
                 else:
                     shutil.copy2(template, Scripts+name)
                 
-                host = raw_input(" bind IP => ")
-                if core.valid_ip(host):
-                    port = raw_input(" bind port => ")
-                    pin = raw_input(" xor key => ")
-                    if port.isdigit():
-                        makeshell = open(Scripts+name, "a")
-                        makeshell.write("\nHOST = '%s'" % host)
-                        makeshell.write("\nPORT = %s" % port)
-                        makeshell.write("\npin = '%s'" % pin)
-                        makeshell.write("\nconn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)")
-                        makeshell.write("\nconn.bind((HOST, PORT))")
-                        makeshell.write("\nconn.listen(5)")
-                        makeshell.write("\naccept()")
-                        makeshell.close()
-                    
-                        print("[+] New shell created!")
-                        print("[+] Location: %s" % Scripts+name)
-                        manage.main()
-                    else:
-                        print("[!] Invalid port!")
-                        build.server()
+                host = raw_input("bind IP => ")
+                port = raw_input("bind port => ")
+                key = raw_input("xor key => ")
+                core.status("verifying options...")
+                if core.check_options(host, port, 'xor', key):
+                    makeshell = open(Scripts+name, "a")
+                    makeshell.write("\nHOST = '%s'" % host)
+                    makeshell.write("\nPORT = %s" % port)
+                    makeshell.write("\npin = '%s'" % pin)
+                    makeshell.write("\nconn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)")
+                    makeshell.write("\nconn.bind((HOST, PORT))")
+                    makeshell.write("\nconn.listen(5)")
+                    makeshell.write("\naccept()")
+                    makeshell.close()
+                    core.status("new shell created!")
+                    core.status("location: %s" % Scripts+name)
+                    manage.main()
                 else:
-                    print("[!] Invalid IPv4 address!")
                     build.server()
                     
             elif choice == "4":
-                template = (Shell_Templates+"xorrev.py")
+                template = (ShellTmp+"xorrev.py")
                 print("\nEnter a name for your new shell. The final product will be saved in the Scripts directory.")
-                name = raw_input(" xor-rev => ")
+                name = raw_input("xor-rev => ")
                 if os.path.exists(Scripts+name):
-                    print("[!] A file by this name all ready exists!")
+                    core.warning("filename all ready exists!")
                     build.server()
                 else:
                     shutil.copy2(template, Scripts+name)
                 
-                host = raw_input(" listen IP => ")
-                if core.valid_ip(host):
-                    port = raw_input(" listen port => ")
-                    pin = raw_input(" xor key => ")
-                    if port.isdigit():
-                        makeshell = open(Scripts+name, "a")
-                        makeshell.write("\n    HOST = '%s'" % host)
-                        makeshell.write("\n    PORT = %s" % port)
-                        makeshell.write("\n    pin = '%s'" % pin)
-                        makeshell.write("\n\nglobalvars()")
-                        makeshell.write("\nmain()")
-                        makeshell.close()
-                        makeshell.close()
-                    
-                        print("[+] New shell created!")
-                        print("[+] Location: %s" % Scripts+name)
-                        manage.main()
-                    else:
-                        print("[!] Invalid port!")
-                        build.server()
+                host = raw_input("listen IP => ")
+                port = raw_input("listen port => ")
+                key = raw_input("xor key => ")
+                core.status("verifying options...")
+                if core.check_options(host, port, 'xor', key):
+                    makeshell = open(Scripts+name, "a")
+                    makeshell.write("\n    HOST = '%s'" % host)
+                    makeshell.write("\n    PORT = %s" % port)
+                    makeshell.write("\n    pin = '%s'" % pin)
+                    makeshell.write("\n\nglobalvars()")
+                    makeshell.write("\nmain()")
+                    makeshell.close()
+                    makeshell.close()
+                    core.status("new shell created!")
+                    core.status("location: %s" % Scripts+name)
+                    manage.main()
                 else:
-                    print("[!] Invalid IPv4 address!")
                     build.server()
                 
             elif choice == "5":

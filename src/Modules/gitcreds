@@ -7,6 +7,11 @@
 
 users()
 
+if os.geteuid() != 0:
+    currentuser = "nonroot"
+else:
+    currentuser = "root"
+
 if whereis('git') is not None:
     for user in userlist:
         cat_file("/home/%s/.gitconfig" % user)

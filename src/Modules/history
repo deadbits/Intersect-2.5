@@ -3,15 +3,30 @@
 @description: Enumerate history files (bash, mysql, vim, *history) and SQL file locations.
 @author: ohdae [bindshell@live.com]
 '''
-users()
-for user in userlist:
-    status_msg("User account: %s" % user)
-    if os.path.exists("/home/%s/.bash_history"):
-        save_file("/home/%s/.bash_history" % user)
-        save_file("/home/%s/.viminfo" % user)
-        save_file("/home/%s/.mysql_history" % user)
+def users():
+    global userlist
+    userlist = []
+    if os.access('/etc/passwd', os.R_OK):
+        passwd = open('/etc/passwd')
+        for line in passwd:
+            fields = line.split(':')
+            uid = int(fields[2])
+            if uid > 500 and uid < 32328:
+                userlist.append(fields[0])
 
-if currentuser == "root":
-    cmd2txt("find /home -type f -iname '.*history'", "HistoryList.txt")
 
+def get_history():
+    users()
+    for user in userlist:
+        status_msg("User account: %s" % user)
+        if os.path.exists("/home/%s/.bash_history"):
+            save_file("/home/%s/.bash_history" % user)
+            save_file("/home/%s/.viminfo" % user)
+            save_file("/home/%s/.mysql_history" % user)
+
+    if currentuser == "root":
+        cmd2txt("find /home -type f -iname '.*history'", "HistoryList.txt")
+
+
+get_history()
 

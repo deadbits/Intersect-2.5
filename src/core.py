@@ -60,6 +60,20 @@ def title(msg):
 
 def info(msg):
     print("%s[*]%s %s " % (bold, reset, msg))
+    
+
+def mkdir_session(name):
+    if os.path.exists(DownloadDir+name) is False:
+        sessiondir = DownloadDir+name
+        os.mkdir(sessiondir)
+        return sessiondir
+    else:
+        from time import gmtime, strftime
+        now = stfrtime("%Y-%m-%d", gmtime())
+        sessiondir = DownloadDir+name+"-"+now
+        os.mkdir(sessiondir)
+        return sessiondir
+        
 
 
 # catch for ctrl+c so we can exit smoothly

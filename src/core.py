@@ -73,8 +73,16 @@ def mkdir_session(name):
         sessiondir = DownloadDir+name+"-"+now
         os.mkdir(sessiondir)
         return sessiondir
+    
+    
+def xor(string, key):
+    data = ''
+    for char in string:
+        for ch in key:
+            char = chr(ord(char) ^ ord(ch))
+        data += char
+    return data
         
-
 
 # catch for ctrl+c so we can exit smoothly
 def signalHandler(signal, frame):

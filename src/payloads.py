@@ -3,7 +3,7 @@
 
 import core
 import os, sys
-from base64 import *
+import base64
 
 New_Payloads = ("Scripts/Payloads/") 
 Payload_Templates = ("src/Templates/Payloads")

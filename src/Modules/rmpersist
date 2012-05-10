@@ -1,0 +1,17 @@
+
+'''
+@description: removes a previously installed Intersect persistent service.
+@author: ohdae [bindshell@live.com]
+'''
+
+if os.path.exists("/etc/init.d/sysupd"):
+    status_msg("Intersect service found. Removing...")
+    if whereis("chattr") is not None:
+        os.system("chattr -i /etc/init.d/sysupd")
+        os.system("chattr -i /etc/default/sysupd")
+    os.system("rm /etc/init.d/sysupd")
+    os.system("update-rc.d sysupd remove")
+    status_msg("Intersect service sucessfully removed")
+else:
+    status_msg("No existing persistent service found!")
+

@@ -3,26 +3,9 @@
 @description: Tries to find various source code repositories and management tools. Git, SVN.
 @author: ohdae [bindshell@live.com]
 '''
-def users():
-    userlist = []
-    if os.access('/etc/passwd', os.R_OK):
-        passwd = open('/etc/passwd')
-        for line in passwd:
-            fields = line.split(':')
-            uid = int(fields[2])
-            if uid > 500 and uid < 32328:
-                userlist.append(fields[0])
-
-
-def whereis(program):
-    for path in os.environ.get('PATH', '').split(':'):
-        if os.path.exists(os.path.join(path, program)) and \
-            not os.path.isdir(os.path.join(path, program)):
-                return os.path.join(path, program)
-    return None
 
 def git_info():
-    users()
+    userlist = users()
     if whereis('git') is not None:
         for user in userlist:
             cat_file("/home/%s/.gitconfig" % user)

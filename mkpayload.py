@@ -22,11 +22,11 @@ You must setup a listening Intersect handler to receive the connection.
 """% (core.uline, core.reset, core.uline, core.reset))
 
 parser = argparse.ArgumentParser(description=help, prog="payload")
-parser.add_argument("--type", help="payload to generate", choices=["webdl", "staged" "cpp"], required=True)
+parser.add_argument("--type", help="payload to generate", choices=["webdl", "staged" "cpp", "php", "asp"], required=True)
 parser.add_argument("--host", help="local host/IP address (staged)")
 parser.add_argument("--port", help="local port number (staged)", type=int)
 parser.add_argument("--url", help="full download url (webdl)")
-parser.add_argument("--enc", help="payload encoding", choices=["b64", "xor"])
+parser.add_argument("--enc", help="payload encoding", choices=["b64", "xor1", "xor4", "babbel"])
 parser.add_argument("--out", help="output file name", required=True)
 args = parser.parse_args()
 payload = args.out

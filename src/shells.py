@@ -9,16 +9,17 @@ from base64 import *
 
 socksize = 4092
 
+
 class tcp:
     def __init__(self):
         signal.signal(signal.SIGINT, core.signalHandler)
         
-    def download(self, filename, location):
-        # downloads file from remote system
-        # saves under location/filename (location should be sessiondir)
+    def download(self, filename, session):
+        # fuck.
         filename = filename.replace("/","_")
+        location = core.DownloadDir+session+"_"+filename
         data = conn.recv(socksize)
-        newfile = file(location+filename, "wb")
+        newfile = file(location, "wb")
         newfile.write(data)
         newfile.close()
         if os.path.exists(location):
@@ -40,7 +41,7 @@ class tcp:
             core.logging.info("[%s] File '%s' upload sucessful." % (session, filename))
         else:
             core.uploaderr(filename, session)
-        
+            
         
     def client(self, HOST, PORT):
         session = "TCP_"+HOST
@@ -50,7 +51,6 @@ class tcp:
         try:
             conn.connect((HOST, PORT))
             core.status("connection established!")
-            core.mkdir_session(session)
             core.logging.info("[%s] Connection established %s:%s" % (session, HOST, PORT))
         except:
             core.warning("connection error!")
@@ -61,14 +61,14 @@ class tcp:
             if data.startswith(":savef"):
                 dfile = core.get_choice(data)
                 if dfile != "":
-                    self.download(dfile, sessiondir)
+                    self.download(dfile, session)
                 else:
                     core.logging.error("[%s] No file provided for [:savef] command" % session)
                 
             elif data == ("Complete"):
                 core.status("executing module...")
                 
-            elif data == ("shell => "):
+            elif ("shell =>") in data:
                 cmd = raw_input(data)
                 conn.sendall(str(cmd))
                 
@@ -77,10 +77,13 @@ class tcp:
                     core.logging.info("[%s] Shutting down shell completely." % session)
                     conn.close()
                     
+                elif cmd.startswith("!"):
+                    core.local_cmd(cmd)
+                    
                 elif cmd.startswith(":download"):
                     dfile = core.get_choice(cmd)
                     if dfile != "":
-                        self.download(dfile, sessiondir)
+                        self.download(dfile, session)
                         self.handle(conn)
                     else:
                         core.inputerr()
@@ -127,7 +130,7 @@ class tcp:
                         
                 elif cmd == (":files"):
                     core.title("\nContents of Storage directory: ")
-                    os.system("ls %s" % sessiondir)
+                    os.system("ls %s | grep %s" % (core.DownloadDir, session))
                     
                 elif cmd == (":quit"):
                     core.warning("closing shell connection!")
@@ -153,7 +156,6 @@ class tcp:
             global conn
             conn, addr = server.accept()
             core.status("connection established!")
-            core.mkdir_session(session)
             core.logging.info("[%s] Connection established %s:%s" % (session, HOST, PORT))
         except:
             core.warning("connection error!")
@@ -179,6 +181,9 @@ class tcp:
                     core.warning("shutting down server!")
                     core.logging.info("[%s] Shutting down shell completely." % session)
                     conn.close()
+
+                elif cmd.startswith("!"):
+                    core.local_cmd(cmd)
                     
                 elif cmd.startswith(":download"):
                     dfile = core.get_choice(cmd)
@@ -258,12 +263,13 @@ class xor:
         return data
         
            
-    def download(self, filename, location):
-        # downloads file from remote system
-        # saves under location/filename (location should be sessiondir)
+        
+    def download(self, filename, session):
+        # fuck.
         filename = filename.replace("/","_")
+        location = core.DownloadDir+session+"_"+filename
         data = conn.recv(socksize)
-        newfile = file(location+filename, "wb")
+        newfile = file(location, "wb")
         newfile.write(data)
         newfile.close()
         if os.path.exists(location):
@@ -293,7 +299,6 @@ class xor:
         try:
             conn.connect((HOST, PORT))
             core.status("connection established!")
-            core.mkdir_session(session)
             core.logging.info("[%s] Connection established %s:%s" % (session, HOST, PORT))
         except:
             core.warning("connection error!")
@@ -305,7 +310,7 @@ class xor:
             if data.startswith(":savef"):
                 dfile = core.get_choices(data)
                 if dfile != "":
-                    self.download(dfile, sessiondir)
+                    self.download(dfile, session)
                 else:
                     core.logging.info("[%s] No file given for :savef" % session)
 
@@ -321,6 +326,9 @@ class xor:
                     core.warning("shutting down server!")
                     conn.close()
                     
+                elif cmd.startswith("!"):
+                    core.local_cmd(cmd)
+                    
                 elif cmd == (":quit"):
                     core.warning("closing shell connection!")
                     core.logging.info("[%s] Closing shell connection." % session)
@@ -329,7 +337,7 @@ class xor:
                 elif cmd.startswith(":download"):
                     dfile = core.get_choice(cmd)
                     if dfile != "":
-                        self.download(dfile, sessiondir)
+                        self.download(dfile, session)
                     else:
                         core.inputerr()
                     
@@ -372,7 +380,7 @@ class xor:
                         
                 elif cmd == (":files"):
                     core.title("\nContents of Storage directory: ")
-                    os.system("ls %s" % sessiondir)
+                    os.system("ls %s | grep %s" % (core.DownloadDir, session))
                         
             elif data:
                 print data
@@ -393,7 +401,6 @@ class xor:
             global conn
             conn, addr = server.accept()
             core.status("connection established!")
-            core.mkdir_session(session)
             core.logging.info("[%s] Connection established %s:%s" % (session, HOST, PORT))
         except:
             core.warning("connection error!")
@@ -406,7 +413,7 @@ class xor:
             if data.startswith(":savef"):
                 dfile = core.get_choices(data)
                 if dfile != "":
-                    self.download(dfile, sessiondir)
+                    self.download(dfile, session)
                 else:
                     core.logging.info("[%s] No file given for :savef" % session)
 
@@ -422,6 +429,9 @@ class xor:
                     core.warning("shutting down server!")
                     conn.close()
                     
+                elif cmd.startswith("!"):
+                    core.local_cmd(cmd)
+                    
                 elif cmd == (":quit"):
                     core.warning("closing shell connection!")
                     core.logging.info("[%s] Closing shell connection." % session)
@@ -430,7 +440,7 @@ class xor:
                 elif cmd.startswith(":download"):
                     dfile = core.get_choice(cmd)
                     if dfile != "":
-                        self.download(dfile, sessiondir)
+                        self.download(dfile, session)
                     else:
                         core.inputerr()
                     
@@ -473,7 +483,7 @@ class xor:
                         
                 elif cmd == (":files"):
                     core.title("\nContents of Storage directory: ")
-                    os.system("ls %s" % sessiondir)
+                    os.system("ls %s | grep %s" % (core.DownloadDir, session))
                         
             elif data:
                 print data

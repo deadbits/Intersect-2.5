@@ -1,0 +1,23 @@
+
+'''
+@description: Searches for installed antivirus, firewalls, monitoring utilities and other misc. apps of interest
+@author: ohdae [bindshell@live.com]
+'''
+
+def get_apps():
+
+    status_msg("[+] Searching for protection and misc applications...")
+    program = [ "truecrypt", "bulldog", "ufw", "iptables", "logrotate", "logwatch", 
+                "chkrootkit", "clamav", "snort", "tiger", "firestarter", "avast", "lynis",
+                "rkhunter", "perl", "tcpdump", "nc", "webmin", "python", "gcc", "jailkit", 
+                "pwgen", "proxychains", "bastille", "wireshark", "nagios", "nmap", "firefox",
+                "nagios", "tor", "openvpn", "virtualbox", "magictree", "apparmor", "git",
+                "xen", "svn", "redmine", "ldap", "msfconsole" ]
+
+    for x in program:
+        location = whereis(x)
+        if location is not None:
+            status_msg("Found: %s" % location)
+
+
+get_apps()

@@ -4,17 +4,19 @@
 @author: ohdae [bindshell@live.com]
 '''
 def system_info():
+    status_msg("Kernel and Distro Information: ")
     cmd_exec("uname -a")
+
+    status_msg("Disk Information: ")
     cmd_exec("df -hT")
 
-    cmd2txt("ls -al /etc/cron*", "cronjobs.txt")
-    cmd2txt("ls -alhtr /media", "media.txt")
-    cmd2txt("/usr/bin/lpstat -v", "printers.txt")
-    cmd2txt("mount -l", "mount.txt")
+    cmd_save("ls -al /etc/cron*", "cronjobs.txt")
+    cmd_save("ls -alhtr /media", "media.txt")
+    cmd_save("/usr/bin/lpstat -v", "printers.txt")
     save_file('/etc/sysctl.conf')
     save_file('/proc/cpuinfo')
     save_file('/proc/meminfo')
-    cmd2txt("find /var/log -type f -exec ls -la {} \;", "loglist.txt")
+    cmd_save("find /var/log -type f -exec ls -la {} \;", "loglist.txt")
 
 
 system_info()

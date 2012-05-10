@@ -6,6 +6,7 @@ import os, sys
 import string
 import random
 import logging
+import subprocess
 
 fwpath = os.getcwd()
 sys.path.append(fwpath+"src")
@@ -62,19 +63,6 @@ def info(msg):
     print("%s[*]%s %s " % (bold, reset, msg))
     
 
-def mkdir_session(name):
-    if os.path.exists(DownloadDir+name) is False:
-        sessiondir = DownloadDir+name
-        os.mkdir(sessiondir)
-        return sessiondir
-    else:
-        from time import gmtime, strftime
-        now = stfrtime("%Y-%m-%d", gmtime())
-        sessiondir = DownloadDir+name+"-"+now
-        os.mkdir(sessiondir)
-        return sessiondir
-    
-    
 def xor(string, key):
     data = ''
     for char in string:
@@ -144,7 +132,8 @@ def shell_help():
     print("    :exec module => execute module on remote host")
     print("          :files => display stored files for session")
     print("         :killme => shuts down server completely")
-    print("           :exit => closes shell connection\n") 
+    print("        !command => executes local commands [e.g., !ls will list your current local directory]")
+    print("           :exit => closes shell connection")
     
 
 # verify that ipv4 addresses are in the correct format
@@ -168,6 +157,14 @@ def get_choice(string):
         choice = ""
         return choice
     
+def local_cmd(command):
+    try:
+        lcmd = command.strip("!")
+        status("executing local command '%s'" % lcmd)
+        lout = subprocess.check_output(lcmd, shell=True)
+        print lout
+    except:
+        warning("error executing local command!")
 
 # verifies that shell options are correct
 # before we try to make a connection
@@ -195,7 +192,7 @@ def check_options(host, port, type, key):
 # when users call the :info command
 def module_info(module):
     if os.path.exists(ModulesDir+module):
-        info = open(ModulesDir+modname)
+        info = open(ModulesDir+module)
         for line in info:
             if "@description" in line:
                 des = line.split(":")
@@ -210,6 +207,22 @@ def module_info(module):
     else:
         warning("module not found!")
 
+
+def exec_module(modname):
+    if modname != "":
+        if os.path.exists(core.ModulesDir+modname):
+            sendfile = open(core.ModulesDir+modname, "rb")         # read the file into buffer
+            filedata = sendfile.read()
+            sendfile.close()
+            time.sleep(3)
+            filedata = b64encode(filedata)                  # base64 encode file and send to server
+            conn.sendall(filedata)
+            core.logging.info("[%s] Executing module %s" % (session, modname))
+            data = conn.recv(socksize)
+        else:
+            core.warning("module not found!")
+    else:
+        inputerr()
 
 # define some common error messages
 # i got tired of typing these out every time. derp.

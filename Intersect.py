@@ -65,9 +65,10 @@ def about_dialog():
 # one day i'll fix this so each aspect of the script pulls from an individual wordlist
 class Completer:
     def __init__(self):
-        self.words = ["help", "about", "client", "clear", "listener", "files", "exit",
+        self.words = [ "help", "about", "client", "clear", "listener", "files", "exit",
                         "exec", "download", "upload", "mods", "quit", "info", "killme", "build",
-                        "addr", "port", "name", "key", "view", "type" ]
+                        "addr", "port", "name", "key", "view", "type", "shell", "payload", "modules",
+                        "logging", "globals", "handler" ]
         self.prefix = ":"
 
     def complete(self, prefix, index):
@@ -141,6 +142,7 @@ Type :help for all available commands
                 print("     :clear  =>  clears the screen")
                 print("   :modules  =>  view or import modules")
                 print("      :help  =>  display this help menu")
+                print("   !command  =>  execute local os commands")
                 print("      :exit  =>  exit Intersect completely\n")
                 print("           %sBuild%s" % (core.uline, core.reset))
                 print("     :shell  =>  create server-side Intersect shell")
@@ -167,6 +169,9 @@ Type :help for all available commands
                                         
             elif command == (":clear"):
                 os.system("clear")
+                
+            elif command.startswith("!"):
+                core.local_cmd(command)
                 
             else:
                 core.warning("invalid command!")

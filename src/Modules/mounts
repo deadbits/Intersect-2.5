@@ -1,0 +1,9 @@
+'''
+@description: find mount points on a remote file system and displays output back to the user
+@author: ohdae [bindshell@live.com]
+'''
+
+status_msg("Mount Points: ")
+cmd_exec("mount -v")
+
+

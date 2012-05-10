@@ -3,22 +3,11 @@
 @description: collects network information such as listening ports, DNS info, active connections, firewall rules, etc
 @author: ohdae [bindshell@live.com]
 '''
-import urllib2 
-import platform
-
-def whereis(program):
-    for path in os.environ.get('PATH', '').split(':'):
-        if os.path.exists(os.path.join(path, program)) and \
-            not os.path.isdir(os.path.join(path, program)):
-                return os.path.join(path, program)
-    return None
-
 
 def get_network():
-    status_msg("IP Address: ")
-    if distro == "ubuntu" or distro2 == "Ubuntu" is True:
-        cmd_exec("hostname -I")
-    else:
+    import urllib2
+
+    try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("google.com",80))
         localIP = (s.getsockname()[0])
@@ -30,26 +19,26 @@ def get_network():
         status_msg("External IP Address: %s\n" % externalIP)
         status_msg("Internal IP Address: %s\n" % localIP)
         status_msg("Internal IP Range: %s\n" % IPRange)
+    except:
+        status_msg("Unable to gather IP address information")
 
     status_msg("Hostname: ")
     cmd_exec("hostname -f")
 
-    cmd2txt("netstat --tcp --listening", "netstat.txt")
+    cmd_save("netstat --tcp --listening", "netstat.txt")
 
     if currentuser == "root" and whereis('iptables') is not None:
-        cmd2txt("iptables -L -n", "iptables_raw.txt") 
-        cmd2txt("iptables-save", "iptables_rules.txt")
+        cmd_save("iptables -L -n", "iptables_raw.txt") 
+        cmd_save("iptables-save", "iptables_rules.txt")
     else:
         pass
 
-    cmd2txt("ifconfig -a", "ifconfig.txt")
+    cmd_save("ifconfig -a", "ifconfig.txt")
 
     network = [ "/etc/hosts.deny", "/etc/hosts.allow", "/etc/inetd.conf", "/etc/host.conf", "/etc/resolv.conf" ]
     for x in network:
         save_file(x)
 
 
-distro = os.uname()[1]
-distro2 = platform.linux_distribution()[0]
 get_network()
 

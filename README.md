@@ -1,15 +1,18 @@
-Intersect 2.5 - Post Exploitation Framework
-author: ohdae [bindshell@live.com]
-website: http://bindshell.it.cx
-         https://github.com/ohdae/Intersect-2.5/
+## Intersect 2.5 - Post Exploitation Framework
+* author: adam m. swanda
+* website: http://deadbits.org
+         https://github.com/deadbits/Intersect-2.5/
          http://www.twitter.com/bindshell_
+         
+**UPDATE (2016):** This project is no longer mantained and has not been updated since 2012. There were plans for a future release, but life happened. **That may still happen. The code does exist.. I just need to find some time to test it and all that jazz. Any interested parties who want to help with 3.0, I'd love to hear from them. Otherwise this may stay in limbo.**  
+    I thank everyone who showed support for this project over the years, and for those who got it put into BackTrack 5R2 and then Kali. That is really amazing.
 
-NOTICE: See the documentation with the Docs directory for a detailed README, Guide documentation 
+**NOTICE:** See the documentation with the Docs directory for a detailed README, Guide documentation 
         and a How-To on writing custom modules.
 
 
-LICENSE
-
+### LICENSE
+```
 Copyright (c) 2012, Intersect 2.5 (Post-Exploitation Framework)
 [author: bindshell@live.com]
 All rights reserved.
@@ -40,4 +43,4 @@ Please take notice that Intersect 2.5 is provided as is, and is a royalty free o
 
 The end-user, you, is allowed to use, modify and/or change whatever you wish within this applications source-code,
 provided that you will give appropriate credit where credit is due and the above license and copyright information
-is included.
+is included.```

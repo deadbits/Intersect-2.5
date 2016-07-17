@@ -1,11 +1,13 @@
 ## Intersect 2.5 - Post Exploitation Framework
 * author: adam m. swanda
-* website: http://deadbits.org
-         https://github.com/deadbits/Intersect-2.5/
-         http://www.twitter.com/bindshell_
+* websites: 
+   - http://deadbits.org
+    - https://github.com/deadbits/Intersect-2.5/
+    - http://www.twitter.com/bindshell_
          
 **UPDATE (2016):** This project is no longer mantained and has not been updated since 2012. There were plans for a future release, but life happened. **That may still happen. The code does exist.. I just need to find some time to test it and all that jazz. Any interested parties who want to help with 3.0, I'd love to hear from them. Otherwise this may stay in limbo.**  
-    I thank everyone who showed support for this project over the years, and for those who got it put into BackTrack 5R2 and then Kali. That is really amazing.
+
+**I thank everyone who showed support for this project over the years, and for those who got it put into BackTrack 5R2 and then Kali. That is really amazing.**
 
 **NOTICE:** See the documentation with the Docs directory for a detailed README, Guide documentation 
         and a How-To on writing custom modules.

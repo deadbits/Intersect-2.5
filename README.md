@@ -1,19 +1,23 @@
-## Intersect 2.5 - Post Exploitation Framework
-* author: adam m. swanda
-* websites: 
-   - http://deadbits.org
-    - https://github.com/deadbits/Intersect-2.5/
-    - http://www.twitter.com/bindshell_
-         
-**UPDATE (2016):** This project is no longer mantained and has not been updated since 2012. There were plans for a future release, but life happened. **That may still happen. The code does exist.. I just need to find some time to test it and all that jazz. Any interested parties who want to help with 3.0, I'd love to hear from them. Otherwise this may stay in limbo.**  
+[![SayThanks](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg?style=flat)](https://saythanks.io/to/deadbits)  [![Donate](https://img.shields.io/badge/donate-BTC-blue.svg?style=flat)](https://www.coinbase.com/deadbits)
 
-**I thank everyone who showed support for this project over the years, and for those who got it put into BackTrack 5R2 and then Kali. That is really amazing.**
+# Intersect 2.5 - Post Exploitation Framework
+* **Author:** Adam M. Swanda
+* **Links**: 
+   - [Repository](https://github.com/deadbits/Intersect-2.5/)
+   - [Github Pages](https://deadbits.github.io/Intersect-2.5/)
+   - [Authors Personal Website](http://deadbits.org)
 
-**NOTICE:** See the documentation with the Docs directory for a detailed README, Guide documentation 
-        and a How-To on writing custom modules.
+## Important Update (2016) 
+This project is no longer mantained and has not been updated since 2012-2013. There were plans for a future release, but life happened. _That may still happen. The code does exist.. I just need to find some time to finish parts, perform testing, etc._ 
+* This prospective future release is a complete code overhaul of Intersect and includes major improvements to overall usability, modules and how they work on both client and server side, network communications, and user workflow.
+* __Any interested parties who want to help with 3.0, I'd love to hear from them. Otherwise this may stay in limbo.__
 
+I want to truly thank everyone who showed support for this project over the years and for the people who voted to put it into BackTrack 5R2 and then Kali. That in itself is amazing and it means a lot to me. Thanks everyone :)
 
-### LICENSE
+## Documentation
+Please refer to the `Docs` directory for a detailed README, Guide documentation and a How-To on writing custom modules.
+
+## LICENSE
 ```
 Copyright (c) 2012, Intersect 2.5 (Post-Exploitation Framework)
 [author: bindshell@live.com]
